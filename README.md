@@ -12,9 +12,9 @@ Repository for the 2020 Data Science for the Public Good Open-Source Software Pr
 
 **Academic:** Morgan
 
-**Corporate:** Daniel
+**Business:** Daniel
 
-**International:** Crystal
+**Geographic:** Crystal
 
 **Government:** Daniel, Brandon, Bayoán
 
