@@ -6,7 +6,7 @@ Repository for the 2020 Data Science for the Public Good Open-Source Software Pr
 
 **DSPG Team:** Daniel Bullock, Crystal Zang, and Morgan Klutzke 
 
-# 2020 DSPG OSS Research Tracks 
+# 2020 DSPG OSS Tracks 
 
 **Academic:** Morgan
 
