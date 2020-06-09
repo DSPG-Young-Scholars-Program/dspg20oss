@@ -12,8 +12,8 @@ Repository for the 2020 Data Science for the Public Good Open-Source Software Pr
 
 **Corporate:** Daniel
 
-**Government:** Daniel, Brandon, Bayoán
-
 **International:** Crystal
+
+**Government:** Daniel, Brandon, Bayoán
 
 **Additional Repos**: [OSS 2020 Research Repository](https://github.com/uva-bi-sdad/oss-2020)
