@@ -1,6 +1,8 @@
 ---
 title: "01_data"
 output: html_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -11,9 +13,10 @@ knitr::opts_chunk$set(echo = TRUE)
 rm(list = ls())
 
 # load packages 
-for (pkg in c("tidyverse", "igraph", "visNetwork", "data.table", "R.utils", "RPostgreSQL", "cowplot", "maditr", "stringr", "stringi")) {
+for (pkg in c("tidyverse", "igraph", "visNetwork", "data.table", "R.utils", "RPostgreSQL", "cowplot", "maditr", "stringr", "stringi", "mosaic")) {
   library(pkg, character.only = TRUE)
-  }
+}
+
 
 # connect to postgresql to get our data
 conn <- dbConnect(drv = PostgreSQL(), 
@@ -24,9 +27,67 @@ conn <- dbConnect(drv = PostgreSQL(),
                   password = Sys.getenv("db_pwd"))
 
 # query the users_gh data from github data 
-users_gh <- dbGetQuery(conn, "SELECT login, company, created_at 
-                              FROM github.users_gh")
+users_gh <- dbGetQuery(conn, "SELECT login, created_at, city, state, country_code, location, long, lat
+                              FROM gh.ctrs_raw")
+
+cities_maxmind <- dbGetQuery(conn, 
+"SELECT *
+  FROM maxmind.world_cities"
+)
+
+commits <- dbGetQuery(conn,
+                      "SELECT *
+                      FROM gh.commits_raw")
 
 # disconnect from postgresql database 
 dbDisconnect(conn)
 ```
+
+# data exploration-github user/ data cleaning
+```{r}
+glimpse(users_gh)
+table(users_gh$country_code)
+
+# check: users who don't have any of city, state, location, long, lat, don't have country code
+user_geo_na <- users_gh %>%
+  filter(is.na(state))%>%
+  filter(is.na(city))%>%
+  filter(is.na(location))%>%
+  filter(is.na(long), is.na(lat))
+table(is.na(user_geo_na$country_code)) #all users have country code
+
+# step 1. filter out users with no country/city
+sum(is.na(users_gh$country_code))/nrow(users_gh) #percent missing
+users_gh_clean <- users_gh%>%
+  filter(!is.na(country_code))
+
+```
+
+# data exploration-world cities
+```{r}
+glimpse(cities_maxmind)
+table(cities_maxmind$Country)
+
+china <- cities_maxmind%>%
+  filter(Country == "cn")
+
+shanghai <- cities_maxmind%>%
+  filter(City == "shanghai")
+#mplot(users_gh)
+```
+
+# userlevel
+```{r}
+topuser <- users_gh_clean%>%
+  group_by(login)%>%
+  dplyr::summarize(ttl_commit = n(), .groups = "keep")%>%
+  arrange(desc(ttl_commit))%>%
+  top_n(n= 10)
+
+summary <- users_gh_clean%>%
+  distinct(login, .keep_all = TRUE)%>%
+  group_by(country_code)%>%
+  summarize(N=n())
+
+```
+
