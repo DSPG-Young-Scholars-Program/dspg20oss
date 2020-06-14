@@ -48,7 +48,6 @@ dbDisconnect(conn)
 
 ```{r eda, message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
 # 1. github user
-
 # check: users who don't have any of city, state, location, long, lat, don't have country code
 # user_geo_na <- users_gh %>%
 #   filter(is.na(state))%>%
@@ -58,7 +57,8 @@ dbDisconnect(conn)
 # table(is.na(user_geo_na$country_code)) #all users have country code
 
 # filter out users with no country/city
-sum(is.na(users_gh$country_code) | is.na(users_gh$city))/nrow(users_gh) #percent missing
+perc_missing <- sum(is.na(users_gh$country_code) | is.na(users_gh$city))/nrow(users_gh) #percent missing
+sample_size <- nrow(users_gh)- sum(is.na(users_gh$country_code) | is.na(users_gh$city)) #number of gh users after exlucding missing country code or city
 
 # some users who are missing country code have cities, but cities might not be reliable
 users_gh_countrycode_na <- users_gh%>%
@@ -85,80 +85,143 @@ country_by_ttl_user$country_code <- factor(country_by_ttl_user$country_code, lev
 
 ggplot(country_by_ttl_user, aes(x = country_code, y = ttl_users)) +
   geom_point() +
-  labs(title = "Countries where Github users are located", x = "c", y = "total number of users") +
+  labs(title = "Countries where Github users are located", x = "country", y = "total number of users") +
   theme_bw() 
 ```
 
 
 
 # City code formation
-1. We exclude users who did not provide either country code or city information. (77% missing) Note that country code is extracted from country, city, loaction, and longitude and latitude. Country code is missing if the user did not provide any of these information. Since we are interested in users at the city level, if we are missing city information, we could not extract a unique city. 
+We exclude users who did not provide either country code or city information. (`r perc_missing`% missing), which leaves us `r sample_size` samples in the dataset. Note that country code is extracted from country, city, loaction, and longitude and latitude. Country code is missing if the user did not provide any of these information. Since we are interested in users at the city level, if we are missing city information, we could not extract a unique city.    
 
-2. First, we want to differentiate cities from different countries. We form a new variable "city_code", which is a concactinated form of country code and city. Since there could be multiples cities with the same name in different countries, "city_code" can be used to differentiate cities from from different countries.
+We formed city code in the following steps:   
 
-3. Next, we want to differentiate cities within a country. Although we have state variable, but we decide no to use this variable due to the inaccurate report. We decide to use longitude and latitude to differentiate cities in different areas in a country. However, longtitude and latitude could vary from a small digit even though they indicate one city. We decide to group cities together if their long & lat deviate within a sum of 2 degrees. 
+First, we want to differentiate cities from different countries. We form a new variable "city_code", which is a concactinated form of country code and city. Since there could be multiples cities with the same name in different countries, "city_code" can be used to differentiate cities from from different countries.
 
-4. At the end we updated the "city_code" as a concactinated form of:
-  -country code
+Next, we want to differentiate cities within a country. Although we have state variable, but we decide no to use this variable due to the inaccurate report. We decide to use longitude and latitude to differentiate cities in different areas in a country. However, longtitude and latitude could vary from a small digit even though they indicate one city. We decide to group cities together if their long & lat deviate within a sum of 2 degrees. 
+
+The final "city_code" is a concactinated form of:
+  -country code (generated)
   -city
-  -latitude
-  -longitude
+  -latitude (round to a whole number)
+  -longitude (round to a whole number)
 
 ```{r city code cleaning function, message=FALSE, warning=FALSE, include=FALSE}
-cleancity <- function(df = city_summary){
-  # create an indicator for each row whether the city code is duplicated
-  df <- df%>%
+# output:
+cleancity <- function(df = users_gh){
+  #first step: form city_code variable, a concactinated form of country code and city name
+  df <-  df%>%
+    filter(!is.na(country_code) & !is.na(city))%>% #exclude missing values
+    mutate(city = str_to_lower(city)) %>% #lowercase all city names
+    mutate(city_code  = paste(country_code, city, sep="_"))
+  
+  df$city_code <- str_replace_all(df$city_code, fixed(" "), "") #remove space in the city code string
+
+ #second step: form user_geo_location, a concactinated form of rounded longitude and latitude
+ df <-  df%>%
+    mutate(user_long = long, user_lat = lat, user_long_round = round(long,digits=0), user_lat_round = round(lat, digits=0), user_geo_location = paste(user_lat_round, user_long_round, sep="."))%>%
+    group_by(city_code, user_geo_location) %>%
+    dplyr::summarize( ttl_users = n(), user_lat = mean(user_lat), user_long = mean(user_long), user_lat_round= mean(user_lat_round), user_long_round = mean(user_long_round))%>%
+    arrange(desc(ttl_users))
+ 
+# problem: filter function is not working!!! 
+# class(df)
+# dim(df)
+# df <- as_tibble(df)
+# 
+#  df_us <- df%>%
+#    dplyr::filter(country_code == "us")
+
+  # create an indicator for each row whether the city_code (country+city name) is duplicated
+  df<- df%>%
     group_by(city_code)%>%
     mutate(n_city_code=n(), duplicate = if_else(n_city_code > 1, T,F))
   
   # data with duplicated city code
+  #12% of city_code do not have duplicates (N=1515)
+  #nrow(df_dup)
+  #nrow(df_dup)/nrow(df)
   df_dup <- df%>%
     filter(duplicate == T)
   
   # data with no duplicated city code
+  #88% of city_code do not have duplicates (N=11537)
+  #nrow(df_no_dup)
+  #nrow(df_no_dup)/nrow(df)
   df_no_dup <- df%>%
     filter(duplicate == F)
   
-  # duplicated city code vector
-  city_code <- unique(df_dup$city_code)
+  # duplicated city_code, in vector form
+  city_code_dup <- unique(df_dup$city_code)
   
   df_clean_citycode <- c()
-  # grep("gb_london",city_code )
-  # i=2
-  for ( i in 1: length(city_code)){
-    city_code_i = city_code[i]
+  df_analysis_citycode <- c()
+  i =  grep("us_greenville", city_code_dup)  #check for one city, get the index of the city you are interested in checking in the city_code_dup vector
+  
+  for ( i in 1: length(city_code_dup)){
+    city_code_i = city_code_dup[i]
     message("city #", i, ":", city_code_i)
     df_dup_i <- df_dup %>%
       filter(city_code == city_code_i)%>%
       arrange(desc(ttl_users))
     
-
-    actual_long <-unlist(df_dup_i[1, long_col <- grep("user_long", colnames(df_dup_i)) ])
-    actual_lat <-  unlist(df_dup_i[1,  lat_col <- grep("user_lat", colnames(df_dup_i))])
+    #identify the geo location where has the most users, treat this geo location as benchmark
+    actual_long <-unlist(df_dup_i[1, long_col <- grep("user_long_round", colnames(df_dup_i)) ])
+    actual_lat <-  unlist(df_dup_i[1,  lat_col <- grep("user_lat_round", colnames(df_dup_i))])
         
+    # 1 degree difference = 1.5 hrs drive
+    # 2 degrees difference = 2 hrs drive
     df_dup_i_check <- df_dup_i %>%
-      mutate(long_diff = abs(actual_long- user_long), lat_diff = abs(actual_lat - user_lat), diff_sum = long_diff+ lat_diff)%>%
-    mutate(combine = ifelse(diff_sum <= 2 , T, F))
+      mutate(long_diff = abs(actual_long - user_long), lat_diff = abs(actual_lat - user_lat), diff_sum = long_diff+ lat_diff)%>%
+    mutate(combine = ifelse(diff_sum <= 2 , T, F))%>%
+      mutate(rowindex = 1:nrow(df_dup_i), benchmark = if_else(rowindex== 1, T,F))
     
+    df_dup_i_check<- df_dup_i_check%>%
+      select(-rowindex)
+    
+    df_analysis_citycode <- rbind(df_analysis_citycode, df_dup_i_check)
+       
+    ######### group cities within 2 degrees of the benchmarked city together
     df_cb <- df_dup_i_check%>%
       filter(combine == T)%>%
       group_by(combine)%>%
-      summarize(ttl_users = sum(ttl_users), country_code = country_code, city= city,  city_code = city_code)%>%
-      mutate(duplicate = F)%>%
+      summarize(city_code = city_code, ttl_users = sum(ttl_users), user_lat = mean(user_lat), user_long = mean(user_long), user_lat_round = mean(user_lat_round), user_long_round = mean(user_long_round) )%>%
       select(-combine)%>%
       distinct(city_code, .keep_all = T)
 
     df_nocb <- df_dup_i_check%>%
       filter(combine == F)%>%
-      select(country_code, city, city_code, ttl_users, duplicate)
+      select(city_code, ttl_users, user_lat, user_long, user_lat_round, user_long_round)
    
-    df_output <- rbind(df_cb, df_nocb) 
+    df_output <- rbind(df_cb, df_nocb)
+    df_output <- df_output %>%
+      mutate(city_code = paste(city_code, user_lat_round, user_long_round, sep = "_"))
+    
+    citycode_split <- strsplit(df_output$city_code, "_")
+    
+     df_output <- df_output %>%
+       mutate(country_code = citycode_split[[1]][1], 
+              city = citycode_split[[1]][2])
+    
     df_clean_citycode <- rbind(df_clean_citycode, df_output)
     }
     
- return(df_clean_citycode)
+ ls_citycode  <- list()
+ ls_citycode[[1]] <-  df_analysis_citycode
+ ls_citycode[[2]]  <- df_clean_citycode
+ 
+ names(ls_citycode) <- c("analysis_df", "clean_df")
+ 
+ return(ls_citycode)
 }
 ```
+
+
+# Clean citycode
+```{r}
+ls_cleancity <- cleancity(users_gh)
+```
+
 
 # City Level Github Users
 ```{r city code and visualization, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
@@ -172,33 +235,48 @@ cities_maxmind_clean <- cities_maxmind%>%
 
 cities_maxmind_clean$city_code <- str_replace_all(cities_maxmind_clean$city_code, fixed(" "), "")
 
-# gh user data
-city_summary <-  users_gh%>%
-  filter(!is.na(country_code))%>%
-  filter(!is.na(city))%>%
-  mutate(city = str_to_lower(city)) %>%
-  mutate(user_long = round(long,digits=0), user_lat = round(lat, digits=0))%>%
-  group_by(country_code, city, user_long, user_lat)%>%
-  summarize(ttl_users = n())%>%
-  arrange(desc(ttl_users))%>%
-  filter(!is.na(city))%>%
-  mutate(city_code  = paste(country_code, city, sep="_"))
-city_summary$city_code <- str_replace_all(city_summary$city_code, fixed(" "), "")
+### analysis
+cleancitycode_analysis <- ls_cleancity$analysis_df
 
+city_non_benchmark <- cleancitycode_analysis%>%
+  filter(benchmark == F)
+#each dot represents a geographic location that has multiple longitude and latitude
+ggplot(city_non_benchmark, aes(x = diff_sum, y = ttl_users)) +
+  geom_point(size = 0.5)  + 
+  aes(colour = combine) + 
+  theme(legend.position = "right") + 
+  labs(title = "")
 
-city_clean_final <- cleancity(city_summary)
+#distribution of the sum of differences in longitude and latitude at each of the geographic location comparing to the benchmarked city.
+ggplot(city_non_benchmark, aes(x = diff_sum)) +
+  geom_histogram(binwidth = 3.9) + 
+  labs(title="Distribution of the distance between each geographic location with the benchark city",
+        x ="sum of difference in longitude and latitude")+
+  theme(plot.title = element_text(size=9))
+
+# 20% of 
+table(city_non_benchmark$combine)
+```
+
+### clean citycode visualization
+```{r}
+city_clean_final <- ls_cleancity$clean_df
 
 city_clean_final_top <- city_clean_final%>%
    top_n(n= 10, wt = ttl_users)
 
-city_clean_final_top$city_code <- factor(city_clean_final_top$city_code, levels = city_clean_final_top$city_code[order(city_clean_final_top$ttl_users)])
+city_clean_final_top$city <- factor(city_clean_final_top$city, levels = city_clean_final_top$city[order(city_clean_final_top$ttl_users)])
 
-ggplot(city_clean_final_top, aes(x = city_code, y = ttl_users)) +
+
+ggplot(city_clean_final_top, aes(x = city, y = ttl_users)) +
   geom_point()  +
-  aes(colour = country_code) + theme(legend.position = "right") + 
+  aes(colour = country_code)+
+  theme(legend.position = "right") + 
   labs(title = "Cities where Github users are located", x = "city", y = "total number of users") +
   theme_bw() +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+
 ```
 
 
