@@ -7,15 +7,25 @@ Created on Mon Jun 15 12:57:42 2020
 """
 
 def queryToPDTable(postgreSql_selectQuery):
+    """Return the output of a SDAD mysql query as a table
+    
+    Keyword arguments:
+    postgreSql_selectQuery -- a properly formatted mysql query
+   
+    """
+
     import os
     import psycopg2
     import pandas as pd
 
+    #basic query function to the database using environmental variables for
+    #the user name and password
     conn=psycopg2.connect(host="postgis1",
                       dbname="sdad",
                       user=os.environ.get('UVA_uname'),
                       password=os.environ.get('UVA_pass'))
 
+    #convert it to a pandas dataframe
     dataOut=pd.read_sql_query(postgreSql_selectQuery,conn)
 
     return dataOut
@@ -24,43 +34,56 @@ def queryToPDTable(postgreSql_selectQuery):
 
 
 def composeWorkplaceOntology():
-    
+    """Create a table featuring valid workplace institutions
+    """
+
     import ossPyFuncs 
-
     import pandas as pd
+    
+    #mysql query to extract full table from government organizations
+    #certian table columns feature capital letters which cases uproblems
     postgreSql_selectQuery="SELECT * FROM us_gov_manual.us_govman_2019 ;"
-
+    #pass querry and obtain table
     govTable=ossPyFuncs.queryToPDTable(postgreSql_selectQuery)
 
+    #mysql query to obtain academic instutions
     postgreSql_selectQuery="SELECT institution FROM hipolabs.universities ;"
-
+    #pass querry and obtain table
     univTable=ossPyFuncs.queryToPDTable(postgreSql_selectQuery)
 
+    #combine theinsitutions into a vector
     combinedSeries=[govTable['AgencyName'],univTable['institution']]
-
+    #turn the multi item vector into a single series
     fullWordbank=pd.concat(combinedSeries)
-
+    #turn that series into a pd dataframe
     wordbankTable=pd.DataFrame(fullWordbank)
 
     return wordbankTable
 
-def workplaceCompletionTable(inputTable):
-
-    import ossPyFuncs
+def checkColumnMapping(inputRawColumn,targetOntology):
+    """Assess which unique entries in an input column are in target ontology
+    
+    Keyword arguments:
+    inputRawColumn -- a single column from a pandas table featuring potentially
+    non-unique entries 
+    
+    targetOntology -- a single column from a pandas table featuring only unique
+    entries.  Values from [inputRawColumn] will be assessed against this column
+    """
+    
     import pandas as pd
     import numpy as np
 
-
-
-    gitWorkplaceCounts=inputTable['company'].value_counts()
-    gitWorplaceAll=gitWorkplaceCounts.index
-
-    workplaceOntology=ossPyFuncs.composeWorkplaceOntology()
-
-    workplacePresentBool=np.in1d(gitWorplaceAll,workplaceOntology)
+    #extract counts of unique values from input column
+    columnUniqueCounts=inputRawColumn.iloc[:,0].value_counts()
+    #convert that output to a proper table
+    tableUniqueCounts=columnUniqueCounts.reset_index()
     
-    outTable=gitWorkplaceCounts.reset_index()
-    outTable['present']=workplacePresentBool
-    outTable.rename(columns={"index":"company name","company":"count"},inplace=True)
+    #obtain a boolean vector which indicates the presence of terms from
+    #inputRawColumn in targetOntology
+    presentBoolVec=np.in1d(tableUniqueCounts.index,targetOntology)
+    #set the boolean vector as a column of the output
+    tableUniqueCounts['present']=presentBoolVec
+    tableUniqueCounts.rename(columns={tableUniqueCounts.columns[0]:tableUniqueCounts.columns[1],tableUniqueCounts.columns[1]:"count"},inplace=True)
     
-    return outTable
+    return tableUniqueCounts
