@@ -1,5 +1,5 @@
 ---
-title: "01_city-code-formation-city-levle-github-users"
+title: "01 City Code Formation-And Overview of City-levle Githubu Users"
 output: html_document
 editor_options: 
   chunk_output_type: console
@@ -14,7 +14,7 @@ knitr::opts_chunk$set(echo = TRUE)
 rm(list = ls())
 
 # load packages 
-for (pkg in c("tidyverse", "igraph", "visNetwork", "data.table", "R.utils", "RPostgreSQL", "cowplot", "maditr", "stringr", "stringi", "mosaic")) {
+for (pkg in c("tidyverse", "igraph", "visNetwork", "data.table", "R.utils", "RPostgreSQL", "cowplot", "maditr", "stringr", "stringi", "mosaic", "sf", "raster", "dplyr", "spData", "spDataLarge", "tmap", "leaflet", "mapview", "ggplot2", "shiny", "maps", "plotly")) {
   library(pkg, character.only = TRUE)
 }
 
@@ -119,7 +119,9 @@ cleancity <- function(df = users_gh){
 
  #second step: form user_geo_location, a concactinated form of rounded longitude and latitude
  df <-  df%>%
-    mutate(user_long = long, user_lat = lat, user_long_round = round(long,digits=0), user_lat_round = round(lat, digits=0), user_geo_location = paste(user_lat_round, user_long_round, sep="."))%>%
+    mutate(user_long = long, user_lat = lat, user_long_round = round(long,digits=0), user_lat_round = round(lat, digits=0), user_geo_location = paste(user_lat_round, user_long_round, sep="."))
+ 
+ df_sum <- df %>%
     group_by(city_code, user_geo_location) %>%
     dplyr::summarize( ttl_users = n(), user_lat = mean(user_lat), user_long = mean(user_long), user_lat_round= mean(user_lat_round), user_long_round = mean(user_long_round))%>%
     arrange(desc(ttl_users))
@@ -133,7 +135,7 @@ cleancity <- function(df = users_gh){
 #    dplyr::filter(country_code == "us")
 
   # create an indicator for each row whether the city_code (country+city name) is duplicated
-  df<- df%>%
+  df_sum<- df_sum%>%
     group_by(city_code)%>%
     mutate(n_city_code=n(), duplicate = if_else(n_city_code > 1, T,F))
   
@@ -141,22 +143,23 @@ cleancity <- function(df = users_gh){
   #12% of city_code do not have duplicates (N=1515)
   #nrow(df_dup)
   #nrow(df_dup)/nrow(df)
-  df_dup <- df%>%
+  df_dup <- df_sum%>%
     filter(duplicate == T)
   
   # data with no duplicated city code
   #88% of city_code do not have duplicates (N=11537)
   #nrow(df_no_dup)
   #nrow(df_no_dup)/nrow(df)
-  df_no_dup <- df%>%
-    filter(duplicate == F)
+  df_no_dup <- df_sum%>%
+    filter(duplicate == F)%>%
+    select(city_code, user_geo_location)
   
   # duplicated city_code, in vector form
   city_code_dup <- unique(df_dup$city_code)
   
-  df_clean_citycode <- c()
+  df_update_geocode <- c()
   df_analysis_citycode <- c()
-  i =  grep("us_greenville", city_code_dup)  #check for one city, get the index of the city you are interested in checking in the city_code_dup vector
+#  i =  grep("fr_paris", city_code_dup)  #check for one city, get the index of the city you are interested in checking in the city_code_dup vector
   
   for ( i in 1: length(city_code_dup)){
     city_code_i = city_code_dup[i]
@@ -183,34 +186,75 @@ cleancity <- function(df = users_gh){
        
     ######### group cities within 2 degrees of the benchmarked city together
     df_cb <- df_dup_i_check%>%
-      filter(combine == T)%>%
-      group_by(combine)%>%
-      summarize(city_code = city_code, ttl_users = sum(ttl_users), user_lat = mean(user_lat), user_long = mean(user_long), user_lat_round = mean(user_lat_round), user_long_round = mean(user_long_round) )%>%
-      select(-combine)%>%
-      distinct(city_code, .keep_all = T)
+      filter(combine == T)
+    
+    if(nrow(df_cb) > 1){
+      message ("Resembling geocode identified, group ", nrow(df_cb), " geocode(s) for ", "city #", i, ":", city_code_i)
+     geo_location_new  = as.vector(df_cb$user_geo_location)[1]
+     
+     df_cb <- df_cb%>%
+       select(city_code, user_geo_location)%>%
+       mutate(user_geo_location_new = geo_location_new)
+      
+    }else{
+      message("Did not identify resembling geocode.")
+      city_code = as.vector(df_cb$city_code)
+      user_geo_location = as.vector(df_cb$user_geo_location)
+      user_geo_location_new = as.vector(df_cb$user_geo_location)
+      vector_update_geocode <- data.frame(city_code,user_geo_location, user_geo_location_new, stringsAsFactors=FALSE)
+      
+      df_cb <- df_cb %>%
+        select(city_code, user_geo_location)%>%
+        mutate(user_geo_location_new = user_geo_location)
+    }
+   
 
     df_nocb <- df_dup_i_check%>%
       filter(combine == F)%>%
-      select(city_code, ttl_users, user_lat, user_long, user_lat_round, user_long_round)
-   
-    df_output <- rbind(df_cb, df_nocb)
-    df_output <- df_output %>%
-      mutate(city_code = paste(city_code, user_lat_round, user_long_round, sep = "_"))
+      select(city_code, user_geo_location)%>%
+      mutate(user_geo_location_new = user_geo_location)
     
-    citycode_split <- strsplit(df_output$city_code, "_")
+    update_geocode <- rbind(df_cb, df_nocb)
     
-     df_output <- df_output %>%
-       mutate(country_code = citycode_split[[1]][1], 
-              city = citycode_split[[1]][2])
+    df_update_geocode <- rbind(df_update_geocode, update_geocode)
+
     
-    df_clean_citycode <- rbind(df_clean_citycode, df_output)
+    # df_output <- df_output %>%
+    #    mutate(city_code = paste(city_code, user_lat_round, user_long_round, sep = "_"))
+    # 
+    # citycode_split <- strsplit(df_output$city_code, "_")
+    # 
+    #  df_output <- df_output %>%
+    #    mutate(country_code = citycode_split[[1]][1], 
+    #           city = citycode_split[[1]][2])
+    # 
     }
     
+  #original dataset, user level
+  df <- df%>%
+    mutate(city_code = paste(city_code, user_geo_location, sep = "_"))
+  
+  #citycode that have duplicates
+  df_dup <- df_update_geocode%>%
+    mutate(city_code_rep = city_code)%>%
+    mutate(city_code = paste(city_code, user_geo_location, sep = "_"))%>%
+    mutate(city_code_new = paste(city_code_rep, user_geo_location_new, sep = "_"))%>%
+    select(city_code, city_code_new)
+  
+  #citycode that does not have duplicates
+  df_no_dup <- df_no_dup%>%
+   mutate(city_code = paste(city_code, user_geo_location, sep = "_"), city_code_new = city_code)%>%
+    select(-user_geo_location)
+  
+  df_update_geocode_all <- rbind(df_dup, df_no_dup)
+    
+  df_cleaned <- left_join(df, df_update_geocode_all, by="city_code")
+
  ls_citycode  <- list()
  ls_citycode[[1]] <-  df_analysis_citycode
- ls_citycode[[2]]  <- df_clean_citycode
+ ls_citycode[[2]]  <- df_cleaned
  
- names(ls_citycode) <- c("analysis_df", "clean_df")
+ names(ls_citycode) <- c("analysis_df", "cleaned_df")
  
  return(ls_citycode)
 }
@@ -218,12 +262,12 @@ cleancity <- function(df = users_gh){
 
 
 # Clean citycode
-```{r}
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
 ls_cleancity <- cleancity(users_gh)
 ```
 
 
-# City Level Github Users
+# city code analysis
 ```{r city code and visualization, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 # glimpse(cities_maxmind)
 # table(cities_maxmind$Country)
@@ -260,11 +304,28 @@ table(city_non_benchmark$combine)
 
 ### clean citycode visualization
 ```{r}
-city_clean_final <- ls_cleancity$clean_df
+city_clean_final <- ls_cleancity$cleaned_df
+
 
 city_clean_final_top <- city_clean_final%>%
-   top_n(n= 10, wt = ttl_users)
+  group_by(city_code_new)%>%
+  summarize(ttl_users = n())%>%
+  arrange(desc(ttl_users)) %>%
+  top_n(n= 10, wt = ttl_users)%>%
+  mutate(country_code = substr(city_code_new, 1,2))
+ 
+ citycode_split <- strsplit(city_clean_final_top$city_code_new, "_")
 
+ 
+ city_names <- c()
+ for(i in 1:10){
+   city_name <- citycode_split[[i]][2]
+   city_names <- c(city_names, city_name)
+ }
+
+  city_clean_final_top <- city_clean_final_top%>%
+    mutate(city = city_names)
+  
 city_clean_final_top$city <- factor(city_clean_final_top$city, levels = city_clean_final_top$city[order(city_clean_final_top$ttl_users)])
 
 
@@ -276,7 +337,51 @@ ggplot(city_clean_final_top, aes(x = city, y = ttl_users)) +
   theme_bw() +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 
+```
 
+
+# Examine city code quality by comparing with user input
+```{r}
+us_greenville <- city_clean_final%>%
+  filter(country_code == "us ")%>%
+  filter(city == "greenville")%>%
+  group_by(city_code, state,location)%>%
+  summarize(N=n())
+
+
+us_city <- city_clean_final%>%
+  filter(country_code == "us ")%>%
+  group_by(city, city_code, state,location)%>%
+  summarize(N=n())
+```
+
+
+# Visualization
+```{r}
+
+# sf
+#create shape file
+gh_suer_sf <- st_as_sf(city_clean_final, coords = c("user_lat", "user_long"))
+summary(gh_suer_sf)
+
+world_map <- map_data("world")
+
+library(ggrepel)
+library(plotly)
+
+#static map
+ggplot() +
+  geom_polygon(data = world_map, aes(x=long, y = lat, group = group), fill="grey", alpha=0.2) +
+  geom_point( data= city_clean_final, aes(x=user_long, y=user_lat, alpha=ttl_users)) +
+  geom_text_repel( data= city_clean_final %>% arrange(ttl_users) %>% tail(10), aes(x=user_long, y=user_lat, label=city), size=4) +
+  geom_point( data=city_clean_final %>% arrange(ttl_users) %>% tail(10), aes(x=user_long, y=user_lat), color="red", size=4) +
+  theme_void() + 
+  coord_map() +
+  theme(legend.position="none")
+
+
+
+#interactive map
 ```
 
 
