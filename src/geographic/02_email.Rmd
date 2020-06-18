@@ -1,5 +1,5 @@
 ---
-title: "02-email"
+title: "02_email"
 output: html_document
 ---
 
