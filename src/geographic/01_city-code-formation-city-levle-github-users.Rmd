@@ -41,12 +41,19 @@ cities_maxmind <- dbGetQuery(conn,
 #                       "SELECT *
 #                       FROM gh.commits_raw")
 
+gh_extra <- dbGetQuery(conn, "SELECT *
+                              FROM gh.ctrs_extra")
+
 # disconnect from postgresql database 
 dbDisconnect(conn)
 ```
 
 
 ```{r eda, message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
+
+user_us <- users_gh%>%
+  filter(country_code == "us ")
+
 # 1. github user
 # check: users who don't have any of city, state, location, long, lat, don't have country code
 # user_geo_na <- users_gh %>%
@@ -269,16 +276,6 @@ ls_cleancity <- cleancity(users_gh)
 
 # city code analysis
 ```{r city code and visualization, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
-# glimpse(cities_maxmind)
-# table(cities_maxmind$Country)
-
-# world cities data
-cities_maxmind_clean <- cities_maxmind%>%
-  mutate(city_code  = paste(Country, City, sep="_"))%>%
-  mutate(long = round(Longitude, digits=0), lat = round(Latitude, digits=0))
-
-cities_maxmind_clean$city_code <- str_replace_all(cities_maxmind_clean$city_code, fixed(" "), "")
-
 ### analysis
 cleancitycode_analysis <- ls_cleancity$analysis_df
 
@@ -306,11 +303,26 @@ table(city_non_benchmark$combine)
 ```{r}
 city_clean_final <- ls_cleancity$cleaned_df
 
+#aggregate by country
+city_clean_final_aggregate_country <- city_clean_final%>%
+  group_by(country_code)%>%
+  summarize(ttl_users = n())
+city_clean_final_aggregate_country$country_code <- gsub(" ", "", city_clean_final_aggregate_country$country_code, fixed = TRUE)
 
-city_clean_final_top <- city_clean_final%>%
+#aggregate by city
+city_clean_final_aggregate <- city_clean_final%>%
   group_by(city_code_new)%>%
-  summarize(ttl_users = n())%>%
-  arrange(desc(ttl_users)) %>%
+  summarize(ttl_users = n(), lat = mean(lat), long = mean(long))%>%
+  arrange(desc(ttl_users))%>%
+  mutate(country = substr(city_code_new, 1,2))
+
+city_clean_final_aggregate$city <- str_extract(city_clean_final_aggregate$city_code_new,"_(.*)_") 
+
+city_clean_final_aggregate$city <- gsub("_", "", city_clean_final_aggregate$city, fixed = TRUE)
+
+#####################
+
+city_clean_final_top <- city_clean_final_aggregate %>%
   top_n(n= 10, wt = ttl_users)%>%
   mutate(country_code = substr(city_code_new, 1,2))
  
@@ -349,20 +361,63 @@ us_greenville <- city_clean_final%>%
   summarize(N=n())
 
 
-us_city <- city_clean_final%>%
+us_sanfrancisco<- city_clean_final%>%
   filter(country_code == "us ")%>%
-  group_by(city, city_code, state,location)%>%
-  summarize(N=n())
+  filter(city == "san francisco")%>%
+  group_by(state,  long, lat)%>%
+  summarize( N=n())
+
+
+us_sanfrancisco_location<- city_clean_final%>%
+  filter(country_code == "us ")%>%
+  filter(city == "san francisco")%>%
+  group_by(state, long, lat,  location)%>%
+  summarize( N=n())
+
+
 ```
+
+# compare with maxmind global city
+
+```{r}
+#start with us
+
+# world cities data
+cities_maxmind <- cities_maxmind%>%
+ # filter(Country == "us")%>%
+  mutate(long = round(Longitude, digits=0), lat = round(Latitude, digits=0))%>%
+  mutate(city_code  = paste(Country, City, sep="_"), geo_location = paste( lat, long, sep= "."))%>%
+  mutate(city_code = paste(city_code, geo_location, sep="_"))%>%
+  select(city_code, Population,City,Region)
+
+ghuser_cross_maxmind <- left_join(city_clean_final, cities_maxmind, by = c("city_code_new" = "city_code"))
+```
+
 
 
 # Visualization
 ```{r}
-
 # sf
 #create shape file
-gh_suer_sf <- st_as_sf(city_clean_final, coords = c("user_lat", "user_long"))
+gh_suer_sf <- st_as_sf(city_clean_final_aggregate, coords = c("lat", "long"))
 summary(gh_suer_sf)
+
+###########
+prj <- CRS("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
+
+coords <- city_clean_final_aggregate %>% select(long, lat)
+
+city_clean_final_aggregate_pt <- SpatialPointsDataFrame(coords = coords, data = city_clean_final_aggregate, proj4string = prj)
+class(city_clean_final_aggregate_pt)
+
+proj4string(city_clean_final_aggregate)
+
+
+plot(city_clean_final_aggregate_pt)
+
+#############
+
+map_nz = tm_shape(gh_suer_sf) + tm_polygons()
 
 world_map <- map_data("world")
 
@@ -371,7 +426,7 @@ library(plotly)
 
 #static map
 ggplot() +
-  geom_polygon(data = world_map, aes(x=long, y = lat, group = group), fill="grey", alpha=0.2) +
+  geom_polygon(data = city_clean_final, aes(x=long, y = lat, group = group), fill="grey", alpha=0.2) +
   geom_point( data= city_clean_final, aes(x=user_long, y=user_lat, alpha=ttl_users)) +
   geom_text_repel( data= city_clean_final %>% arrange(ttl_users) %>% tail(10), aes(x=user_long, y=user_lat, label=city), size=4) +
   geom_point( data=city_clean_final %>% arrange(ttl_users) %>% tail(10), aes(x=user_long, y=user_lat), color="red", size=4) +
@@ -382,6 +437,17 @@ ggplot() +
 
 
 #interactive map
+#8.4 interactive maps
+world <- world%>%
+  mutate(iso_a2 = str_to_lower(iso_a2))
+world_gh = left_join(world, city_clean_final_aggregate_country, by = c("iso_a2" = "country_code"))
+
+tm_shape(city_clean_final_aggregate_pt) +
+  tm_polygons(col = "ttl_users")+
+  tm_basemap(server = "OpenTopoMap")+ 
+  tm_legend(outside = TRUE)
+
+class(map_world)
 ```
 
 
