@@ -30,9 +30,6 @@ def queryToPDTable(postgreSql_selectQuery):
 
     return dataOut
 
-
-
-
 def composeWorkplaceOntology():
     """Create a table featuring valid workplace institutions
     """
@@ -87,3 +84,26 @@ def checkColumnMapping(inputRawColumn,targetOntology):
     tableUniqueCounts.rename(columns={tableUniqueCounts.columns[0]:tableUniqueCounts.columns[1],tableUniqueCounts.columns[1]:"count"},inplace=True)
     
     return tableUniqueCounts
+
+def eraseFromColumn(inputColumn,eraseList):
+   """iteratively delete regex query matches from input list
+    
+    Keyword arguments:
+    inputColumn -- a column from a pandas dataframe, this will be the set of
+    target words/entries that deletions will be made from
+    eraseList -- a column containing strings (regex expressions) which will be
+    deleted from the inputColumn, in an iterative fashion
+    """
+    
+   import pandas as pd
+   import re
+
+   for index, row in eraseList.iterrows():
+        curReplaceVal=row[0]
+        currentRegexExpression='(?i)' + curReplaceVal 
+        
+    
+        inputColumn.replace(regex=(currentRegexExpression), value='', inplace=True)
+
+
+   return inputColumn
