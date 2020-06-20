@@ -31,18 +31,18 @@ conn <- dbConnect(drv = PostgreSQL(),
 users_gh <- dbGetQuery(conn, "SELECT login, created_at, city, state, country_code, location, long, lat
                               FROM gh.ctrs_raw")
 
-cities_maxmind <- dbGetQuery(conn, 
-"SELECT *
-  FROM maxmind.world_cities"
-)
+# cities_maxmind <- dbGetQuery(conn, 
+# "SELECT *
+#   FROM maxmind.world_cities"
+# )
 
 # too large to read in the raw commit data. Will crash R
 # commits <- dbGetQuery(conn,
 #                       "SELECT *
 #                       FROM gh.commits_raw")
 
-gh_extra <- dbGetQuery(conn, "SELECT *
-                              FROM gh.ctrs_extra")
+# gh_extra <- dbGetQuery(conn, "SELECT *
+#                               FROM gh.ctrs_extra")
 
 # disconnect from postgresql database 
 dbDisconnect(conn)
@@ -114,7 +114,12 @@ The final "city_code" is a concactinated form of:
   -longitude (round to a whole number)
 
 ```{r city code cleaning function, message=FALSE, warning=FALSE, include=FALSE}
-# output:
+CapStr <- function(y) {
+  c <- strsplit(y, " ")[[1]]
+  paste(toupper(substring(c, 1,1)), substring(c, 2),
+      sep="", collapse=" ")
+}
+
 cleancity <- function(df = users_gh){
   #first step: form city_code variable, a concactinated form of country code and city name
   df <-  df%>%
@@ -257,6 +262,8 @@ cleancity <- function(df = users_gh){
     
   df_cleaned <- left_join(df, df_update_geocode_all, by="city_code")
 
+ df_cleaned$city <- sapply(df_cleaned$city, CapStr)
+
  ls_citycode  <- list()
  ls_citycode[[1]] <-  df_analysis_citycode
  ls_citycode[[2]]  <- df_cleaned
@@ -320,6 +327,8 @@ city_clean_final_aggregate$city <- str_extract(city_clean_final_aggregate$city_c
 
 city_clean_final_aggregate$city <- gsub("_", "", city_clean_final_aggregate$city, fixed = TRUE)
 
+city_clean_final_aggregate$city<- sapply(city_clean_final_aggregate$city,CapStr)
+
 #####################
 
 city_clean_final_top <- city_clean_final_aggregate %>%
@@ -348,6 +357,64 @@ ggplot(city_clean_final_top, aes(x = city, y = ttl_users)) +
   labs(title = "Cities where Github users are located", x = "city", y = "total number of users") +
   theme_bw() +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+###
+leaflet()%>%
+  addTiles()%>%
+  addProviderTiles("OpenStreetMap.Mapnik")
+
+names(providers)
+names(providers)[str_detect(names(providers), "CartoDB")]
+
+summary(city_clean_final_aggregate$ttl_users)
+
+#color 
+city_clean_final_aggregate_top <- city_clean_final_aggregate%>%
+  filter(ttl_users > 1)
+library(RColorBrewer)
+library(leaflet.extras)
+
+pal <- colorNumeric(palette = "Blues" , domain = c(min(city_clean_final_aggregate_top$ttl_users): max(city_clean_final_aggregate_top$ttl_users)), reverse = F)
+
+#ttl user indicated by color
+city_clean_final_aggregate_top %>%
+  leaflet()%>%
+  addTiles()%>%
+  addSearchOSM()%>%
+  addReverseSearchOSM()%>%
+  clearMarkers()%>%
+  addResetMapButton()%>%
+  addCircleMarkers(
+    lng = ~long , 
+    lat = ~lat, 
+    label = ~ paste(city, country, sep = ', \n'),
+    radius = 0.1, 
+    color = ~pal(ttl_users))%>%
+  addLegend(title = "Number of Github Users", 
+            pal = pal, 
+            values = c(100: 15927), 
+            position = "bottomright", 
+            opacity = 0.5)
+  
+
+#ttl user indicated by size
+city_clean_final_aggregate_top %>%
+  leaflet()%>%
+  addTiles()%>%
+  addSearchOSM()%>%
+  addReverseSearchOSM()%>%
+  clearMarkers()%>%
+  addResetMapButton()%>%
+  addCircleMarkers(
+    lng = ~long , 
+    lat = ~lat, 
+    label = ~ paste(city, country, sep = ', \n'),
+    radius = ~ttl_users^(1/3), 
+    color = "green")
+    
+ # addMarkers(lng =city_clean_final_top$long , lat = city_clean_final_top$lat)
+
+
 
 ```
 
@@ -448,6 +515,8 @@ tm_shape(city_clean_final_aggregate_pt) +
   tm_legend(outside = TRUE)
 
 class(map_world)
+
+
 ```
 
 
