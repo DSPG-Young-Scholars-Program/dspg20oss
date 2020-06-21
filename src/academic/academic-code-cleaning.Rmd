@@ -1,0 +1,280 @@
+---
+title: "Academic cleaning"
+author: "Morgan Klutzke"
+date: "06/11/2020"
+output: html_document
+---
+
+```{r packages}
+rm(list = ls())
+
+# load packages 
+for (pkg in c("tidyverse", "igraph", "visNetwork", "data.table", "R.utils", "RPostgreSQL", "cowplot", "maditr", "stringr", "stringi")) {library(pkg, character.only = TRUE)}
+```
+```{r loading data}
+# connect to postgresql to get our data
+conn <- dbConnect(drv = PostgreSQL(), 
+                  dbname = "sdad", 
+                  host = "10.250.124.195", 
+                  port = 5432, 
+                  user = Sys.getenv("db_userid"), 
+                  password = Sys.getenv("db_pwd"))
+
+# query the users_gh data from github data 
+users_gh <- dbGetQuery(conn, "SELECT login, company
+                              FROM gh.ctrs_raw")
+
+institutions_table <- dbGetQuery(conn, "SELECT institution, country_code FROM hipolabs.universities")
+```
+
+```{r}
+# disconnect from postgresql database 
+dbDisconnect(conn)
+```
+
+```{r}
+
+users_gh
+
+length(users_gh$company) 
+# 2,143,407 total entries 
+# note: there are actually 2,435,698 total users
+
+valid_company_codes <- users_gh %>% drop_na(company) 
+length(valid_company_codes$company)
+# 422517 users with some company_code information 
+length(valid_company_codes$company) / length(users_gh$company)
+# putting us at 19.7124% that are identifiable for now 
+
+```
+
+```{r academic counts}
+org_counts <- users_gh %>%
+  # remove all na's 
+  drop_na(company) %>% 
+  # convert to lower case 
+  dt_mutate(organization = str_to_lower(company)) %>%
+  # remove @ from start of names 
+  dt_mutate(organization = str_replace_all(organization, "@", " ")) %>% 
+  dt_mutate(organization = str_replace_all(organization, "\\b(inc.|inc)\\b", "")) %>%
+  dt_mutate(organization = str_replace_all(organization, "\\b(univ.|univ)\\b", "university")) %>%
+  dt_mutate(organization = str_replace_all(organization, "\\b(the )\\b", "")) %>%
+  dt_mutate(organization = str_trim(organization)) %>% 
+  # universities and research institutes 
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+                              pattern = "\\b(?i)(duke university|duke|duke university libraries|dukeuniversity)\\b"), 
+                              yes = "duke university", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+  pattern = "\\b(?i)(stanford university|stanford|stanfordmlgroup|stanfordvl|stanfordgeospatialcenter|stanfordhci|stanfordjournalism|stanfordmsl|stanfordnlp)\\b"), 
+                              yes = "stanford university", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+                              pattern = "\\b(?i)(massachusetts institute of technology|mit|mitmedialab|mit media lab)\\b"), 
+                              yes = "massachusetts institute of technology", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+                              pattern = "\\b(?i)(harvard medical school|harvard|harvard university|harvardagileroboticslab|harvardnlp|harvardx)\\b"), 
+                              yes = "harvard university", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+                              pattern = "\\b(?i)(^princeton university|princeton university$|princetonuniversity|princeton)\\b"), 
+                              yes = "princeton university", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+  pattern = "\\b(?i)(^columbia university|columbia university$|barnard college|columbia-university)\\b"), 
+                              yes = "columbia university", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+  pattern = "\\b(?i)(^northeastern university|northeastern university$|northeastern)\\b"), 
+                              yes = "northeastern university", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+  pattern = "\\b(?i)(^northwestern university|northwestern university$|northwestern)\\b"), 
+                              yes = "northwestern university", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+  pattern = "\\b(?i)(^cornell university|cornell university$|northwestern|^cornell tech|cornell tech$|cornelltech|^weill cornell|weill cornell$|weill cornell medicine$|cornell|cornell lab of ornithology|cornell-dti|cornell-rpal|cornell asl|weillcornell nygenome|cornell cs|cornell unveristy|cs, cornell)\\b"), 
+                              yes = "cornell university", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+  pattern = "\\b(?i)(carnegie mellon|carnegie mellon university|carnegie mellon university software engineering institute|carnegie mellon university, silicon valley)\\b"), 
+                              yes = "carnegie mellon university", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+                              pattern = "\\b(?i)(john hopkins|john hopkins university|johns hopkins university applied physics laboratory)\\b"), 
+                              yes = "john hopkins university", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+                              pattern = "\\b(?i)(penn|upenn|pennlabs|university of pennsylvania|the university of pennsylvania|penn medicine)\\b"), 
+                              yes = "university of pennsylvania", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+  pattern = "\\b(?i)(university of washington|university of washington(?! state)|univerisity of washington|univeristy of washington|universityofwashington|univesity of washington)\\b"),
+                              yes = "university of washington", no = organization)) %>%
+  #dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+                              #pattern = "\\b(?i)(university of california, san diego|university of california san diego|ucsd|university of california berkeley|uc berkeley|ucla|university of california, berkeley|university of california davis|university of california, davis|university of california irvine|university of california, irvine|california digital library, ucop|california digital library|university of california, san francisco|uc san francisco|university of california san francisco|uc san diego|uc davis)\\b"), 
+                              #yes = "university of california system", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization,
+                              pattern = "\\b(?i)(university of california, san francisco|uc san francisco|university of california san francisco)\\b"),
+                              yes = "university of california, san francisco", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization,
+                              pattern = "\\b(?i)(university of california irvine|university of california, irvine|uc irvine)\\b"),
+                              yes = "university of california, irvine", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization,
+                              pattern = "\\b(?i)(university of california davis|university of california, davis|uc davis)\\b"),
+                              yes = "university of california, davis", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization,
+                              pattern = "\\b(?i)(ucla|university of california los angeles|university of california, los angeles)\\b"),
+                              yes = "university of california, los angeles", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization,
+                              pattern = "\\b(?i)(university of california berkeley|uc berkeley|university of california, berkeley)\\b"),
+                              yes = "university of california, berkeley", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization,
+                              pattern = "\\b(?i)(university of california, san diego|university of california san diego|ucsd|uc san diego)\\b"),
+                              yes = "university of california, san diego", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+                              pattern = "\\b(?i)(^california state|california state$|california state university$|^california polytechnic|california polytechnic$)\\b"), 
+                              yes = "california state university system", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+                              pattern = "\\b(?i)(^georgia institute of technology|^georgia tech|georgia institute of technology$|georgia tech$)\\b"), 
+                              yes = "georgia institute of technology", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+                              pattern = "\\b(?i)(university of british columbia|ubc)\\b"), 
+                              yes = "university of british columbia", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+                              pattern = "\\b(?i)(indiana university|indiana university bloomington|indiana university, bloomington)\\b"), 
+                              yes = "indiana university", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+                              pattern = "\\b(?i)(university of texas at austin|university of texas|the university of texas at austin)\\b"), 
+                              yes = "university of texas", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+                              pattern = "\\b(?i)(^texas a&m|^texas a & m|texas a&m university)\\b"), 
+                              yes = "texas a&m university", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+                              pattern = "\\b(?i)(university of college london|ucl|university college london)\\b"), 
+                              yes = "university of college london", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+                              pattern = "\\b(?i)(new york university|nyu|nyulibraries|nyueserv|itpnyu)\\b"), 
+                              yes = "new york university", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+                              pattern = "\\b(?i)(penn state|penn state university|pennsylvania state university|the pennsylvania state university|pennstate)\\b"), 
+                              yes = "pennsylvania state university", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+  pattern = "\\b(?i)(fred hutchinson cancer research center|fredhutch|fred hutch|fred hutchinson|fred hutchinson center|fred hutch cancer research center)\\b"), 
+                              yes = "fred hutchinson cancer research center", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+                              pattern = "\\b(?i)(shanghai jiao tong university|sjtu|jiao tong university|jiao tong)\\b"), 
+                              yes = "shanghai jiaotong university", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+                              pattern = "\\b(?i)(^tsinghua|tsinghua$|tsinghua university$|tsinghua univ$|tsinghua unviersity|tsinghuauniversity|tsinghua_university|tsinghuau)\\b"), 
+                              yes = "tsinghua university", no = organization)) %>%
+  #dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+                              #pattern = "\\b(?i)(^university of michigan|university of michigan$|^the university of michigan|university of michigan, ann arbor)\\b"), 
+                              #yes = "university of michigan", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+                              pattern = "\\b(?i)(^university of virginia|university of virginia$|^uva|uva$)\\b"), 
+                              yes = "university of virginia, charlottesville", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+                              pattern = "\\b(?i)(^virginia tech|virginia tech$|virginia tech university$|^Virginia Polytechnic)\\b"), 
+                              yes = "virginia polytechnic institute and state university", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+                              pattern = "\\b(?i)(^university of tokyo|^the university of tokyo|university of tokyo$)\\b"), 
+                              yes = "university of tokyo", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+                              pattern = "\\b(?i)(^university of waterloo|^the university of waterloo|university of waterloo$)\\b"), 
+                              yes = "university of waterloo", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+                              pattern = "\\b(?i)(^zhejiang|zhejiang university$)\\b"), 
+                              yes = "zhejiang university", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+                              pattern = "\\b(?i)(^university of toronto|university of toronto$)\\b"), 
+                              yes = "university of toronto", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+                              pattern = "\\b(?i)(^imperial college london|imperial college london$)\\b"), 
+                              yes = "imperial college london", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+                              pattern = "\\b(?i)(^university of cambridge|university of cambridge$|^cambridge university|cambridge university$)\\b"), 
+                              yes = "university of cambridge", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+                              pattern = "\\b(?i)(^university of oxford|university of oxford$|^oxford university|oxford university$|^the university of oxford|^university of oxford,)\\b"), 
+                              yes = "university of oxford", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+                              pattern = "\\b(?i)(^peking university|peking university$|^peking university,)\\b"), 
+                              yes = "peking university", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+                              pattern = "\\b(?i)(^university of southern california|university of southern california$|^university of southern california,)\\b"), 
+                              yes = "university of southern california", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+                              pattern = "\\b(?i)(^nanjing university|^nanjing univ|nanjing university$|^nanjing university,)\\b"), 
+                              yes = "nanjing university", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+                              pattern = "\\b(?i)(^university of edinburgh|university of edinburgh$|^the university of edinburgh)\\b"), 
+                              yes = "university of edinburgh", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+                              pattern = "\\b(?i)(^purdue university|^purdue university,|purdue university$|department of statistics,purdue university|purdue univeristy)\\b"), 
+                              yes = "purdue university", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+                              pattern = "\\b(?i)(^university of florida|^university of florida,|university of florida$|universityofflorida)\\b"), 
+                              yes = "university of florida", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+                              pattern = "\\b(?i)(^university of chicago|^university of chicago,|^the university of chicago|university of chicago$|^uchicago|uchicago$|^u of chicago|u of chicago$)\\b"), 
+                              yes = "university of chicago", no = organization)) %>%
+  #dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+                              #pattern = "\\b(?i)(^university of illinois|^university of illinois,|^the university of illinois|university of illinois$|university of illinois at chicago|at urbana-champaign$)\\b"), 
+                              #yes = "university of illinois system", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+                              pattern = "\\b(?i)(university of illinois at chicago|university of illinois chicago|university of illinois, chicago)\\b"), 
+                              yes = "university of illinois at chicago", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+                              pattern = "\\b(?i)(university of illinois at springfield|university of illinois springfield|university of illinois, springfield)\\b"), 
+                              yes = "university of illinois at springfield", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+                              pattern = "\\b(?i)(university of illinois at urbana-champaign|university of illinois urbana-champaign|university of illinois, urbana-champaign|university of illinois at urbana champaign)\\b"), 
+                              yes = "university of illinois at urbana-champaign", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+                              pattern = "\\b(?i)(^national university of singapore|^national university of singapore,|national university of singapore$)\\b"), 
+                              yes = "national university of singapore", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+                              pattern = "\\b(?i)(^fudan|fudan university$|fudan university)\\b"), 
+                              yes = "fudan university", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+                              pattern = "\\b(?i)(^boston university|boston university$)\\b"), 
+                              yes = "boston university", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+                              pattern = "\\b(?i)(^arizona state|^arizona state,|arizona state university$|arizona state$)\\b"), 
+                              yes = "arizona state university", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+                              pattern = "\\b(?i)(^mcgill|mcgill university$|mcgill$)\\b"), 
+                              yes = "mcgill university", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+                              pattern = "\\b(?i)(^oregon state|^oregon state,|oregon state university$|oregon state$)\\b"), 
+                              yes = "oregon state university", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+                              pattern = "\\b(?i)(^stony brook|stony brook university$|stony brook$|^state university of new york)\\b"), 
+                              yes = "state university of new york system", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+                              pattern = "\\b(?i)(^university of minnesota|university of minnesota$|^university of minnesota,)\\b"), 
+                              yes = "university of minnesota", no = organization)) %>%
+  #dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+                              #pattern = "\\b(?i)(^sun yat-sen university|sun yat-sen university$|^sun yat-sen university,)\\b"), 
+                              #yes = "sun yat-sen university", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+                              pattern = "\\b(?i)(^university of alberta|university of alberta$|^university of alberta,)\\b"), 
+                              yes = "university of alberta", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+  pattern = "\\b(?i)(^university of wisconsin-madison|^university of wisconsin|university of wisconsin$|university of wisconsin-madison$|university of wisconsinmadison|^university of wisconsin,|^uw-madison|uw-madison$)\\b"), yes = "university of wisconsin - madison", no = organization)) %>%
+  group_by(organization) %>% count() %>% arrange(-n) 
+
+org_counts
+```
+
+Check how many academic institutions are represented
+
+```{r}
+institutions_table <- as.data.table(institutions_table)
+dt_mutate(institutions_table, institution = str_to_lower(institution))
+overlap <- semi_join(org_counts, institutions_table, by = c("organization" = "institution"))
+overlap
+```
+
+```{r}
+leftover <- anti_join(org_counts, overlap)
+```
+
+Institutions that are either missing in hipolabs data, or the user reported a broad instituion where hipolabs has only specific locations named:
+
+university of michigan, sun yat-sen university, texas a&m university, university of college london, university of tokyo, university of texas
+
+```{r}
+ggplot(data = overlap[1:10,]) + geom_col(mapping = aes(n, reorder(organization, n)))
+```
+
