@@ -19,7 +19,7 @@ inputRaw=ossPyFuncs.queryToPDTable(postgreSql_selectQuery)
 
 #obtain the eralse list
 currentDir=os.path.dirname('ossPyFuncs.py')
-eraseList=pd.read_csv(os.path.join(currentDir,'keyFiles/eraseStrings_v3.csv'),quotechar="'",header=None)
+eraseList=pd.read_csv(os.path.join(currentDir,'keyFiles/eraseStrings_v6.csv'),quotechar="'",header=None)
 #apply the erase list
 semiCleanedOutput=pd.DataFrame(ossPyFuncs.eraseFromColumn(inputRaw['company'],eraseList))
 
@@ -48,5 +48,6 @@ tableUniqueFullNameCounts=tableUniqueFullNameCounts.reset_index()
 
 #rename the columns
 tableUniqueFullNameCounts.rename(columns={"company":"count","index":"company"},inplace=True)
+dataTest2=tableUniqueFullNameCounts[tableUniqueFullNameCounts['company'].str.contains("co\., LTD\.")]
 
-dataTest2=tableUniqueFullNameCounts[tableUniqueFullNameCounts['company'].str.contains("(?i)inc")]
+dataTest2=tableUniqueFullNameCounts[tableUniqueFullNameCounts['company'].str.contains("(  )\\1{9,}")]

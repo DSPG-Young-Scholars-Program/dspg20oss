@@ -99,11 +99,14 @@ def eraseFromColumn(inputColumn,eraseList):
    import re
 
    for index, row in eraseList.iterrows():
-        curReplaceVal=row[0]
-        currentRegexExpression='(?i)' + curReplaceVal 
+       print(row[0])
+       curReplaceVal=row[0]
+       currentRegexExpression=re.compile(curReplaceVal)
         
     
-        inputColumn.replace(regex=(currentRegexExpression), value='', inplace=True)
-
-
+       holdColumn=inputColumn.replace(regex=True, to_replace=currentRegexExpression,value='')
+       tabulationTable=inputColumn.eq(holdColumn).value_counts()
+       tabulationTable
+       print(str(inputColumn.size-tabulationTable.loc[True])+ " items changed")
+       inputColumn=holdColumn
    return inputColumn
