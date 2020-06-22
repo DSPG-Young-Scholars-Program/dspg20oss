@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Fri Jun 19 16:39:44 2020
-This code is useful for exploring a dataframe, towards the end you can search
-the name column for companies featuring a specific string
-
+Created on Tue Jun 16 17:50:59 2020
+this script generates a table containing the unique sub-tokens (i.e. 
+individual words) found in workplace names
 
 @author: dnb3k
 """
@@ -22,7 +21,7 @@ inputRaw=ossPyFuncs.queryToPDTable(postgreSql_selectQuery)
 
 #obtain the eralse list
 currentDir=os.path.dirname('ossPyFuncs.py')
-eraseList=pd.read_csv(os.path.join(currentDir,'keyFiles/eraseStrings_v6.csv'),quotechar="'",header=None)
+eraseList=pd.read_csv(os.path.join(currentDir,'keyFiles/eraseStrings.csv'),quotechar="'")
 #apply the erase list
 semiCleanedOutput=pd.DataFrame(ossPyFuncs.eraseFromColumn(inputRaw['company'],eraseList))
 
@@ -39,20 +38,4 @@ uniqueSubTokenFrame=pd.DataFrame(longStringSeparated)
 columnUniqueCounts=uniqueSubTokenFrame.iloc[:,0].value_counts()
 #convert that output to a proper table
 tableUniqueCounts=columnUniqueCounts.reset_index()
-#reset the names
 tableUniqueCounts.rename(columns={0:"count","index":"token"},inplace=True)
-
-dataTest=tableUniqueCounts[tableUniqueCounts['token'].str.contains("AS")]
-
-#now for unique full names
-tableUniqueFullNameCounts=semiCleanedOutput.iloc[:,0].value_counts()
-#convert that output to a proper table
-tableUniqueFullNameCounts=tableUniqueFullNameCounts.reset_index()
-
-#rename the columns
-tableUniqueFullNameCounts.rename(columns={"company":"count","index":"company"},inplace=True)
-
-#perform a regex search
-dataTest2=tableUniqueFullNameCounts[tableUniqueFullNameCounts['company'].str.contains("(?i)institute")]
-
-dataTest2=tableUniqueFullNameCounts[tableUniqueFullNameCounts['company'].str.contains("(  )\\1{9,}")]
