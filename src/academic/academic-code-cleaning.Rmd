@@ -56,7 +56,7 @@ org_counts <- users_gh %>%
   dt_mutate(organization = str_to_lower(company)) %>%
   # remove @ from start of names 
   dt_mutate(organization = str_replace_all(organization, "@", " ")) %>% 
-  dt_mutate(organization = str_replace_all(organization, "\\b(inc.|inc)\\b", "")) %>%
+  dt_mutate(organization = str_replace_all(organization, "\\b(, inc.|, inc| inc.| inc)\\b", "")) %>%
   dt_mutate(organization = str_replace_all(organization, "\\b(univ.|univ)\\b", "university")) %>%
   dt_mutate(organization = str_replace_all(organization, "\\b(the )\\b", "")) %>%
   dt_mutate(organization = str_trim(organization)) %>% 
@@ -251,13 +251,35 @@ org_counts <- users_gh %>%
                               pattern = "\\b(?i)(^university of alberta|university of alberta$|^university of alberta,)\\b"), 
                               yes = "university of alberta", no = organization)) %>%
   dt_mutate(organization = ifelse(test = str_detect(string = organization, 
-  pattern = "\\b(?i)(^university of wisconsin-madison|^university of wisconsin|university of wisconsin$|university of wisconsin-madison$|university of wisconsinmadison|^university of wisconsin,|^uw-madison|uw-madison$)\\b"), yes = "university of wisconsin - madison", no = organization)) %>%
+                              pattern = "\\b(?i)(^university of wisconsin-madison|^university of wisconsin|university of wisconsin$|university of wisconsin-madison$|university of wisconsinmadison|^university of wisconsin,|^uw-madison|uw-madison$)\\b"), 
+                              yes = "university of wisconsin - madison", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+                              pattern = "\\b(?i)(^rwth aachen university|rheinisch westfalische technische hochschule aachen)\\b"), 
+                              yes = "rheinisch westfälische technische hochschule aachen", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+                              pattern = "\\b(?i)(politecnico di milano|^polytechnic institute of milan)\\b"),
+                              yes = "polytechnic institute of milan", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+                              pattern = "\\b(?i)(delft university of technology|^tu delft)\\b"),
+                              yes = "delft university of technology", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+                              pattern = "\\b(?i)(buaa|beihang university)\\b"),
+                              yes = "beijing university of aeronautics and astronautics", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+                              pattern = "\\b(?i)(tu dresden|technische universitat dresden)\\b"),
+                              yes = "technische universität dresden", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+                              pattern = "\\b(?i)(university of colorado boulder|university of colorado, boulder|university of colorado - boulder|university of colorado-boulder)\\b"),
+                              yes = "university of colorado at boulder", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+                              pattern = "\\b(?i)(katholieke universiteit leuven|ku leuven)\\b"),
+                              yes = "katholieke universiteit leuven", no = organization)) %>%
   group_by(organization) %>% count() %>% arrange(-n) 
 
 org_counts
 ```
 
-Check how many academic institutions are represented
+Check how many academic institutions are represented by comparing with hipolabs data
 
 ```{r}
 institutions_table <- as.data.table(institutions_table)
@@ -266,15 +288,20 @@ overlap <- semi_join(org_counts, institutions_table, by = c("organization" = "in
 overlap
 ```
 
+Everyone likes visuals
+
+```{r}
+ggplot(data = overlap[1:10,]) + geom_col(mapping = aes(n, reorder(organization, n), fill = n)) + labs(y = "Academic institution", x = "User count")
+```
+
+Mak
+
 ```{r}
 leftover <- anti_join(org_counts, overlap)
 ```
 
 Institutions that are either missing in hipolabs data, or the user reported a broad instituion where hipolabs has only specific locations named:
 
-university of michigan, sun yat-sen university, texas a&m university, university of college london, university of tokyo, university of texas
+university of michigan, sun yat-sen university, texas a&m university, university of college london, university of tokyo, university of texas, university of maryland, xidian university, ohio state university, broad institute, university of illinois, iiit hyderabad (exists twice and is wrongly listed as "indian institute of technology, hyderabad" when it should be "international institute of technology, hyderabad"), beihang university
 
-```{r}
-ggplot(data = overlap[1:10,]) + geom_col(mapping = aes(n, reorder(organization, n)))
-```
 
