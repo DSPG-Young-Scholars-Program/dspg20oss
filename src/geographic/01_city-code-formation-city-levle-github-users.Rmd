@@ -262,8 +262,6 @@ cleancity <- function(df = users_gh){
     
   df_cleaned <- left_join(df, df_update_geocode_all, by="city_code")
 
- df_cleaned$city <- sapply(df_cleaned$city, CapStr)
-
  ls_citycode  <- list()
  ls_citycode[[1]] <-  df_analysis_citycode
  ls_citycode[[2]]  <- df_cleaned
@@ -367,55 +365,6 @@ names(providers)
 names(providers)[str_detect(names(providers), "CartoDB")]
 
 summary(city_clean_final_aggregate$ttl_users)
-
-#color 
-city_clean_final_aggregate_top <- city_clean_final_aggregate%>%
-  filter(ttl_users > 1)
-library(RColorBrewer)
-library(leaflet.extras)
-
-pal <- colorNumeric(palette = "Blues" , domain = c(min(city_clean_final_aggregate_top$ttl_users): max(city_clean_final_aggregate_top$ttl_users)), reverse = F)
-
-#ttl user indicated by color
-city_clean_final_aggregate_top %>%
-  leaflet()%>%
-  addTiles()%>%
-  addSearchOSM()%>%
-  addReverseSearchOSM()%>%
-  clearMarkers()%>%
-  addResetMapButton()%>%
-  addCircleMarkers(
-    lng = ~long , 
-    lat = ~lat, 
-    label = ~ paste(city, country, sep = ', \n'),
-    radius = 0.1, 
-    color = ~pal(ttl_users))%>%
-  addLegend(title = "Number of Github Users", 
-            pal = pal, 
-            values = c(100: 15927), 
-            position = "bottomright", 
-            opacity = 0.5)
-  
-
-#ttl user indicated by size
-city_clean_final_aggregate_top %>%
-  leaflet()%>%
-  addTiles()%>%
-  addSearchOSM()%>%
-  addReverseSearchOSM()%>%
-  clearMarkers()%>%
-  addResetMapButton()%>%
-  addCircleMarkers(
-    lng = ~long , 
-    lat = ~lat, 
-    label = ~ paste(city, country, sep = ', \n'),
-    radius = ~ttl_users^(1/3), 
-    color = "green")
-    
- # addMarkers(lng =city_clean_final_top$long , lat = city_clean_final_top$lat)
-
-
-
 ```
 
 
