@@ -2,7 +2,16 @@
 # -*- coding: utf-8 -*-
 """
 Created on Sat Jun 20 21:11:53 2020
-
+This script iterates across unique listings in the workplace association
+column and performs a "string contains" operation on that term to return
+all those other workplaces which feature this string.  In a sense, this relies
+on a "wisdom of crowds" and "lowest common denominator" effect, such that
+(1) its safe to assume that the most commonly listed workplace names are 
+accurately spelled and the most viable label for that company and (2) that 
+it constitutes the shortest common string associated with that company, because
+probabalistically, the conjunct probabability of adding more words to a 
+comany name listing results in longer names being less common. As such, the
+shorter names will be higher in this list and more common.
 
 
 @author: dnb3k
@@ -26,6 +35,7 @@ eraseList=pd.read_csv(os.path.join(currentDir,'keyFiles/eraseStrings_v6.csv'),qu
 #apply the erase list
 semiCleanedOutput=pd.DataFrame(ossPyFuncs.eraseFromColumn(inputRaw['company'],eraseList))
 
+#get the counts for the unique values
 tableUniqueFullNameCounts=semiCleanedOutput.iloc[:,0].value_counts()
 #convert that output to a proper table
 tableUniqueFullNameCounts=tableUniqueFullNameCounts.reset_index()
