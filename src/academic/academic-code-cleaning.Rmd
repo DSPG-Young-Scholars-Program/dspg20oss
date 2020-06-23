@@ -21,10 +21,10 @@ conn <- dbConnect(drv = PostgreSQL(),
                   password = Sys.getenv("db_pwd"))
 
 # query the users_gh data from github data 
-users_gh <- dbGetQuery(conn, "SELECT login, company
-                              FROM gh.ctrs_raw")
+users_gh <- dbGetQuery(conn, "SELECT email, company
+                              FROM gh.ctrs_extra")
 
-institutions_table <- dbGetQuery(conn, "SELECT institution, country_code FROM hipolabs.universities")
+institutions_hipolabs <- dbGetQuery(conn, "SELECT institution, domains FROM hipolabs.universities")
 ```
 
 ```{r}
@@ -49,7 +49,7 @@ length(valid_company_codes$company) / length(users_gh$company)
 ```
 
 ```{r academic counts}
-org_counts <- users_gh %>%
+orgs_clean <- users_gh %>%
   # remove all na's 
   drop_na(company) %>% 
   # convert to lower case 
@@ -274,17 +274,46 @@ org_counts <- users_gh %>%
   dt_mutate(organization = ifelse(test = str_detect(string = organization, 
                               pattern = "\\b(?i)(katholieke universiteit leuven|ku leuven)\\b"),
                               yes = "katholieke universiteit leuven", no = organization)) %>%
-  group_by(organization) %>% count() %>% arrange(-n) 
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+                              pattern = "\\b(?i)(eth zurich|eidgenössische technische hochschule zürich|eth zürich|swiss federal institute of technology in zurich|politecnico federale di zurigo|école polytechnique fédérale de zurich)\\b"),
+                              yes = "ethz - eth zurich", no = organization))
+
+org_counts <- orgs_clean %>% group_by(organization) %>% count() %>% arrange(-n) 
 
 org_counts
 ```
 
+Boosting university counts by looking at email domains
+
+```{r}
+email_domains <- users_gh %>% drop_na(email) %>%
+dt_mutate(email = str_replace_all(email, "^[a-zA-Z0-9_.+-]+@", ""))
+
+domain_count <- email_domains %>% group_by(email) %>% count() %>% arrange(-n)
+domain_count
+```
+
+```{r}
+match_domain <- function(emails) {
+  print(institutions_hipolabs[domains == emails])
+  #return(toString(institutions_hipolabs[domains == emails][,1]))
+}
+```
+```{r}
+impute_company <- email_domains %>%
+  dt_mutate(imputed = ifelse(test = email %chin% institutions_hipolabs$domains, 
+                             yes = match_domain(email),
+                             no = NA_character_))
+```
+
+
+
 Check how many academic institutions are represented by comparing with hipolabs data
 
 ```{r}
-institutions_table <- as.data.table(institutions_table)
-dt_mutate(institutions_table, institution = str_to_lower(institution))
-overlap <- semi_join(org_counts, institutions_table, by = c("organization" = "institution"))
+institutions_hipolabs <- as.data.table(institutions_hipolabs)
+dt_mutate(institutions_hipolabs, institution = str_to_lower(institution))
+overlap <- semi_join(org_counts, institutions_hipolabs, by = c("organization" = "institution"))
 overlap
 ```
 
@@ -294,7 +323,7 @@ Everyone likes visuals
 ggplot(data = overlap[1:10,]) + geom_col(mapping = aes(n, reorder(organization, n), fill = n)) + labs(y = "Academic institution", x = "User count")
 ```
 
-Mak
+Making a table to see what isn't caught by hipolabs
 
 ```{r}
 leftover <- anti_join(org_counts, overlap)
@@ -304,4 +333,14 @@ Institutions that are either missing in hipolabs data, or the user reported a br
 
 university of michigan, sun yat-sen university, texas a&m university, university of college london, university of tokyo, university of texas, university of maryland, xidian university, ohio state university, broad institute, university of illinois, iiit hyderabad (exists twice and is wrongly listed as "indian institute of technology, hyderabad" when it should be "international institute of technology, hyderabad"), beihang university
 
+
+Comparing github user emails with university domains
+
+
+
+```{r}
+email_domains <- as.data.table(email_domains)
+email_overlap <- inner_join(email_domains, institutions_hipolabs)
+email_overlap
+```
 
