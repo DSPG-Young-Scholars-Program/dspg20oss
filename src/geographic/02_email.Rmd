@@ -1,5 +1,5 @@
 ---
-title: "02_email"
+title: "02 Email Domain Search"
 output: html_document
 ---
 
@@ -8,11 +8,11 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
-```{r loading data, message=FALSE, warning=FALSE, include=FALSE}
+```{r loading data, message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
 rm(list = ls())
 
 # load packages 
-for (pkg in c("tidyverse", "igraph", "visNetwork", "data.table", "R.utils", "RPostgreSQL", "cowplot", "maditr", "stringr", "stringi", "mosaic", "sf", "raster", "dplyr", "spData", "spDataLarge", "tmap", "leaflet", "mapview", "ggplot2", "shiny", "maps", "plotly")) {
+for (pkg in c("tidyverse", "data.table", "R.utils", "RPostgreSQL", "cowplot", "maditr", "stringr", "stringi", "mosaic",  "raster", "dplyr",  "ggplot2", "shiny", "plotly", "gt", "glue")) {
   library(pkg, character.only = TRUE)
 }
 
@@ -33,22 +33,40 @@ dbDisconnect(conn)
 ```
 
 
-```{r}
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
 email_clean <- gh_extra%>%
   filter(!is.na(email))
 
 #domain
-email_domain_top15 <- email_clean %>%
+email_clean %>%
   mutate(email_domain =  str_extract(email_clean$email, "@[a-z]+"))%>%
   group_by(email_domain)%>%
   summarize(N = n())%>%
   arrange(desc(N))%>%
-  top_n(15, N)
-
-email_domain_top15
+  top_n(20, N)%>%
+  gt()%>%
+   tab_header(
+    title = "Top Github User Email Domains"
+  )
 
 
 #edu email
 table(grepl("edu", email_clean$email))
+
+email_clean %>%
+  mutate(edu = if_else( str_detect( email, "edu$") == T, T, F))%>%
+  filter(edu == T)%>%
+  mutate(institution =  str_extract(email, "@[a-z]+"))%>%
+  mutate(institution_full = str_extract(email, "@(.*)edu"))%>%
+  select(login, email, institution,institution_full)%>%
+  group_by(institution_full)%>%
+  summarize(N = n())%>%
+  arrange(desc(N))%>%
+  top_n(50,N)%>%
+  gt()%>%
+   tab_header(
+    title = "Top Github User Institutional Email Domains"
+  )
+
 ```
 
