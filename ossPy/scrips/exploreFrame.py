@@ -15,10 +15,16 @@ import wordcloud
 import re
 import matplotlib.pyplot as plt
 import os
+import nltk
 
  #perform sql query to get company column
 postgreSql_selectQuery="SELECT company FROM gh.ctrs_raw ;"
 inputRaw=ossPyFuncs.queryToPDTable(postgreSql_selectQuery)
+
+
+currentDir=os.path.dirname('ossPyFuncs.py')
+replaceList=pd.read_csv(os.path.join(currentDir,'keyFiles/expandAbrevs.csv'),quotechar="'",header=None)
+semiCleanedOutput=pd.DataFrame(ossPyFuncs.expandFromColumn(inputRaw['company'],replaceList))
 
 #obtain the eralse list
 currentDir=os.path.dirname('ossPyFuncs.py')
@@ -42,8 +48,6 @@ tableUniqueCounts=columnUniqueCounts.reset_index()
 #reset the names
 tableUniqueCounts.rename(columns={0:"count","index":"token"},inplace=True)
 
-dataTest=tableUniqueCounts[tableUniqueCounts['token'].str.contains("AS")]
-
 #now for unique full names
 tableUniqueFullNameCounts=semiCleanedOutput.iloc[:,0].value_counts()
 #convert that output to a proper table
@@ -51,8 +55,15 @@ tableUniqueFullNameCounts=tableUniqueFullNameCounts.reset_index()
 
 #rename the columns
 tableUniqueFullNameCounts.rename(columns={"company":"count","index":"company"},inplace=True)
+tableUniqueFullNameCounts=tableUniqueFullNameCounts[~tableUniqueFullNameCounts['company'].str.contains("^$")]
 
 #perform a regex search
-dataTest2=tableUniqueFullNameCounts[tableUniqueFullNameCounts['company'].str.contains("(?i)institute")]
+dataTest2=tableUniqueFullNameCounts[tableUniqueFullNameCounts['company'].str.contains("^$")]
 
-dataTest2=tableUniqueFullNameCounts[tableUniqueFullNameCounts['company'].str.contains("(  )\\1{9,}")]
+dataTest2=tableUniqueFullNameCounts[tableUniqueFullNameCounts['company'].str.contains("\*")]
+
+#word bigrams
+wordTokens=nltk.word_tokenize(longString)
+
+wordBigrams=nltk.bigrams(wordTokens)
+fdist=nltk.FreqDist(wordBigrams)

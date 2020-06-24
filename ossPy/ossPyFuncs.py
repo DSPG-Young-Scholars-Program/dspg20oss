@@ -110,3 +110,29 @@ def eraseFromColumn(inputColumn,eraseList):
        print(str(inputColumn.size-tabulationTable.loc[True])+ " items changed")
        inputColumn=holdColumn
    return inputColumn
+
+def expandFromColumn(inputColumn,replaceList):
+   """iteratively delete regex query matches from input list
+    
+    Keyword arguments:
+    inputColumn -- a column from a pandas dataframe, this will be the set of
+    target words/entries that deletions will be made from
+    eraseList -- a column containing strings (regex expressions) which will be
+    deleted from the inputColumn, in an iterative fashion
+    """
+    
+   import pandas as pd
+   import re
+
+   for index, row in replaceList.iterrows():
+       print(row[0])
+       curReplaceVal=row[0]
+       currentRegexExpression=re.compile(curReplaceVal)
+        
+    
+       holdColumn=inputColumn.replace(regex=True, to_replace=currentRegexExpression,value=row[1])
+       tabulationTable=inputColumn.eq(holdColumn).value_counts()
+       tabulationTable
+       print(str(inputColumn.size-tabulationTable.loc[True])+ " items changed")
+       inputColumn=holdColumn
+   return inputColumn

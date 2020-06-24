@@ -1,5 +1,7 @@
-dept., department
-univ., university
-uni., university
-corp., corporation
- cs , computer science
+'(?i)dept\.', 'department'
+'(?i)\bdept ', 'department'
+'(?i)\buniv\. ', 'university'
+'(?i)\buni\.', 'university'
+'\b(?i)st\.', 'Saint'
+'(?i)inst\.','institute'
+'(?i)u\. of', 'university of'
