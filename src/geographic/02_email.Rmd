@@ -1,18 +1,32 @@
 ---
 title: "02 Email Domain Search"
-output: html_document
+author: "Crystal"
+output: 
+  rmarkdown::html_document:
+    toc: true
+    toc_float: true
+    highlight: tango
+    theme: journal
+editor_options: 
+  chunk_output_type: console
+
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+# Objective
+Identify github users' email domains, general and also institutional email domains. Identify patterns. 
+
+# Data
+I'm using ctrs_extra table from the gh schema.
 
 ```{r loading data, message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
 rm(list = ls())
 
 # load packages 
-for (pkg in c("tidyverse", "data.table", "R.utils", "RPostgreSQL", "cowplot", "maditr", "stringr", "stringi", "mosaic",  "raster", "dplyr",  "ggplot2", "shiny", "plotly", "gt", "glue")) {
+for (pkg in c("tidyverse", "data.table", "R.utils", "RPostgreSQL", "cowplot", "maditr", "stringr", "stringi", "mosaic",  "raster", "dplyr",  "ggplot2", "shiny", "plotly", "gt", "glue", "prettydoc")) {
   library(pkg, character.only = TRUE)
 }
 
@@ -33,15 +47,35 @@ dbDisconnect(conn)
 ```
 
 
-```{r message=FALSE, warning=FALSE, paged.print=FALSE}
-email_clean <- gh_extra%>%
-  filter(!is.na(email))
+# Regex for identify email domain
+In gh_extra table, we have `r table(is.na(gh_extra$email))[2]/nrow(gh_extra) *100`% (N=`r table(is.na(gh_extra$email))[2]`) missing in email, which leaves us `r table(is.na(gh_extra$email))[1]` github users.
 
-#domain
+```{r message=FALSE, warning=FALSE}
+data_profiling <- function(df){
+  variable_type <- apply(df, 2, function(x) class(x))
+  num_unique <- apply(df, 2,  function (x) length(unique(x)))
+  num_missing <- apply(df, 2, function(x) sum(is.na(x)))
+  perc_missing <- apply(df, 2, function(x) round((sum(is.na(x)))/length(x)* 100, digits = 2))  
+  summary_table <- as.data.frame(cbind(variable_type, num_unique, num_missing, perc_missing))
+  return(summary_table)
+}
+
+email_clean <- gh_extra%>%
+  filter(!is.na(email))%>%
+  select(login, email, country_code)%>%
+  #mutate(email_domain_short = str_extract(email, "@[a-z]+"))%>% #the first string after @
+  mutate(email_domain_long =  str_extract(email, "(?<=@).*"))%>% #all strings after @
+  mutate(edu_email_domain = if_else(str_detect(email, ".edu$") == T, T, F))%>% #end with edu
+  mutate(institution = str_extract(email, "(?<=@)(.*)edu")) 
+```
+
+
+# General email domain
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
 email_clean %>%
-  mutate(email_domain =  str_extract(email_clean$email, "@[a-z]+"))%>%
-  group_by(email_domain)%>%
-  summarize(N = n())%>%
+  filter(!is.na(email_domain_long))%>%
+  group_by(email_domain_long)%>%
+  summarize(N = n(), `percent(%)` = round(N/nrow(email_clean) * 100, digits = 2))%>%
   arrange(desc(N))%>%
   top_n(20, N)%>%
   gt()%>%
@@ -50,19 +84,38 @@ email_clean %>%
   )
 
 
-#edu email
-table(grepl("edu", email_clean$email))
-
-email_clean %>%
-  mutate(edu = if_else( str_detect( email, "edu$") == T, T, F))%>%
-  filter(edu == T)%>%
-  mutate(institution =  str_extract(email, "@[a-z]+"))%>%
-  mutate(institution_full = str_extract(email, "@(.*)edu"))%>%
-  select(login, email, institution,institution_full)%>%
-  group_by(institution_full)%>%
+domain10 <- email_clean %>%
+  group_by(email_domain_long)%>%
   summarize(N = n())%>%
   arrange(desc(N))%>%
-  top_n(50,N)%>%
+  filter(!is.na(email_domain_long))%>%
+  top_n(20, N)
+domain10 <-  as.vector(domain10$email_domain_long)
+
+email_clean %>%
+ filter(email_domain_long %in% domain10)%>%
+  filter(!is.na(country_code))%>%
+  group_by(email_domain_long, country_code)%>%
+  summarize(N=n(), `percent(%)` = round(N/nrow(email_clean) * 100, digits = 3))%>%
+  arrange(desc(N))%>%
+  filter(N > 10)%>%
+  top_n(20, N)%>%
+  gt()%>%
+   tab_header(
+    title = "Top Github User Email Domains by Country (>10)"
+  )
+```
+
+
+# Institutional emails
+```{r}
+email_clean %>%
+  filter(edu_email_domain == T)%>%
+  select(login, email, institution)%>%
+  group_by(institution)%>%
+  summarize(N = n(), `percent(%)` = round(N/nrow(email_clean) * 100, digits = 2))%>%
+  arrange(desc(N))%>%
+  top_n(100,N)%>%
   gt()%>%
    tab_header(
     title = "Top Github User Institutional Email Domains"
