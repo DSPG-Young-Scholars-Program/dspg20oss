@@ -21,10 +21,10 @@ conn <- dbConnect(drv = PostgreSQL(),
                   password = Sys.getenv("db_pwd"))
 
 # query the users_gh data from github data 
-users_gh <- dbGetQuery(conn, "SELECT email, company
-                              FROM gh.ctrs_extra")
+users_gh <- dbGetQuery(conn, "SELECT login, company
+                              FROM gh.ctrs_raw")
 
-institutions_hipolabs <- dbGetQuery(conn, "SELECT institution, domains FROM hipolabs.universities")
+institutions_hipolabs <- dbGetQuery(conn, "SELECT institution FROM hipolabs.universities")
 ```
 
 ```{r}
@@ -283,30 +283,6 @@ org_counts <- orgs_clean %>% group_by(organization) %>% count() %>% arrange(-n)
 org_counts
 ```
 
-Boosting university counts by looking at email domains
-
-```{r}
-email_domains <- users_gh %>% drop_na(email) %>%
-dt_mutate(email = str_replace_all(email, "^[a-zA-Z0-9_.+-]+@", ""))
-
-domain_count <- email_domains %>% group_by(email) %>% count() %>% arrange(-n)
-domain_count
-```
-
-```{r}
-match_domain <- function(emails) {
-  print(institutions_hipolabs[domains == emails])
-  #return(toString(institutions_hipolabs[domains == emails][,1]))
-}
-```
-```{r}
-impute_company <- email_domains %>%
-  dt_mutate(imputed = ifelse(test = email %chin% institutions_hipolabs$domains, 
-                             yes = match_domain(email),
-                             no = NA_character_))
-```
-
-
 
 Check how many academic institutions are represented by comparing with hipolabs data
 
@@ -334,13 +310,9 @@ Institutions that are either missing in hipolabs data, or the user reported a br
 university of michigan, sun yat-sen university, texas a&m university, university of college london, university of tokyo, university of texas, university of maryland, xidian university, ohio state university, broad institute, university of illinois, iiit hyderabad (exists twice and is wrongly listed as "indian institute of technology, hyderabad" when it should be "international institute of technology, hyderabad"), beihang university
 
 
-Comparing github user emails with university domains
 
 
 
-```{r}
-email_domains <- as.data.table(email_domains)
-email_overlap <- inner_join(email_domains, institutions_hipolabs)
-email_overlap
-```
+
+
 

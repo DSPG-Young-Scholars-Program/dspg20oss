@@ -1,0 +1,30 @@
+---
+title: "hipolabs cleaning"
+author: "Morgan Klutzke"
+date: "6/23/2020"
+output: html_document
+---
+
+```{r packages}
+rm(list = ls())
+
+# load packages 
+for (pkg in c("tidyverse", "igraph", "visNetwork", "data.table", "R.utils", "RPostgreSQL", "cowplot", "maditr", "stringr", "stringi")) {library(pkg, character.only = TRUE)}
+```
+```{r loading data}
+# connect to postgresql to get our data
+conn <- dbConnect(drv = PostgreSQL(), 
+                  dbname = "sdad", 
+                  host = "10.250.124.195", 
+                  port = 5432, 
+                  user = Sys.getenv("db_userid"), 
+                  password = Sys.getenv("db_pwd"))
+
+
+hipolabs <- dbGetQuery(conn, "SELECT * FROM hipolabs.universities")
+```
+
+```{r}
+# disconnect from postgresql database 
+dbDisconnect(conn)
+```
