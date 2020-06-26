@@ -5,6 +5,13 @@ date: "6/23/2020"
 output: html_document
 ---
 
+```{r packages}
+rm(list = ls())
+
+# load packages 
+for (pkg in c("tidyverse", "igraph", "visNetwork", "data.table", "R.utils", "RPostgreSQL", "cowplot", "maditr", "stringr", "stringi")) {library(pkg, character.only = TRUE)}
+```
+
 ```{r loading data}
 # connect to postgresql to get our data
 conn <- dbConnect(drv = PostgreSQL(), 
@@ -31,30 +38,35 @@ Boosting university counts by looking at email domains
 ```{r}
 # Getting just the domains for GitHub users' emails
 email_domains <- users_gh %>% drop_na(email) %>%
-dt_mutate(email = str_replace_all(email, "^[a-zA-Z0-9_.+-]+@", ""))
+dt_mutate(domains = str_replace_all(email, "^[a-zA-Z0-9_.+-]+@", ""))
 
-domain_count <- email_domains %>% group_by(email) %>% count() %>% arrange(-n)
+domain_count <- email_domains %>% group_by(domains) %>% count() %>% arrange(-n)
 domain_count
 ```
 
 ```{r}
 # Looking at domains present in both GitHub and hipolabs data
 email_domains <- as.data.table(email_domains)
-email_overlap <- inner_join(email_domains, institutions_hipolabs, by = c("email" = "domains"))
+email_overlap <- inner_join(email_domains, institutions_hipolabs)
 email_overlap
 ```
 
-In progress: trying to match the institutions from hipolabs to GitHub users based on email domains
+Matching the institutions from hipolabs to GitHub users based on email domains
 
 ```{r}
-match_domain <- function(emails) {
-  return(toString(institutions_hipolabs[domains == emails][,1]))
-}
+institutions_hipolabs <- as.data.table(institutions_hipolabs)
+
+setkey(institutions_hipolabs, "domains")
+setkey(email_domains, "domains")
+
+join <- institutions_hipolabs[email_domains]
+join
 ```
+
+
+
 ```{r}
-impute_company <- email_domains %>%
-  dt_mutate(imputed = ifelse(test = email %chin% institutions_hipolabs$domains, 
-                             yes = match_domain(email),
-                             no = NA_character_))
+length(drop_na(join, institution)$institution)
+# inferred institutions for 17514 users
 ```
 
