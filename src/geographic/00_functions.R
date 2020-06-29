@@ -51,6 +51,7 @@ cleancity <- function(df = users_gh){
   
   # duplicated city_code, in vector form
   city_code_dup <- unique(df_dup$city_code)
+  df_dup <- as.data.table(df_dup)
   
   df_update_geocode <- c() #initialize data table
   df_analysis_citycode <- c() #initialize data table for 
@@ -61,7 +62,8 @@ cleancity <- function(df = users_gh){
     message("city #", i, ":", city_code_i)
     df_dup_i <- df_dup %>%
       filter(city_code == city_code_i)%>%
-      arrange(desc(ttl_users))
+      arrange(desc(ttl_users)) %>% 
+      as.data.table()
     
     #identify the geo location where has the most users, treat this geo location as benchmark
     #Question2: I only bench marked once, currently don't think it's worth doing more than once
@@ -140,7 +142,7 @@ cleancity <- function(df = users_gh){
   #note that when you import this csv, you have to set na equals to null. In the continent name, NA represents North America. Otherwise, North America will become NA (null) values.
   #https://datahub.io/JohnSnowLabs/country-and-continent-codes-list/r/0.html
   #Question4. Here I imported a dataset from oneline, did find any r built-in package that we could use
-  country_code_dict <- read_csv("~/git/dspgOSS/src/geographic/country_code_dict.csv", na = "null")%>%
+  country_code_dict <- read_csv("~/git/dspg20oss/src/geographic/country_code_dict.csv", na = "null")%>%
     mutate(Two_Letter_Country_Code = str_to_lower(Two_Letter_Country_Code)) %>%
     mutate(Country_Name = if_else(grepl(",", Country_Name), str_extract(Country_Name, "(?:(?!,).)*"), Country_Name))%>%
     mutate(Country_Name = if_else(grepl("&", Country_Name), str_extract(Country_Name, "(?:(?!&).)*"), Country_Name))
