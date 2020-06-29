@@ -27,8 +27,6 @@ import os
 import numpy as np
 import seaborn as sns
 
-tpis=sns.load_dataset("tips")
-
 
 #perform sql query to get company column
 postgreSql_selectQuery="SELECT company FROM gh.ctrs_raw ;"
@@ -60,11 +58,14 @@ tableUniqueFullNameCounts['timesCounted']=0
 #iterate acroos unique listings
 for iAttempts in range(len(tableUniqueFullNameCounts.index)):
     
+    #formulate a good regex expression
+    currentRegex=re.compile('(?i)\\b'+tableUniqueFullNameCounts['company'].iloc[iAttempts]+'\\b')
+    
     #get all company listings that feature the current company string
-    currentBool=tableUniqueFullNameCounts['company'].str.contains( tableUniqueFullNameCounts['company'].iloc[iAttempts])
+    currentBool=tableUniqueFullNameCounts['company'].str.contains(currentRegex)
     #get the indexes associated with those names
     currentIndexes=currentBool[currentBool].index
-    tableUniqueFullNameCounts['timesCounted'].iloc[currentIndexes].add(1)
+    tableUniqueFullNameCounts['timesCounted'].iloc[currentIndexes]=tableUniqueFullNameCounts['timesCounted'].iloc[currentIndexes].add(1)
     
     #find the number of additional individuals that are found with
     #the regex search

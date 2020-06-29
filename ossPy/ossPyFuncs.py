@@ -47,13 +47,22 @@ def composeWorkplaceOntology():
     postgreSql_selectQuery="SELECT institution FROM hipolabs.universities ;"
     #pass querry and obtain table
     univTable=ossPyFuncs.queryToPDTable(postgreSql_selectQuery)
+    
+    postgreSql_selectQuery="SELECT company FROM forbes.fortune2018_us1000;"
+    businesses1=ossPyFuncs.queryToPDTable(postgreSql_selectQuery)
+    
+    postgreSql_selectQuery="SELECT company FROM forbes.fortune2019_us1000;"
+    businesses2=ossPyFuncs.queryToPDTable(postgreSql_selectQuery)
+    
+    postgreSql_selectQuery="SELECT company FROM forbes.fortune2020_global2000;"
+    businesses3=ossPyFuncs.queryToPDTable(postgreSql_selectQuery)
 
     #combine theinsitutions into a vector
-    combinedSeries=[govTable['AgencyName'],univTable['institution']]
+    combinedSeries=[govTable['AgencyName'],univTable['institution'],businesses1['company'],businesses2['company'],businesses3['company']]
     #turn the multi item vector into a single series
     fullWordbank=pd.concat(combinedSeries)
     #turn that series into a pd dataframe
-    wordbankTable=pd.DataFrame(fullWordbank)
+    wordbankTable=pd.DataFrame(fullWordbank.unique())
 
     return wordbankTable
 
@@ -97,19 +106,21 @@ def eraseFromColumn(inputColumn,eraseList):
     
    import pandas as pd
    import re
+   
+   eraseList['changeNum']=0
+   eraseList['changeIndexes']=''
+   
 
    for index, row in eraseList.iterrows():
-       print(row[0])
+       
        curReplaceVal=row[0]
        currentRegexExpression=re.compile(curReplaceVal)
-        
-    
-       holdColumn=inputColumn.replace(regex=True, to_replace=currentRegexExpression,value='')
-       tabulationTable=inputColumn.eq(holdColumn).value_counts()
-       tabulationTable
-       print(str(inputColumn.size-tabulationTable.loc[True])+ " items changed")
-       inputColumn=holdColumn
-   return inputColumn
+       CurrentBoolVec=inputColumn.str.contains(currentRegexExpression,na=False)
+       eraseList['changeIndexes'].iloc[index]=[i for i, x in enumerate(CurrentBoolVec) if x]
+       eraseList['changeNum'].iloc[index]=len(eraseList['changeIndexes'].iloc[index])
+       inputColumn.replace(regex=True, to_replace=currentRegexExpression,value='', inplace=True)
+
+   return inputColumn, eraseList;
 
 def expandFromColumn(inputColumn,replaceList):
    """iteratively delete regex query matches from input list
@@ -124,15 +135,15 @@ def expandFromColumn(inputColumn,replaceList):
    import pandas as pd
    import re
 
+   replaceList['changeNum']=0
+   replaceList['changeIndexes']=''
+
    for index, row in replaceList.iterrows():
        print(row[0])
        curReplaceVal=row[0]
        currentRegexExpression=re.compile(curReplaceVal)
-        
-    
-       holdColumn=inputColumn.replace(regex=True, to_replace=currentRegexExpression,value=row[1])
-       tabulationTable=inputColumn.eq(holdColumn).value_counts()
-       tabulationTable
-       print(str(inputColumn.size-tabulationTable.loc[True])+ " items changed")
-       inputColumn=holdColumn
-   return inputColumn
+       CurrentBoolVec=inputColumn.str.contains(currentRegexExpression,na=False)
+       replaceList['changeIndexes'].iloc[index]=[i for i, x in enumerate(CurrentBoolVec) if x]
+       replaceList['changeNum'].iloc[index]=len(replaceList['changeIndexes'].iloc[index])
+       inputColumn=inputColumn.replace(regex=True, to_replace=currentRegexExpression,value=row[1])
+   return inputColumn, replaceList

@@ -16,6 +16,7 @@ import re
 import matplotlib.pyplot as plt
 import os
 import nltk
+import plotly
 
  #perform sql query to get company column
 postgreSql_selectQuery="SELECT company FROM gh.ctrs_raw ;"
@@ -58,9 +59,12 @@ tableUniqueFullNameCounts.rename(columns={"company":"count","index":"company"},i
 tableUniqueFullNameCounts=tableUniqueFullNameCounts[~tableUniqueFullNameCounts['company'].str.contains("^$")]
 
 #perform a regex search
-dataTest2=tableUniqueFullNameCounts[tableUniqueFullNameCounts['company'].str.contains("^$")]
+dataTest2=tableUniqueFullNameCounts[tableUniqueFullNameCounts['company'].str.contains("(?i)hewlett")]
 
-dataTest2=tableUniqueFullNameCounts[tableUniqueFullNameCounts['company'].str.contains("\*")]
+dataTest2=tableUniqueFullNameCounts[tableUniqueFullNameCounts['company'].str.contains("(?i)hello")]
+
+dataTest3=tableUniqueCounts[tableUniqueCounts['token'].str.contains("^\\W+?$")]
+
 
 #word bigrams
 wordTokens=nltk.word_tokenize(longString)
