@@ -1,6 +1,11 @@
 ---
-title: "03_interactive_map"
-output: html_document
+title: "Github Users Around the World"
+output: 
+  rmarkdown::html_document:
+    toc: true
+    toc_float: true
+    highlight: tango
+    theme: journal
 editor_options: 
   chunk_output_type: console
 ---
@@ -13,7 +18,7 @@ knitr::opts_chunk$set(echo = TRUE)
 rm(list = ls())
 
 # load packages 
-for (pkg in c("tidyverse", "igraph", "visNetwork", "data.table", "R.utils", "RPostgreSQL", "cowplot", "maditr", "stringr", "stringi", "mosaic", "sf", "raster", "dplyr", "spData", "spDataLarge", "tmap", "leaflet", "mapview", "ggplot2", "shiny", "maps", "plotly", "RColorBrewer", "leaflet.extras", "rgdal")) {
+for (pkg in c("tidyverse", "igraph", "visNetwork", "data.table", "R.utils", "RPostgreSQL", "cowplot", "maditr", "stringr", "stringi", "mosaic", "sf", "raster", "dplyr", "spData", "spDataLarge", "tmap", "leaflet", "mapview", "ggplot2", "shiny", "maps", "plotly", "RColorBrewer", "leaflet.extras", "rgdal", "rnaturalearth", "rnaturalearthdata", "ggspatial", "maps", "tool", "ggrepel", "tmaptools")) {
   library(pkg, character.only = TRUE)
 }
 
@@ -33,201 +38,104 @@ users_gh <- dbGetQuery(conn, "SELECT login, created_at, city, state, country_cod
 
 # disconnect from postgresql database 
 dbDisconnect(conn)
+
+source("~/git/dspgOSS/src/geographic/00_functions.R", echo = T, prompt.echo = "", spaced = F)
 ```
 
+We conduct analysis on github users' geographic location, which is extracted from the user profile. We ackowledge  `r round(sum(is.na(users_gh$country_code) | is.na(users_gh$city))/nrow(users_gh) * 100, digits = 2)` % missing geographic information (country and city name), which leaves us with `r sum(!is.na(users_gh$country_code) & !is.na(users_gh$city))` github users in our analysis. We hypothesized that there is no difference between users with geographic information and users who are missing geographic information (In progress).
 
-```{r city code cleaning function, message=FALSE, warning=FALSE, include=FALSE}
-CapStr <- function(y) {
-  c <- strsplit(y, " ")[[1]]
-  paste(toupper(substring(c, 1,1)), substring(c, 2),
-      sep="", collapse=" ")
-}
+```{r clean citycode, message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
+table(is.na(users_gh$country_code))
 
-cleancity <- function(df = users_gh){
-  #first step: form city_code variable, a concactinated form of country code and city name
-  df <-  df%>%
-    filter(!is.na(country_code) & !is.na(city))%>% #exclude missing values
-    mutate(city = str_to_lower(city)) %>% #lowercase all city names
-    mutate(city_code  = paste(country_code, city, sep="_"))
-  
-  df$city_code <- str_replace_all(df$city_code, fixed(" "), "") #remove space in the city code string
-
- #second step: form user_geo_location, a concactinated form of rounded longitude and latitude
- df <-  df%>%
-    mutate(user_long = long, user_lat = lat, user_long_round = round(long,digits=0), user_lat_round = round(lat, digits=0), user_geo_location = paste(user_lat_round, user_long_round, sep="."))
- 
- df_sum <- df %>%
-    group_by(city_code, user_geo_location) %>%
-    dplyr::summarize( ttl_users = n(), user_lat = mean(user_lat), user_long = mean(user_long), user_lat_round= mean(user_lat_round), user_long_round = mean(user_long_round))%>%
-    arrange(desc(ttl_users))
- 
-# problem: filter function is not working!!! 
-# class(df)
-# dim(df)
-# df <- as_tibble(df)
-# 
-#  df_us <- df%>%
-#    dplyr::filter(country_code == "us")
-
-  # create an indicator for each row whether the city_code (country+city name) is duplicated
-  df_sum<- df_sum%>%
-    group_by(city_code)%>%
-    mutate(n_city_code=n(), duplicate = if_else(n_city_code > 1, T,F))
-  
-  # data with duplicated city code
-  #12% of city_code do not have duplicates (N=1515)
-  #nrow(df_dup)
-  #nrow(df_dup)/nrow(df)
-  df_dup <- df_sum%>%
-    filter(duplicate == T)
-  
-  # data with no duplicated city code
-  #88% of city_code do not have duplicates (N=11537)
-  #nrow(df_no_dup)
-  #nrow(df_no_dup)/nrow(df)
-  df_no_dup <- df_sum%>%
-    filter(duplicate == F)%>%
-    select(city_code, user_geo_location)
-  
-  # duplicated city_code, in vector form
-  city_code_dup <- unique(df_dup$city_code)
-  
-  df_update_geocode <- c()
-  df_analysis_citycode <- c()
-#  i =  grep("fr_paris", city_code_dup)  #check for one city, get the index of the city you are interested in checking in the city_code_dup vector
-  
-  for ( i in 1: length(city_code_dup)){
-    city_code_i = city_code_dup[i]
-    message("city #", i, ":", city_code_i)
-    df_dup_i <- df_dup %>%
-      filter(city_code == city_code_i)%>%
-      arrange(desc(ttl_users))
-    
-    #identify the geo location where has the most users, treat this geo location as benchmark
-    actual_long <-unlist(df_dup_i[1, long_col <- grep("user_long_round", colnames(df_dup_i)) ])
-    actual_lat <-  unlist(df_dup_i[1,  lat_col <- grep("user_lat_round", colnames(df_dup_i))])
-        
-    # 1 degree difference = 1.5 hrs drive
-    # 2 degrees difference = 2 hrs drive
-    df_dup_i_check <- df_dup_i %>%
-      mutate(long_diff = abs(actual_long - user_long), lat_diff = abs(actual_lat - user_lat), diff_sum = long_diff+ lat_diff)%>%
-    mutate(combine = ifelse(diff_sum <= 2 , T, F))%>%
-      mutate(rowindex = 1:nrow(df_dup_i), benchmark = if_else(rowindex== 1, T,F))
-    
-    df_dup_i_check<- df_dup_i_check%>%
-      select(-rowindex)
-    
-    df_analysis_citycode <- rbind(df_analysis_citycode, df_dup_i_check)
-       
-    ######### group cities within 2 degrees of the benchmarked city together
-    df_cb <- df_dup_i_check%>%
-      filter(combine == T)
-    
-    if(nrow(df_cb) > 1){
-      message ("Resembling geocode identified, group ", nrow(df_cb), " geocode(s) for ", "city #", i, ":", city_code_i)
-     geo_location_new  = as.vector(df_cb$user_geo_location)[1]
-     
-     df_cb <- df_cb%>%
-       select(city_code, user_geo_location)%>%
-       mutate(user_geo_location_new = geo_location_new)
-      
-    }else{
-      message("Did not identify resembling geocode.")
-      city_code = as.vector(df_cb$city_code)
-      user_geo_location = as.vector(df_cb$user_geo_location)
-      user_geo_location_new = as.vector(df_cb$user_geo_location)
-      vector_update_geocode <- data.frame(city_code,user_geo_location, user_geo_location_new, stringsAsFactors=FALSE)
-      
-      df_cb <- df_cb %>%
-        select(city_code, user_geo_location)%>%
-        mutate(user_geo_location_new = user_geo_location)
-    }
-   
-
-    df_nocb <- df_dup_i_check%>%
-      filter(combine == F)%>%
-      select(city_code, user_geo_location)%>%
-      mutate(user_geo_location_new = user_geo_location)
-    
-    update_geocode <- rbind(df_cb, df_nocb)
-    
-    df_update_geocode <- rbind(df_update_geocode, update_geocode)
-
-    
-    # df_output <- df_output %>%
-    #    mutate(city_code = paste(city_code, user_lat_round, user_long_round, sep = "_"))
-    # 
-    # citycode_split <- strsplit(df_output$city_code, "_")
-    # 
-    #  df_output <- df_output %>%
-    #    mutate(country_code = citycode_split[[1]][1], 
-    #           city = citycode_split[[1]][2])
-    # 
-    }
-    
-  #original dataset, user level
-  df <- df%>%
-    mutate(city_code = paste(city_code, user_geo_location, sep = "_"))
-  
-  #citycode that have duplicates
-  df_dup <- df_update_geocode%>%
-    mutate(city_code_rep = city_code)%>%
-    mutate(city_code = paste(city_code, user_geo_location, sep = "_"))%>%
-    mutate(city_code_new = paste(city_code_rep, user_geo_location_new, sep = "_"))%>%
-    select(city_code, city_code_new)
-  
-  #citycode that does not have duplicates
-  df_no_dup <- df_no_dup%>%
-   mutate(city_code = paste(city_code, user_geo_location, sep = "_"), city_code_new = city_code)%>%
-    select(-user_geo_location)
-  
-  df_update_geocode_all <- rbind(df_dup, df_no_dup)
-    
-  df_cleaned <- left_join(df, df_update_geocode_all, by="city_code")
-
- ls_citycode  <- list()
- ls_citycode[[1]] <-  df_analysis_citycode
- ls_citycode[[2]]  <- df_cleaned
- 
- names(ls_citycode) <- c("analysis_df", "cleaned_df")
- 
- return(ls_citycode)
-}
-```
-
-
-# Clean citycode
-```{r message=FALSE, warning=FALSE, paged.print=FALSE}
 ls_cleancity <- cleancity(users_gh)
 
 city_clean_final <- ls_cleancity$cleaned_df
 
+
+#aggregate by continent
+city_clean_final_aggregate_continent<- city_clean_final%>%
+  group_by(Continent_Name)%>%
+  summarize(ttl_users = n(), `percent (%)` = round(ttl_users/nrow(city_clean_final)*100, digits = 2))%>%
+  arrange(desc(ttl_users))
+
 #aggregate by country
 city_clean_final_aggregate_country <- city_clean_final%>%
-  group_by(country_code)%>%
+  group_by(Country_Name)%>%
   summarize(ttl_users = n())
-city_clean_final_aggregate_country$country_code <- gsub(" ", "", city_clean_final_aggregate_country$country_code, fixed = TRUE)
+#city_clean_final_aggregate_country$country_code <- gsub(" ", "", city_clean_final_aggregate_country$country_code, fixed = TRUE)
 
 #aggregate by city
 city_clean_final_aggregate <- city_clean_final%>%
-  group_by(city_code_new)%>%
+  group_by(city_code_new, Country_Name)%>%
   summarize(ttl_users = n(), lat = mean(lat), long = mean(long))%>%
-  arrange(desc(ttl_users))%>%
-  mutate(country = substr(city_code_new, 1,2))
+  arrange(-ttl_users)
 
 city_clean_final_aggregate$city <- str_extract(city_clean_final_aggregate$city_code_new,"_(.*)_") 
-
 city_clean_final_aggregate$city <- gsub("_", "", city_clean_final_aggregate$city, fixed = TRUE)
-
 city_clean_final_aggregate$city<- sapply(city_clean_final_aggregate$city,CapStr)
+
+city_clean_final_aggregate$city_country <- paste(city_clean_final_aggregate$city, city_clean_final_aggregate$Country_Name, sep = ", ")
+```
+
+# What Continents are Github Users Located at
+North America is the continent that has the highest number of github users, following by Europe, and Asia.
+```{r fig.width=8, fig.height=8, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+gh_continent<- city_clean_final_aggregate_continent%>%
+  arrange(desc(ttl_users))
+
+gh_continent$Continent_Name <- factor(gh_continent$Continent_Name, levels = gh_continent$Continent_Name[order(gh_continent$ttl_users)])
+
+ggplot(gh_continent, aes(x = Continent_Name, y = ttl_users, fill = ttl_users))+
+  geom_bar(stat = "identity")+ 
+  scale_fill_continuous(low="blue", high="red")+
+  labs(title = "Continents where Github users are located", x = "continent", y = "total number of users")+
+  theme_bw()
+```
+
+# Top Countries Where Github Users are Located
+United States is the country that has the highest number of github users, following by China, Great Britain, and India.
+```{r fig.width=7, fig.height=10, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+gh_country <- city_clean_final_aggregate_country%>%
+  arrange(desc(ttl_users))%>%
+  top_n(10, ttl_users)
+
+gh_country$Country_Name <- factor(gh_country$Country_Name, levels = gh_country$Country_Name[order(gh_country$ttl_users)])
+
+
+ggplot(gh_country, aes(x = Country_Name, y = ttl_users, fill = ttl_users))+
+  geom_bar(stat = "identity")+ 
+  scale_fill_continuous(low="blue", high="red")+
+  labs(title = "Countries where Github users are located", x = "country", y = "total number of users") +
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 ```
 
 
-```{r}
-#color 
+# Top Cities Where Github Users are Located
+San Francisco (US) is the city that has the highest number of github users, following by London (UK), New York (US), Moscow (Russia), and Beijing (China).
+```{r fig.width=7, fig.height=10, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+gh_city <- city_clean_final_aggregate%>%
+  arrange(-ttl_users)%>%
+ # top_n(10, ttl_users)%>%  #don't know why this code doesn't work
+  filter(ttl_users >= 6651)
+
+gh_city$city_country <- factor(gh_city$city_country, levels = gh_city$city_country[order(gh_city$ttl_users)])
+
+
+ggplot(gh_city, aes(x = city_country, y = ttl_users, fill = ttl_users))+
+  geom_bar(stat = "identity")+ 
+  scale_fill_continuous(low="blue", high="red")+
+  labs(title = "Countries where Github users are located", x = "city", y = "total number of users") +
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+```
+
+# City-level Interactive map
+```{r visualization interactive map, eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
+#In this map, the color of the circle indicates the number of github users in each city, still under development.
 city_clean_final_aggregate_top <- city_clean_final_aggregate%>%
   filter(ttl_users > 1)%>%
-  mutate(ttl_users_t = log(ttl_users), perc = ttl_users_t/max(ttl_users_t) )
+  mutate(ttl_users_t = log(ttl_users), perc = ttl_users_t/max(ttl_users_t))
 
 # hist(city_clean_final_aggregate_top$perc)
 # hist(city_clean_final_aggregate_top$perc*255)
@@ -270,9 +178,12 @@ city_clean_final_aggregate_top %>%
 #             position = "bottomright", 
 #             opacity = 0.5)
   
+```
 
+In this map, the size of the circle indicates the number of github users in each city. You can zoom in and hover over the circle to see how many users are in that city. You can also type in the city that you are interested in.
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 #ttl user indicated by size
-city_clean_final_aggregate_top %>%
+city_clean_final_aggregate %>%
   leaflet()%>%
   addTiles()%>%
   addSearchOSM()%>%
@@ -282,7 +193,7 @@ city_clean_final_aggregate_top %>%
   addCircleMarkers(
     lng = ~long , 
     lat = ~lat, 
-    label = ~ paste(city, country, sep = ', \n'),
+    label = ~ paste(city_country,", ", ttl_users, " users", sep = ""),
     radius = ~ttl_users^(1/3), 
     color = "green")
 ```
