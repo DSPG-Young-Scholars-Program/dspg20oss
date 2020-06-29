@@ -6,7 +6,7 @@ CapStr <- function(y) {
 
 
 #function: cleancity
-#param: df, default to user_gh in gh schema
+#param: df, default to ctrs_raw in gh schema
 #output:a list with two data tables: clean and analysis. Clean table gives cleaned citycode, analysis table gives detailed city geographic locations that could be used for sanity check
 cleancity <- function(df = users_gh){
   df <-  df%>%
