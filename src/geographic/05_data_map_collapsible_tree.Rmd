@@ -1,0 +1,54 @@
+---
+title: "05 Data Map Collapsible Tree"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(collapsibleTree)
+
+OSS <- data.frame(
+    Sector = c(
+        "Academic", "Academic","Academic", "Academic", "Academic", "Academic","Academic","Academic","Academic",
+        
+        "Business","Business","Business","Business","Business", "Business", "Business", "Business", "Business", "Business","Business","Business", "Business",
+        
+        "Government","Government","Government", "Government", "Government",
+        
+        "International","International","International"
+    ),
+    DataSource = c(
+        "github","github", "github","github","github","orcid", "herd", "hipolabs", "iped", 
+        
+        "github","github", "Enterprise-Driven Open Source Software", "Enterprise-Driven Open Source Software",  "forbes",  "forbes", "forbes", "Global Legal Entity Identifier Foundation (GLEIF)", "Data Hub", "Data Hub", "Data Hub", "2020 US Business Database",
+        
+        "github","github", "us sam", "us gov depts", "code gov", "crowdsourced",
+        
+       "github","github", "mindmap"
+    ),
+    SubData = c(
+        "contributor", "contributor","contributor","contributor","commits", NA, NA, NA, NA, 
+        
+        "contributor", "commits", "cohort project details", "enterprise project", "Fortune's Annual Ranking of Companies 2018 (US 1000)", "Fortune's Annual Ranking of Companies 2019 (US 1000)", "Fortune's Annual Ranking of Companies 2020 (Global 2000)", NA, "email domains",  "email domains", "email domains", "2020 US Business Database",
+        
+        "contributor", "commits", "us sam", "us gov depts", "code gov", "crowdsourced", 
+        
+        "contributor", "commits", "mindmap"
+    ),
+    Variables = c(
+        "login", "email","organization","company","commits", NA, NA, NA, NA, 
+        
+        "contributor", "commits", "cohort project details", "enterprise project", "Fortune's Annual Ranking of Companies 2018 (US 1000)", "Fortune's Annual Ranking of Companies 2019 (US 1000)", "Fortune's Annual Ranking of Companies 2020 (Global 2000)", NA, "domain", "type", "organization", "2020 US Business Database",
+        
+        "contributor", "commits",  "us sam", "us gov depts", "code gov", "crowdsourced", 
+        
+        "contributor", "commits", "mindmap"
+    )
+)
+collapsibleTree(OSS, c("Sector", "DataSource", "SubData", "Variables"), collapsed = T)
+
+```
+
