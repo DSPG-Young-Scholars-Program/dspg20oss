@@ -6,19 +6,20 @@ CapStr <- function(y) {
 
 
 #function: cleancity
-#param: df, default to ctrs_raw in gh schema
+#param: df, default to ctrs_extra in gh schema
 #output:a list with two data tables: clean and analysis. Clean table gives cleaned citycode, analysis table gives detailed city geographic locations that could be used for sanity check
-cleancity <- function(df = users_gh){
+cleancity <- function(df = ctrs_extra){
   df <-  df%>%
     as.data.table() %>%
-    filter(!is.na(country_code) & !is.na(city)) #exclude missing values
+    filter(!is.na(cc_multiple) & !is.na(city)) #exclude missing values
 
-  df$country_code <- str_replace_all(df$country_code, fixed(" "), "") #remove space at the end of the country code string
+  df_multiple <- df%>%
+    filter(cc_viz == "multiple")
   
   #first step: form city_code variable, a concactinated form of country code and city name
   df <- df%>%
     dt_mutate(city = str_to_lower(city)) %>% #lowercase all city names
-    dt_mutate(city_code  = paste(country_code, city, sep="_"))%>% #concactinate country name and city name
+    dt_mutate(city_code  = paste(cc_multiple, city, sep="_"))%>% #concactinate country name and city name
   #second step: form user_geo_location, a concactinated form of rounded longitude and latitude, which will be used for checking duplicates of same country+city code, but different long+lat
     dt_mutate(user_long = long, 
            user_lat = lat, 
@@ -51,6 +52,7 @@ cleancity <- function(df = users_gh){
   
   # duplicated city_code, in vector form
   city_code_dup <- unique(df_dup$city_code)
+  df_dup <- as.data.table(df_dup)
   
   df_update_geocode <- c() #initialize data table
   df_analysis_citycode <- c() #initialize data table for 
@@ -61,7 +63,8 @@ cleancity <- function(df = users_gh){
     message("city #", i, ":", city_code_i)
     df_dup_i <- df_dup %>%
       filter(city_code == city_code_i)%>%
-      arrange(desc(ttl_users))
+      arrange(desc(ttl_users)) %>% 
+      as.data.table()
     
     #identify the geo location where has the most users, treat this geo location as benchmark
     #Question2: I only bench marked once, currently don't think it's worth doing more than once
@@ -140,14 +143,14 @@ cleancity <- function(df = users_gh){
   #note that when you import this csv, you have to set na equals to null. In the continent name, NA represents North America. Otherwise, North America will become NA (null) values.
   #https://datahub.io/JohnSnowLabs/country-and-continent-codes-list/r/0.html
   #Question4. Here I imported a dataset from oneline, did find any r built-in package that we could use
-  country_code_dict <- read_csv("~/git/dspgOSS/src/geographic/country_code_dict.csv", na = "null")%>%
+  country_code_dict <- read_csv("~/git/dspg20oss/src/geographic/country_code_dict.csv", na = "null")%>%
     mutate(Two_Letter_Country_Code = str_to_lower(Two_Letter_Country_Code)) %>%
     mutate(Country_Name = if_else(grepl(",", Country_Name), str_extract(Country_Name, "(?:(?!,).)*"), Country_Name))%>%
     mutate(Country_Name = if_else(grepl("&", Country_Name), str_extract(Country_Name, "(?:(?!&).)*"), Country_Name))
   
   df_cleaned <- df_cleaned%>%
-    left_join(country_code_dict, by = c("country_code" = "Two_Letter_Country_Code"))%>%
-    rename("raw_login" = "login", "raw_created_at" = "created_at", "raw_city" = "city", "raw_state" = "state", "raw_country_code"="country_code",
+    left_join(country_code_dict, by = c("cc_multiple" = "Two_Letter_Country_Code"))%>%
+    rename("raw_login" = "login", "raw_created_at" = "created_at", "raw_city" = "city", "raw_state" = "state", "raw_country_code"="cc_multiple",
            "raw_location" = "location", "raw_long" = "long", "raw_lat" = "lat", "c_geo_code"= "user_geo_location", "c_city_code"="city_code_new", "c_continent_name" = "Continent_Name", "c_continent_code" = "Continent_Code","c_country_name" = "Country_Name")%>%
     select(raw_login, raw_created_at, raw_city, raw_state, raw_country_code, raw_location, raw_long, raw_lat, c_geo_code, c_city_code, c_continent_name,c_continent_code, c_country_name)
   

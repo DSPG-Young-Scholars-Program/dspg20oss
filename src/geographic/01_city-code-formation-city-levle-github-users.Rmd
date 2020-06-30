@@ -34,7 +34,7 @@ users_gh <- dbGetQuery(conn, "SELECT login, created_at, city, state, country_cod
 # disconnect from postgresql database 
 dbDisconnect(conn)
 
-source("~/git/dspgOSS/src/geographic/00_functions.R", echo = T, prompt.echo = "", spaced = F)
+source("~/git/dspg20oss/src/geographic/00_functions.R", echo = T, prompt.echo = "", spaced = F)
 ```
 
 

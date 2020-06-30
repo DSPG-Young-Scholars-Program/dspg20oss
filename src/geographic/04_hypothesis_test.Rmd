@@ -40,7 +40,7 @@ desc_ctrs_summary <- dbGetQuery(conn, "SELECT *
 # disconnect from postgresql database 
 dbDisconnect(conn)
 
-source("~/git/dspgOSS/src/geographic/00_functions.R", echo = T, prompt.echo = "", spaced = F)
+source("~/git/dspg20oss/src/geographic/00_functions.R", echo = T, prompt.echo = "", spaced = F)
 ```
 
 There are 2.24% (N=48079) github users (gh.users_gh) are missing commit/repo contributions (gh.desc_ctrs_summary). We excluded these 48079 users for our analysis.
