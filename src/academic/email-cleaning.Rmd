@@ -22,7 +22,7 @@ conn <- dbConnect(drv = PostgreSQL(),
                   password = Sys.getenv("db_pwd"))
 
 # query the users_gh data from github data 
-users_gh <- dbGetQuery(conn, "SELECT email, company
+users_gh <- dbGetQuery(conn, "SELECT login, email, company
                               FROM gh.ctrs_extra")
 
 institutions_hipolabs <- dbGetQuery(conn, "SELECT institution, domains FROM hipolabs.universities")
@@ -40,33 +40,22 @@ Boosting university counts by looking at email domains
 email_domains <- users_gh %>% drop_na(email) %>%
 dt_mutate(domains = str_replace_all(email, "^[a-zA-Z0-9_.+-]+@", ""))
 
-domain_count <- email_domains %>% group_by(domains) %>% count() %>% arrange(-n)
-domain_count
+#domain_count <- email_domains %>% group_by(domains) %>% count() %>% arrange(-n)
+#domain_count
 ```
 
-```{r}
-# Looking at domains present in both GitHub and hipolabs data
-email_domains <- as.data.table(email_domains)
-email_overlap <- inner_join(email_domains, institutions_hipolabs)
-email_overlap
-```
+Matching the institutions from hipolabs to GitHub users based on email domains.
 
-Matching the institutions from hipolabs to GitHub users based on email domains
+We can match the academic institution for 17,514 users based on email domains. But, some of this is redundant or not consistent with what the user already reported for "company". Here we impute the institution only when nothing was entered for company.
 
 ```{r}
-institutions_hipolabs <- as.data.table(institutions_hipolabs)
+inferred_institutions <- email_domains %>%
+  as.data.table() %>%
+  inner_join(institutions_hipolabs) %>%
+  subset(is.na(company)) %>%
+  dt_mutate(company = institution)
 
-setkey(institutions_hipolabs, "domains")
-setkey(email_domains, "domains")
-
-join <- institutions_hipolabs[email_domains]
-join
-```
-
-
-
-```{r}
-length(drop_na(join, institution)$institution)
-# inferred institutions for 17514 users
+nrow(inferred_institutions)
+# 11,688 imputed companies
 ```
 

@@ -11,6 +11,7 @@ rm(list = ls())
 # load packages 
 for (pkg in c("tidyverse", "igraph", "visNetwork", "data.table", "R.utils", "RPostgreSQL", "cowplot", "maditr", "stringr", "stringi")) {library(pkg, character.only = TRUE)}
 ```
+
 ```{r loading data}
 # connect to postgresql to get our data
 conn <- dbConnect(drv = PostgreSQL(), 
@@ -21,10 +22,10 @@ conn <- dbConnect(drv = PostgreSQL(),
                   password = Sys.getenv("db_pwd"))
 
 # query the users_gh data from github data 
-users_gh <- dbGetQuery(conn, "SELECT login, company
-                              FROM gh.ctrs_raw")
+users_gh <- dbGetQuery(conn, "SELECT login, email, company
+                              FROM gh.ctrs_extra")
 
-institutions_hipolabs <- dbGetQuery(conn, "SELECT institution FROM hipolabs.universities")
+institutions_hipolabs <- dbGetQuery(conn, "SELECT institution, domains FROM hipolabs.universities")
 ```
 
 ```{r}
@@ -32,8 +33,9 @@ institutions_hipolabs <- dbGetQuery(conn, "SELECT institution FROM hipolabs.univ
 dbDisconnect(conn)
 ```
 
-```{r}
+Total numbers before any recoding/cleaning
 
+```{r}
 users_gh
 
 length(users_gh$company) 
@@ -48,7 +50,9 @@ length(valid_company_codes$company) / length(users_gh$company)
 
 ```
 
-```{r academic counts}
+Recoding company information, using regex to catch variations
+
+```{r regex recode}
 orgs_clean <- users_gh %>%
   # remove all na's 
   drop_na(company) %>% 
@@ -135,13 +139,13 @@ orgs_clean <- users_gh %>%
                               yes = "indiana university", no = organization)) %>%
   dt_mutate(organization = ifelse(test = str_detect(string = organization, 
                               pattern = "\\b(?i)(university of texas at austin|university of texas|the university of texas at austin)\\b"), 
-                              yes = "university of texas", no = organization)) %>%
+                              yes = "university of texas at austin", no = organization)) %>%
   dt_mutate(organization = ifelse(test = str_detect(string = organization, 
                               pattern = "\\b(?i)(^texas a&m|^texas a & m|texas a&m university)\\b"), 
-                              yes = "texas a&m university", no = organization)) %>%
+                              yes = "texas a&m university - college station", no = organization)) %>%
   dt_mutate(organization = ifelse(test = str_detect(string = organization, 
                               pattern = "\\b(?i)(university of college london|ucl|university college london)\\b"), 
-                              yes = "university of college london", no = organization)) %>%
+                              yes = "university college london, university of london", no = organization)) %>%
   dt_mutate(organization = ifelse(test = str_detect(string = organization, 
                               pattern = "\\b(?i)(new york university|nyu|nyulibraries|nyueserv|itpnyu)\\b"), 
                               yes = "new york university", no = organization)) %>%
@@ -157,9 +161,9 @@ orgs_clean <- users_gh %>%
   dt_mutate(organization = ifelse(test = str_detect(string = organization, 
                               pattern = "\\b(?i)(^tsinghua|tsinghua$|tsinghua university$|tsinghua univ$|tsinghua unviersity|tsinghuauniversity|tsinghua_university|tsinghuau)\\b"), 
                               yes = "tsinghua university", no = organization)) %>%
-  #dt_mutate(organization = ifelse(test = str_detect(string = organization, 
-                              #pattern = "\\b(?i)(^university of michigan|university of michigan$|^the university of michigan|university of michigan, ann arbor)\\b"), 
-                              #yes = "university of michigan", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+                              pattern = "\\b(?i)(^university of michigan|university of michigan$|^the university of michigan|university of michigan, ann arbor)\\b"), 
+                              yes = "university of michigan - ann arbor", no = organization)) %>%
   dt_mutate(organization = ifelse(test = str_detect(string = organization, 
                               pattern = "\\b(?i)(^university of virginia|university of virginia$|^uva|uva$)\\b"), 
                               yes = "university of virginia, charlottesville", no = organization)) %>%
@@ -218,7 +222,7 @@ orgs_clean <- users_gh %>%
                               pattern = "\\b(?i)(university of illinois at springfield|university of illinois springfield|university of illinois, springfield)\\b"), 
                               yes = "university of illinois at springfield", no = organization)) %>%
   dt_mutate(organization = ifelse(test = str_detect(string = organization, 
-                              pattern = "\\b(?i)(university of illinois at urbana-champaign|university of illinois urbana-champaign|university of illinois, urbana-champaign|university of illinois at urbana champaign)\\b"), 
+                              pattern = "\\b(?i)(university of illinois|university of illinois at urbana-champaign|university of illinois urbana-champaign|university of illinois, urbana-champaign|university of illinois at urbana champaign)\\b"), 
                               yes = "university of illinois at urbana-champaign", no = organization)) %>%
   dt_mutate(organization = ifelse(test = str_detect(string = organization, 
                               pattern = "\\b(?i)(^national university of singapore|^national university of singapore,|national university of singapore$)\\b"), 
@@ -244,9 +248,12 @@ orgs_clean <- users_gh %>%
   dt_mutate(organization = ifelse(test = str_detect(string = organization, 
                               pattern = "\\b(?i)(^university of minnesota|university of minnesota$|^university of minnesota,)\\b"), 
                               yes = "university of minnesota", no = organization)) %>%
-  #dt_mutate(organization = ifelse(test = str_detect(string = organization, 
-                              #pattern = "\\b(?i)(^sun yat-sen university|sun yat-sen university$|^sun yat-sen university,)\\b"), 
-                              #yes = "sun yat-sen university", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+                              pattern = "\\b(?i)(sun yat-sen university|(?=.*sun yat-sen)(?=.*guangzhou).*|sysu|zhongda)\\b"), 
+                              yes = "zhongshan university", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+                              pattern = "\\b(?i)(nsysu|(?=.*sun yat-sen)(?=.*taiwan).*|national sun yat-sen)\\b"), 
+                              yes = "national sun yat-sen university", no = organization)) %>%
   dt_mutate(organization = ifelse(test = str_detect(string = organization, 
                               pattern = "\\b(?i)(^university of alberta|university of alberta$|^university of alberta,)\\b"), 
                               yes = "university of alberta", no = organization)) %>%
@@ -269,50 +276,63 @@ orgs_clean <- users_gh %>%
                               pattern = "\\b(?i)(tu dresden|technische universitat dresden)\\b"),
                               yes = "technische universität dresden", no = organization)) %>%
   dt_mutate(organization = ifelse(test = str_detect(string = organization, 
-                              pattern = "\\b(?i)(university of colorado boulder|university of colorado, boulder|university of colorado - boulder|university of colorado-boulder)\\b"),
+                              pattern = "\\b(?i)(university of colorado|university of colorado boulder|university of colorado, boulder|university of colorado - boulder|university of colorado-boulder)\\b"),
                               yes = "university of colorado at boulder", no = organization)) %>%
   dt_mutate(organization = ifelse(test = str_detect(string = organization, 
                               pattern = "\\b(?i)(katholieke universiteit leuven|ku leuven)\\b"),
                               yes = "katholieke universiteit leuven", no = organization)) %>%
   dt_mutate(organization = ifelse(test = str_detect(string = organization, 
                               pattern = "\\b(?i)(eth zurich|eidgenössische technische hochschule zürich|eth zürich|swiss federal institute of technology in zurich|politecnico federale di zurigo|école polytechnique fédérale de zurich)\\b"),
-                              yes = "ethz - eth zurich", no = organization))
+                              yes = "ethz - eth zurich", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+                              pattern = "\\b(?i)(university of maryland|university of maryland$|university of maryland - college park)\\b"),
+                              yes = "university of maryland, college park", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+                              pattern = "\\b(?i)(ohio state university|ohio state university$|^ohio state|osu)\\b"),
+                              yes = "ohio state university, columbus", no = organization))
 
+# create a frequency table
 org_counts <- orgs_clean %>% group_by(organization) %>% count() %>% arrange(-n) 
 
-org_counts
-```
-
-
-Check how many academic institutions are represented by comparing with hipolabs data
-
-```{r}
-institutions_hipolabs <- as.data.table(institutions_hipolabs)
-dt_mutate(institutions_hipolabs, institution = str_to_lower(institution))
+# compare with hipolabs dataset to pull out academic institutions
+institutions_hipolabs <- institutions_hipolabs %>% as.data.table() %>% dt_mutate(institution = str_to_lower(institution))
 overlap <- semi_join(org_counts, institutions_hipolabs, by = c("organization" = "institution"))
-overlap
-```
+sum(overlap[,"n"])
 
-Everyone likes visuals
-
-```{r}
+# everyone likes visuals
 ggplot(data = overlap[1:10,]) + geom_col(mapping = aes(n, reorder(organization, n), fill = n)) + labs(y = "Academic institution", x = "User count")
-```
 
-Making a table to see what isn't caught by hipolabs
-
-```{r}
+# make a table to see what isn't caught by hipolabs
 leftover <- anti_join(org_counts, overlap)
 ```
 
-Institutions that are either missing in hipolabs data, or the user reported a broad instituion where hipolabs has only specific locations named:
+At this point, we have 23,401 users matched to academic institutions. 
 
-university of michigan, sun yat-sen university, texas a&m university, university of college london, university of tokyo, university of texas, university of maryland, xidian university, ohio state university, broad institute, university of illinois, iiit hyderabad (exists twice and is wrongly listed as "indian institute of technology, hyderabad" when it should be "international institute of technology, hyderabad"), beihang university
+We can boost this number by looking at the users' email domains:
 
+```{r domains recoding}
+# get just the domains from the emails
+email_domains <- users_gh %>% drop_na(email) %>%
+dt_mutate(domains = str_replace_all(email, "^[a-zA-Z0-9_.+-]+@", ""))
 
+# match academic institutions from hipolabs to users based on email domains
+# We can match the academic institution for 17,514 users based on email domains. But, some of this is redundant or not consistent with what the user already reported for "company". Here we impute the institution only when nothing was entered for company.
 
+# match academic institutions from hipolabs to users based on email domains
+# only impute company when it was NA
+imputed_institutions <- email_domains %>%
+  as.data.table() %>%
+  inner_join(institutions_hipolabs) %>%
+  subset(is.na(company)) %>%
+  dt_mutate(organization = institution)
 
+nrow(imputed_institutions) # 11,688 imputed
 
+# join with other recoded data to update academic counts
+orgs_clean <- full_join(orgs_clean, imputed_institutions[,c("login","email","organization")])
+org_counts <- orgs_clean %>% group_by(organization) %>% count() %>% arrange(-n) 
+overlap <- semi_join(org_counts, institutions_hipolabs, by = c("organization" = "institution"))
+sum(overlap[,"n"])
+```
 
-
-
+New total is 35,263 users matched to academic institutions.
