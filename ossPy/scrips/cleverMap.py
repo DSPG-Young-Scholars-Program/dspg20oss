@@ -27,7 +27,7 @@ def uniquePandasIndexMapping(inputColumn):
     currentSum=0
     for index, row in sortedTableUniqueFullNameCounts.iterrows():
         currentRange=np.arange(currentSum,currentSum+sortedTableUniqueFullNameCounts['count'].iloc[index])
-        sortedTableUniqueFullNameCounts['inputIndexMapping'].iloc[index]=currentRange
+        sortedTableUniqueFullNameCounts['inputIndexMapping'].iloc[index]=sortedInputColumn['userIndex'].iloc[currentRange]
         currentSum=currentSum+sortedTableUniqueFullNameCounts['count'].iloc[index]
 
     return sortedInputColumn, sortedTableUniqueFullNameCounts
