@@ -16,7 +16,6 @@ import re
 import matplotlib.pyplot as plt
 import os
 import nltk
-import plotly
 
  #perform sql query to get company column
 postgreSql_selectQuery="SELECT company FROM gh.ctrs_raw ;"
@@ -25,7 +24,7 @@ inputRaw=ossPyFuncs.queryToPDTable(postgreSql_selectQuery)
 
 currentDir=os.path.dirname('ossPyFuncs.py')
 replaceList=pd.read_csv(os.path.join(currentDir,'keyFiles/expandAbrevs.csv'),quotechar="'",header=None)
-semiCleanedOutput=pd.DataFrame(ossPyFuncs.expandFromColumn(inputRaw['company'],replaceList))
+inputColumn, replaceList=ossPyFuncs.expandFromColumn(inputRaw['company'],replaceList)
 
 #obtain the eralse list
 currentDir=os.path.dirname('ossPyFuncs.py')
@@ -59,9 +58,10 @@ tableUniqueFullNameCounts.rename(columns={"company":"count","index":"company"},i
 tableUniqueFullNameCounts=tableUniqueFullNameCounts[~tableUniqueFullNameCounts['company'].str.contains("^$")]
 
 #perform a regex search
-dataTest2=tableUniqueFullNameCounts[tableUniqueFullNameCounts['company'].str.contains("(?i)hewlett")]
+dataTest1=tableUniqueCounts[tableUniqueCounts['token'].str.contains("\.")]
+dataTest2=tableUniqueCounts2[tableUniqueCounts2['token'].str.contains("\.")]
 
-dataTest2=tableUniqueFullNameCounts[tableUniqueFullNameCounts['company'].str.contains("(?i)hello")]
+dataTest3=tableUniqueFullNameCounts[tableUniqueFullNameCounts['company'].str.contains(" EU")]
 
 dataTest3=tableUniqueCounts[tableUniqueCounts['token'].str.contains("^\\W+?$")]
 

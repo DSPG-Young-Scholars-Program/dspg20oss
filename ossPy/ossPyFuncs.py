@@ -146,4 +146,27 @@ def expandFromColumn(inputColumn,replaceList):
        replaceList['changeIndexes'].iloc[index]=[i for i, x in enumerate(CurrentBoolVec) if x]
        replaceList['changeNum'].iloc[index]=len(replaceList['changeIndexes'].iloc[index])
        inputColumn=inputColumn.replace(regex=True, to_replace=currentRegexExpression,value=row[1])
-   return inputColumn, replaceList
+   return inputColumn, replaceList;
+
+def uniquePandasIndexMapping(inputColumn):
+    import numpy as np
+    
+    inputColumn.sort_values(by=['company'], inplace=True)
+    sortedInputColumn=inputColumn.reset_index() 
+    sortedInputColumn.rename(columns={"index":"userIndex"},inplace=True)
+    
+    tableUniqueFullNameCounts=inputColumn.iloc[:,0].value_counts()  
+    tableUniqueFullNameCounts=tableUniqueFullNameCounts.reset_index() 
+    tableUniqueFullNameCounts.rename(columns={"company":"count","index":"company"},inplace=True)
+    
+    tableUniqueFullNameCounts.sort_values(by=['company'], inplace=True)
+    sortedTableUniqueFullNameCounts=tableUniqueFullNameCounts.reset_index()
+    sortedTableUniqueFullNameCounts['inputIndexMapping']=''
+    
+    currentSum=0
+    for index, row in sortedTableUniqueFullNameCounts.iterrows():
+        currentRange=np.arange(currentSum,currentSum+sortedTableUniqueFullNameCounts['count'].iloc[index])
+        sortedTableUniqueFullNameCounts['inputIndexMapping'].iloc[index]=currentRange
+        currentSum=currentSum+sortedTableUniqueFullNameCounts['count'].iloc[index]
+
+    return sortedInputColumn, sortedTableUniqueFullNameCounts;

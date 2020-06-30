@@ -24,10 +24,15 @@ legalEntitiesRaw=ossPyFuncs.queryToPDTable(postgreSql_selectQuery)
 longLine=legalEntitiesRaw['local_language_abbreviation'].str.cat(sep=';')
 longLineSeparated=pd.DataFrame(longLine.split(';'))
 uniqueFrame=pd.DataFrame(longLineSeparated[0].unique())
-uniqueFrame=pd.DataFrame(uniqueFrame[0][~uniqueFrame[0].str.contains('(?i)^co\.$|^co$')]).reset_index(drop=True)
-uniqueFrame=pd.DataFrame(uniqueFrame[0][~uniqueFrame[0].str.contains('(?i)^co\.$|^co$')]).reset_index(drop=True)
+#uniqueFrame=pd.DataFrame(uniqueFrame[0][~uniqueFrame[0].str.contains('(?i)^co\.$|^co$')]).reset_index(drop=True)
+#uniqueFrame=pd.DataFrame(uniqueFrame[0][~uniqueFrame[0].str.contains('(?i)^co\.$|^co$')]).reset_index(drop=True)
 
-inputColumn, eraseList=ossPyFuncs.eraseFromColumn(inputRaw['company'],uniqueFrame)
+sqlQueryFormattedFrame=pd.DataFrame('(?i)\\b'+uniqueFrame[0].astype(str)+'\\b')
+
+inputColumn, eraseList=ossPyFuncs.eraseFromColumn(inputRaw['company'],sqlQueryFormattedFrame)
+
+eraseList.sort_values(by=['changeNum'],ascending=False,inplace=True)
+eraseList.reset_index(drop=True,inplace=True)
 
 longLine=barAbbreviations[0].str.cat(sep='|')
 
@@ -43,3 +48,11 @@ test5=uniqueFrame[uniqueFrame[0].str.contains('(株)\1{9,}')]
 #perform sql query to get company column
 postgreSql_selectQuery="SELECT domain FROM datahub.domain_names;"
 domainsTable=ossPyFuncs.queryToPDTable(postgreSql_selectQuery)
+domainsTableFormattedFrame=pd.DataFrame('(?i)\\b'+domainsTable['domain'].astype(str)+'\\b')
+inputColumn, eraseList=ossPyFuncs.eraseFromColumn(inputRaw['company'],domainsTableFormattedFrame)
+eraseList.sort_values(by=['changeNum'],ascending=False,inplace=True)
+eraseList.reset_index(drop=True,inplace=True)
+
+print(str(np.sum(eraseList['changeNum'])) + ' listings changed')
+
+eraseList.head(25)
