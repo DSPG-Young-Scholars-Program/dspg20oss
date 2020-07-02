@@ -2,7 +2,7 @@
 -- code makes gh.ctrs_extra
 -- binds contributors data together 
 -- with user emails (scraped from github)
--- and the recoded country_codes from the sna_intl project 
+-- and the recoded country_codes from the sna_intl project  
 --------------------------------------------------------------
 
 CREATE TABLE gh.ctrs_extra AS (
