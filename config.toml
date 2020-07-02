@@ -19,7 +19,7 @@ ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "public/"]
     backgroundColor = "#FFFFFF"
     font = "Oxygen" # should match the name on Google Fonts!
     highlight = true
-    highlightStyle = "#E57200" # make this match accent
+    highlightStyle = "#232D4B" # make this match accent
     highlightLanguages = ["r", "bash", "go"]
 
 # adjust these as you see fit
