@@ -87,7 +87,7 @@ a:link, a:visited {
 }
 
 .item-tag {
-    background-color: var(--accent);
+    background-color: #E57200;
     margin:1px;
 }
 
