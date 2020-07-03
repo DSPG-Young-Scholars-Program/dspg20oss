@@ -17,10 +17,8 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r loading data, message=FALSE, warning=FALSE, include=FALSE}
 rm(list = ls())
 
-# load packages 
-# for (pkg in c("tidyverse", "igraph", "visNetwork", "data.table", "R.utils", "RPostgreSQL", "cowplot", "maditr", "stringr", "stringi", "mosaic", "sf", "raster", "dplyr", "spData", "tmap", "leaflet", "mapview", "ggplot2", "shiny", "maps", "plotly", "RColorBrewer", "leaflet.extras", "rgdal", "rnaturalearth", "rnaturalearthdata", "ggspatial", "maps", "tool", "ggrepel", "tmaptools")) {library(pkg, character.only = TRUE)}
-
-for (pkg in c("tidyverse", "data.table", "R.utils", "RPostgreSQL", "cowplot", "maditr", "stringr", "stringi",  "dplyr")) {library(pkg, character.only = TRUE)}
+# load packages
+for (pkg in c("tidyverse", "data.table", "R.utils", "RPostgreSQL", "cowplot", "maditr", "stringr", "stringi",  "dplyr", "leaflet", "leaflet.extras")) {library(pkg, character.only = TRUE)}
 
 
 # connect to postgresql to get our data
@@ -31,28 +29,39 @@ conn <- dbConnect(drv = PostgreSQL(),
                   user = Sys.getenv("db_userid"), 
                   password = Sys.getenv("db_pwd"))
 
-# query the users_gh data from github data 
+# query the ctrs_extra data from github data 
 ctrs_extra <- dbGetQuery(conn, "SELECT login, created_at, city, state, country_code, location, long, lat, cc_multiple, cc_viz
                               FROM gh.ctrs_extra")
 
 # disconnect from postgresql database 
 dbDisconnect(conn)
 
-check <- table(ctrs_extra$cc_viz)
-View(check)
+#source functions 
 source("~/git/dspg20oss/src/geographic/00_functions.R", echo = T, prompt.echo = "", spaced = F)
-```
 
-We conduct analysis on github users' geographic location, which is extracted from the user profile. We ackowledge  `r round(sum(is.na(users_gh$country_code) | is.na(users_gh$city))/nrow(users_gh) * 100, digits = 2)` % missing geographic information (country and city name), which leaves us with `r sum(!is.na(users_gh$country_code) & !is.na(users_gh$city))` github users in our analysis. We hypothesized that there is no difference between users with geographic information and users who are missing geographic information (In progress).
+#https://coolors.co/232d4b-2c4f6b-0e879c-60999a-d1e0bf-d9e12b-e6ce3a-e6a01d-e57200-fdfdfd
+uva_color_palette <- 
+c("#232D4B", #space cadet
+  "#2C4F6B", #indigo dye
+  "#0E879C", #blue munsell
+  "#60999A", #cadet blue
+  "#D1E0BF", #tea green
+  "#D9E12B", #pear
+  "#E6CE3A", #citrine
+  "#E6A01D", #marigold
+  "#E57200" #princeton orange
+)
+new_sample <- ctrs_extra%>%
+  filter(is.na(country_code) & !is.na(cc_multiple))
 
-```{r clean citycode, message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
-table(is.na(users_gh$country_code))
-
-ls_cleancity <- cleancity(users_gh)
+ls_cleancity <- cleancity(ctrs_extra)
 
 city_clean_final <- ls_cleancity$cleaned_df
+nrow(city_clean_final)
+```
 
-
+We conduct analysis on github users' geographic location, which is extracted from the user profile. We ackowledge  `r round(sum(is.na(ctrs_extra$cc_multiple) | is.na(ctrs_extra$city))/nrow(ctrs_extra) * 100, digits = 2)` % missing geographic information (country and city name), which leaves us with `r sum(!is.na(ctrs_extra$cc_multiple) & !is.na(ctrs_extra$city))` github users in our analysis.
+```{r clean citycode, message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
 #aggregate by continent
 city_clean_final_aggregate_continent<- city_clean_final%>%
   group_by(c_continent_name)%>%
@@ -62,7 +71,8 @@ city_clean_final_aggregate_continent<- city_clean_final%>%
 #aggregate by country
 city_clean_final_aggregate_country <- city_clean_final%>%
   group_by(c_country_name)%>%
-  summarize(ttl_users = n())
+  summarize(ttl_users = n())%>%
+  arrange(desc(ttl_users))
 #city_clean_final_aggregate_country$country_code <- gsub(" ", "", city_clean_final_aggregate_country$country_code, fixed = TRUE)
 
 #aggregate by city
@@ -78,9 +88,9 @@ city_clean_final_aggregate$city<- sapply(city_clean_final_aggregate$city,CapStr)
 city_clean_final_aggregate$city_country <- paste(city_clean_final_aggregate$city, city_clean_final_aggregate$c_country_name, sep = ", ")
 ```
 
-# What Continents are Github Users Located at
+# Top Continents are Github Users Located 
 North America is the continent that has the highest number of github users, following by Europe, and Asia.
-```{r fig.width=8, fig.height=8, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+```{r fig.width=8, fig.height=6, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 gh_continent<- city_clean_final_aggregate_continent%>%
   arrange(desc(ttl_users))
 
@@ -88,50 +98,47 @@ gh_continent$Continent_Name <- factor(gh_continent$c_continent_name, levels = gh
 
 ggplot(gh_continent, aes(x = Continent_Name, y = ttl_users, fill = ttl_users))+
   geom_bar(stat = "identity")+ 
-  scale_fill_continuous(low="blue", high="red")+
+  scale_fill_continuous(low = uva_color_palette[5], high=uva_color_palette[8])+
   labs(title = "Continents where Github users are located", x = "continent", y = "total number of users")+
   theme_bw()
 ```
 
 # Top Countries Where Github Users are Located
-United States is the country that has the highest number of github users, following by China, Great Britain, and India.
-```{r fig.width=7, fig.height=10, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+United States is the country that has the highest number of github users, following by China, United Kingdom, and India.
+```{r fig.width=9, fig.height=6, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 gh_country <- city_clean_final_aggregate_country%>%
   arrange(desc(ttl_users))%>%
   top_n(10, ttl_users)
 
-gh_country$Country_Name <- factor(gh_country$c_country_name, levels = gh_country$c_country_name[order(gh_country$ttl_users)])
-gh_country <- gh_country %>% 
-  mutate(c_country_name = ifelse(test = str_detect(string = c_country_name, pattern = "United States of America"), yes = "USA", no = c_country_name)) %>% 
-  mutate(c_country_name = ifelse(test = str_detect(string = c_country_name, pattern = "United Kingdom of Great Britain"), yes = "UK", no = c_country_name)) %>% 
-  mutate(c_country_name = ifelse(test = str_detect(string = c_country_name, pattern = "Russian Federation"), yes = "Russia", no = c_country_name))
+gh_country$c_country_name <- factor(gh_country$c_country_name, levels = gh_country$c_country_name[order(gh_country$ttl_users)])
 
 ggplot(gh_country, aes(x = c_country_name, y = ttl_users, fill = ttl_users)) +
   geom_bar(stat = "identity")+ 
-  scale_fill_continuous(low="blue", high="red")+
+  scale_fill_continuous(low = uva_color_palette[5], high=uva_color_palette[8])+
   labs(title = "Countries where Github users are located", x = "country", y = "total number of users") +
-  theme_bw()+
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+  theme_bw()
 ```
 
 
 # Top Cities Where Github Users are Located
 San Francisco (US) is the city that has the highest number of github users, following by London (UK), New York (US), Moscow (Russia), and Beijing (China).
-```{r fig.width=7, fig.height=10, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+```{r fig.width=11, fig.height=6, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 gh_city <- city_clean_final_aggregate%>%
   arrange(-ttl_users)%>%
  # top_n(10, ttl_users)%>%  #don't know why this code doesn't work
   filter(ttl_users >= 6651) 
+
+gh_city$city_country <- str_replace_all(gh_city$city_country, fixed(","), "\n") 
+
 
 gh_city$city_country <- factor(gh_city$city_country, levels = gh_city$city_country[order(gh_city$ttl_users)])
 # NOTE ::: Could you please shorten the labels for the USA and Russia cities 
 
 ggplot(gh_city, aes(x = city_country, y = ttl_users, fill = ttl_users))+
   geom_bar(stat = "identity")+ 
-  scale_fill_continuous(low="blue", high="red")+
+  scale_fill_continuous(low = uva_color_palette[5], high=uva_color_palette[8])+
   labs(title = "Countries where Github users are located", x = "city", y = "total number of users") +
-  theme_bw()+
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+  theme_bw()
 ```
 
 # City-level Interactive map
@@ -197,8 +204,8 @@ city_clean_final_aggregate %>%
   addCircleMarkers(
     lng = ~long , 
     lat = ~lat, 
-    label = ~ paste(city_country,", ", ttl_users, " users", sep = ""),
+    label = ~ paste(city_country,", ", ttl_users, " user(s)", sep = ""),
     radius = ~ttl_users^(1/3), 
-    color = "green")
+    color = uva_color_palette[8])
 ```
 

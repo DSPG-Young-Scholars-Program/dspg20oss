@@ -1,0 +1,120 @@
+---
+title: "02_name_cleaning"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+for (pkg in c("tidyverse", "igraph", "data.table", "R.utils", "RPostgreSQL", "cowplot", "maditr", "gt")) {library(pkg, character.only = TRUE)}
+
+# connect to postgresql to get our data
+conn <- dbConnect(drv = PostgreSQL(), 
+                  dbname = "sdad", 
+                  host = "10.250.124.195", 
+                  port = 5432, 
+                  user = Sys.getenv("db_userid"), 
+                  password = Sys.getenv("db_pwd"))
+
+#github user with emails
+gh_extra <- dbGetQuery(conn, "SELECT *
+                              FROM gh.ctrs_extra")
+
+
+# query the users_gh data (table of all github users) 
+us_gov_ffrdcs <- dbGetQuery(conn, "SELECT * FROM us_gov_depts.us_gov_ffrdcs")
+
+# query the users_gh data (table of all github users) 
+us_gov_azindex <- dbGetQuery(conn, "SELECT * FROM us_gov_depts.us_gov_azindex_clean")
+
+# query the users_gh data (table of all github users) 
+us_gov_manual <- dbGetQuery(conn, "SELECT * FROM us_gov_depts.us_gov_manual")
+
+# query the email domain data
+email_domain <- dbGetQuery(conn, "SELECT * FROM datahub.domain_names")
+
+# disconnect from postgresql database 
+dbDisconnect(conn)
+```
+
+
+```{r}
+table(email_domain$type)
+
+#1.organization that contains gov string
+
+```
+
+# .gov email domain
+There are 86 unique gov ending emails.       
+-nist: National Institute of Standards and Technology
+-usgs: U.S. Geological Survey
+-llnl: Lawrence Livermore National Laboratory
+-lbl: Lawrence Berkeley National Laboratory
+```{r}
+email_clean <- gh_extra%>%
+  as.data.table()%>%
+  filter(!is.na(email))%>%
+  select(login, email, company)%>%
+  #mutate(email_domain_short = str_extract(email, "@[a-z]+"))%>% #the first string after @
+  mutate(email_domain_long =  str_extract(email, "(?<=@).*"))%>% #all strings after @
+  mutate(is_gov_email_domain = if_else(str_detect(email, ".gov$") == T, T, F))%>%
+  filter(is_gov_email_domain)%>% 
+  mutate(gov_email_domain = str_extract(email, "(?<=@)(.*)gov"))
+
+email_clean%>%
+  group_by(gov_email_domain)%>%
+  summarize(N=n(), `percent(%)` = round(100* N/nrow(email_clean), digits= 2))%>%
+  arrange(desc(N))%>%
+  mutate(sum = sum(N))%>%
+  top_n(20, N)%>%
+  gt()
+
+length(unique(email_clean$gov_email_domain))
+```
+
+
+```{r}
+email_clean_gov <- email_clean%>%
+  mutate(gov = if_else(str_detect(string = company, 
+                                                 pattern = "\\b(?i)(certificate|certificate)\\b"),T,F))
+```
+
+```{r}
+az_list <- distinct(us_gov_azindex, agency) %>% rename(institution = agency)
+az_list$dataset <- "azindex"
+ffrdc_list <- distinct(us_gov_ffrdcs, FFRDC_Name)  %>% rename(institution = FFRDC_Name)
+ffrdc_list$dataset <- "ffrdc"
+usman_list <- distinct(us_gov_manual, AgencyName)  %>% rename(institution = AgencyName)
+usman_list$dataset <- "usman"
+all_lists <- rbind(az_list, ffrdc_list, usman_list)
+all_lists <- distinct(all_lists, institution, .keep_all = TRUE)
+all_lists <- all_lists %>% arrange(institution)
+
+
+test <- as.data.frame(unlist(strsplit(all_lists$institution, "\\(")))
+
+
+
+#potentially edit on gh
+
+```
+
+```{r}
+organization_counts <- gh_extra %>% 
+  drop_na(company) %>% 
+  mutate(organization = str_to_lower(company)) %>% 
+  mutate(organization = str_trim(organization)) %>% 
+  mutate(organization = ifelse(test = str_detect(string = organization, 
+                              pattern = "\\b(?i)(freelancer|freelance|freelancing|freelancers|freelances|self|personal|home|private|individual|myself|me|independent|independent contractor|contractor|private|household|house|home|my house|jobless|looking for a job|looking for job|seeking employment|seeking|actively seeking employment|seeking opportunities|seeking internship|seeking work)\\b"), 
+                              yes = "household", no = organization)) %>%
+  mutate(organization = ifelse(test = str_detect(string = organization, 
+                              pattern = "\\b(?i)(n/a|none|null|no|na)\\b"),      
+                              yes = "none/null", no = organization)) %>% 
+  group_by(organization) %>% count() %>% arrange(-n)
+```
+

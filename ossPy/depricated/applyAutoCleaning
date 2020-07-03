@@ -1,0 +1,38 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Sun Jun 14 17:09:31 2020
+
+@author: dnb3k
+"""
+
+import os
+import psycopg2
+import pandas as pd
+import numpy as np
+from matplotlib import pyplot
+import difflib
+
+
+def queryToPDTable(postgreSql_selectQuery):
+    import os
+    import psycopg2
+    import pandas as pd
+    import numpy as np
+    from matplotlib import pyplot
+
+    conn=psycopg2.connect(host="postgis1",
+                      dbname="sdad",
+                      user=os.environ.get('UVA_uname'),
+                      password=os.environ.get('UVA_pass'))
+
+    dataOut=pd.read_sql_query(postgreSql_selectQuery,conn)
+
+    return dataOut
+
+
+postgreSql_selectQuery="SELECT login, company FROM gh.ctrs_raw ;"
+
+rawWorkplaceTable=queryToPDTable(postgreSql_selectQuery)
+
+rawWorkplaceTable['orgGuess']
