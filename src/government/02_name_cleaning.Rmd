@@ -35,7 +35,16 @@ us_gov_azindex <- dbGetQuery(conn, "SELECT * FROM us_gov_depts.us_gov_azindex_cl
 us_gov_manual <- dbGetQuery(conn, "SELECT * FROM us_gov_depts.us_gov_manual")
 
 # query the email domain data
-email_domain <- dbGetQuery(conn, "SELECT * FROM datahub.domain_names")
+email_domain_datahub <- dbGetQuery(conn, "SELECT * FROM datahub.domain_names")
+
+# goverment email domains
+#https://home.dotgov.gov/data/ (All .gov domains)
+#The official public list of .gov domains is updated about every two weeks:
+#List of .gov domains - includes all federal, state, interstate, local, and tribal .gov and .fed.us domains.
+email_domain_gov <- read_csv("/sfs/qumulo/qhome/zz3hs/oss-data/email_domain_federal_full.csv")%>%
+   rename("domain_name" = "Domain Name", "domain_type" ="Domain Type")%>%
+  select(-"Security Contact Email")%>%
+  mutate(domain_name = tolower(domain_name), gov = T)
 
 # disconnect from postgresql database 
 dbDisconnect(conn)
@@ -43,10 +52,38 @@ dbDisconnect(conn)
 
 
 ```{r}
-table(email_domain$type)
+#match the full domain (Ex .newyorkhealth.gov)
+email_clean <- gh_extra%>%
+  as.data.table()%>%
+  filter(!is.na(email))%>%
+  select(login, email, company)%>%
+  #mutate(email_domain_short = str_extract(email, "@[a-z]+"))%>% #the first string after @
+  mutate(email_domain_long =  str_extract(email, "(?<=@).*"))%>% #all strings after @
+  mutate(is_gov_email_domain = if_else(str_detect(email, ".gov$") == T, T, F))
 
+#join the cleaned email from gh with the email domain gov
+email_clean <- left_join(email_clean, email_domain_gov, by = c("email_domain_long" = "domain_name"))
+
+email_clean <- email_clean %>%
+  mutate(is.gov = if_else(is_gov_email_domain == T | gov==T, T, F))%>%
+  select(-is_gov_email_domain, -gov)
+
+email_clean <- email_clean%>% 
+  dplyr::mutate(is.gov= replace_na(is.gov, FALSE))
+
+table(email_clean$is.gov)
+
+
+#match the domain ending (Ex .gov)
 #1.organization that contains gov string
+# email_domain_datahub <- email_domain_datahub%>%
+#   mutate(datahub_gov = if_else(str_detect(organization, "\\b(?i)(gov|Government)\\b"), T, F))%>%
+#   mutate(datahub_gov = if_else(organization %in% c("DoD Network Information Center", "Universal Postal Union"), T, datahub_gov))%>%
+#   filter(datahub_gov)%>%
+#   select(-type)
 
+# email_clean_j <- email_clean%>%
+#   left_join(email_domain_datahub, by = c("email_domain_long" = "domain"))
 ```
 
 # .gov email domain
@@ -56,16 +93,6 @@ There are 86 unique gov ending emails.
 -llnl: Lawrence Livermore National Laboratory
 -lbl: Lawrence Berkeley National Laboratory
 ```{r}
-email_clean <- gh_extra%>%
-  as.data.table()%>%
-  filter(!is.na(email))%>%
-  select(login, email, company)%>%
-  #mutate(email_domain_short = str_extract(email, "@[a-z]+"))%>% #the first string after @
-  mutate(email_domain_long =  str_extract(email, "(?<=@).*"))%>% #all strings after @
-  mutate(is_gov_email_domain = if_else(str_detect(email, ".gov$") == T, T, F))%>%
-  filter(is_gov_email_domain)%>% 
-  mutate(gov_email_domain = str_extract(email, "(?<=@)(.*)gov"))
-
 email_clean%>%
   group_by(gov_email_domain)%>%
   summarize(N=n(), `percent(%)` = round(100* N/nrow(email_clean), digits= 2))%>%
@@ -79,29 +106,128 @@ length(unique(email_clean$gov_email_domain))
 
 
 ```{r}
-email_clean_gov <- email_clean%>%
-  mutate(gov = if_else(str_detect(string = company, 
-                                                 pattern = "\\b(?i)(certificate|certificate)\\b"),T,F))
+# email_clean_gov <- email_clean%>%
+#   mutate(gov = if_else(str_detect(string = company, 
+#                                                  pattern = "\\b(?i)(certificate|certificate)\\b"),T,F))
+
+#company cleaning
+company_clean <- email_clean%>%
+    mutate(company = tolower(company))%>% 
+  mutate_all(na_if,"")%>%
+  filter(!is.na(company))
+company_clean$company <- str_replace_all(company_clean$company , fixed("@"), "") 
+
+company_top <- company_clean %>%
+  group_by(company)%>%
+  summarize(N=n())%>%
+  arrange(desc(N))
 ```
 
 ```{r}
-az_list <- distinct(us_gov_azindex, agency) %>% rename(institution = agency)
-az_list$dataset <- "azindex"
-ffrdc_list <- distinct(us_gov_ffrdcs, FFRDC_Name)  %>% rename(institution = FFRDC_Name)
-ffrdc_list$dataset <- "ffrdc"
-usman_list <- distinct(us_gov_manual, AgencyName)  %>% rename(institution = AgencyName)
-usman_list$dataset <- "usman"
-all_lists <- rbind(az_list, ffrdc_list, usman_list)
+#I.azindex
+#I.1 agency
+az_list_agency <- distinct(us_gov_azindex, agency) %>% 
+  rename(institution = agency)%>%
+  mutate(dataset = "azindex_agency")
+
+##I.2gov agency
+# az_list_gov_agency <- distinct(us_gov_azindex, gov_agency) %>% 
+#   filter(!is.na(gov_agency))%>%
+#   mutate(gov_agency = tolower(gov_agency))%>%
+#   mutate(gov_agency2 = str_replace_all(gov_agency , fixed("u.s."), "united states"))%>%
+#   gather("institution",  "government_agency")%>%
+#   select(-institution)%>%
+#   mutate(dataset = "azindex_gov_agency")%>%
+#   rename(institution = government_agency)
+az_list_gov_agency <- distinct(us_gov_azindex, gov_agency) %>%
+  rename(institution = gov_agency)%>%
+  mutate(dataset = "azindex_gov_agency")
+
+##I.3gov branch
+#gov_branch_names <- as.vector(unique(us_gov_azindex$gov_branch))
+#gov_branch_names <- unlist(strsplit(gov_branch_names, "/"))
+az_list_gov_branch <- distinct(us_gov_azindex, gov_branch)%>%
+  rename(institution = gov_branch)%>%
+  mutate(dataset = "azindex_gov_branch")
+
+##I.4 child agency
+az_list_child_agency <- distinct(us_gov_azindex, child_agency)%>%
+  rename(institution = child_agency)%>%
+  mutate(dataset = "azindex_child_agency")
+
+
+#II. ffrdc
+##II.1 FFRDC
+ffrdc_list <- distinct(us_gov_ffrdcs, FFRDC_Name)  %>% 
+  rename(institution = FFRDC_Name)%>%
+  mutate(dataset = "ffrdc" )
+
+##II.2 agency
+ffrdc_list_agency <- us_gov_ffrdcs%>%
+  select(Agency, Agency2, Agency3)%>%
+  gather("agency_type", "agency_name")%>%
+  filter(!is.na(agency_name))%>%
+  distinct(agency_name) %>% 
+  rename(institution = agency_name)%>%
+  mutate(dataset = "ffrdc_agency")
+
+##II.2 sub agency
+ffrdc_list_sub_agency <- us_gov_ffrdcs%>%
+  select(FFRDC_Name, Sub_Agency, Sub_Agency2, Sub_Agency3)%>%
+  gather("agency_type", "agency_name")%>%
+  filter(!is.na(agency_name))%>%
+  distinct(agency_name)%>% 
+  rename(institution = agency_name)%>%
+  mutate(dataset = "ffrdc_sub_agency" )
+
+##II.3 admin name
+ffrdc_list_admin <- us_gov_ffrdcs%>%
+  distinct(Admin_Name)%>%
+  rename(institution = Admin_Name)%>%
+  mutate(dataset = "ffrdc_admin")%>%
+  mutate(is.university = str_detect(institution, "Univ"))%>%
+  filter(!is.university)%>%
+  select(-is.university)
+
+#III.usman
+usman_list <- us_gov_manual%>%
+  distinct( AgencyName)  %>% 
+  rename(institution = AgencyName)%>%
+  mutate(dataset = "usman")
+
+all_lists <- rbind(az_list_agency, az_list_gov_agency, az_list_gov_branch, az_list_child_agency, ffrdc_list_agency, ffrdc_list_sub_agency, ffrdc_list_admin, usman_list)
 all_lists <- distinct(all_lists, institution, .keep_all = TRUE)
-all_lists <- all_lists %>% arrange(institution)
+
+all_lists_clean <- all_lists %>% 
+  arrange(institution)%>% 
+   filter(!is.na(institution))%>%
+   mutate(institution = tolower(institution))%>%
+   mutate(institution2 = str_replace_all(institution , fixed("u.s."), "united states"))%>%
+   gather("institution_type",  "institution_name", -dataset)%>%
+   select(-institution_type)%>%
+   distinct(institution_name, .keep_all=T)%>%
+   rename(institution = institution_name)
 
 
-test <- as.data.frame(unlist(strsplit(all_lists$institution, "\\(")))
+all_lists_clean <- as.data.frame(unlist(strsplit(all_lists_clean$institution, "\\(")))
+names(all_lists_clean) <- "institution"
+all_lists_clean$institution <- str_replace_all(all_lists_clean$institution , fixed(")"), "") 
+all_lists_clean <- all_lists_clean%>%
+  mutate(company_name_is.gov = T)
 
 
 
-#potentially edit on gh
+#joing gh with all_lists_clean
+company_clean_join <- left_join(company_clean, all_lists_clean, by = c("company" = "institution"))
 
+table(company_clean_join$company_name_is.gov)
+
+gh_final <- company_clean_join%>%
+  mutate(is.gov = if_else(company_name_is.gov, T, is.gov))%>%
+  select(-company_name_is.gov)
+gh_final$is.gov <-  replace_na("FALSE")
+
+table(company_clean_join$is.gov)
 ```
 
 ```{r}
