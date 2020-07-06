@@ -33,7 +33,7 @@ eraseList=pd.read_csv(os.path.join(currentDir,'keyFiles/eraseStrings_v6.csv'),qu
 semiCleanedOutput=pd.DataFrame(ossPyFuncs.eraseFromColumn(inputRaw['company'],eraseList))
 
 #cat together all user's workplace names (note, we are not applying unique first)
-longString=semiCleanedOutput['company'].str.cat(sep=' ')
+longString=inputRaw['company'].str.cat(sep=' ')
 
 #separate each word into a extremely long list
 longStringSeparated=longString.split(' ')
@@ -57,11 +57,13 @@ tableUniqueFullNameCounts=tableUniqueFullNameCounts.reset_index()
 tableUniqueFullNameCounts.rename(columns={"company":"count","index":"company"},inplace=True)
 tableUniqueFullNameCounts=tableUniqueFullNameCounts[~tableUniqueFullNameCounts['company'].str.contains("^$")]
 
+[^a-zA-Z\d\s:]
 #perform a regex search
-dataTest1=tableUniqueCounts[tableUniqueCounts['token'].str.contains("\.")]
+dataTest1=tableUniqueCounts[tableUniqueCounts['token'].str.contains("[^a-zA-Z\-@\.\,\\d\\s:]")]
+dataTest1=tableUniqueCounts[tableUniqueCounts['token'].str.contains("href")]
 dataTest2=tableUniqueCounts2[tableUniqueCounts2['token'].str.contains("\.")]
 
-dataTest3=tableUniqueFullNameCounts[tableUniqueFullNameCounts['company'].str.contains(" EU")]
+dataTest3=tableUniqueFullNameCounts[tableUniqueFullNameCounts['guesses'].str.contains("Microsoft")]
 
 dataTest3=tableUniqueCounts[tableUniqueCounts['token'].str.contains("^\\W+?$")]
 

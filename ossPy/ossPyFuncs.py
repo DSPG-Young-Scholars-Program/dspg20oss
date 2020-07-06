@@ -110,7 +110,9 @@ def eraseFromColumn(inputColumn,eraseList):
    eraseList['changeNum']=0
    eraseList['changeIndexes']=''
    
-
+   #necessary, due to escape nonsense
+   inputColumn=inputColumn.replace(regex=True, to_replace='\\\\',value='/')
+     
    for index, row in eraseList.iterrows():
        
        curReplaceVal=row[0]
@@ -134,12 +136,14 @@ def expandFromColumn(inputColumn,replaceList):
     
    import pandas as pd
    import re
-
+   
+   #necessary, due to escape nonsense
+   inputColumn=inputColumn.replace(regex=True, to_replace='\\\\',value='/')
+   
    replaceList['changeNum']=0
    replaceList['changeIndexes']=''
 
    for index, row in replaceList.iterrows():
-       print(row[0])
        curReplaceVal=row[0]
        currentRegexExpression=re.compile(curReplaceVal)
        CurrentBoolVec=inputColumn.str.contains(currentRegexExpression,na=False)
@@ -166,7 +170,7 @@ def uniquePandasIndexMapping(inputColumn):
     currentSum=0
     for index, row in sortedTableUniqueFullNameCounts.iterrows():
         currentRange=np.arange(currentSum,currentSum+sortedTableUniqueFullNameCounts['count'].iloc[index])
-        sortedTableUniqueFullNameCounts['inputIndexMapping'].iloc[index]=sortedInputColumn['userIndex'].iloc[currentRange]
+        sortedTableUniqueFullNameCounts['inputIndexMapping'].iloc[index]=sortedInputColumn['userIndex'].iloc[currentRange].array
         currentSum=currentSum+sortedTableUniqueFullNameCounts['count'].iloc[index]
 
     return sortedInputColumn, sortedTableUniqueFullNameCounts;

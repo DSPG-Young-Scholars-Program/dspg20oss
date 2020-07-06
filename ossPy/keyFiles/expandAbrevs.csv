@@ -1,11 +1,11 @@
-'(?i)dept\.', 'department'
-'(?i)\bdept ', 'department'
-'(?i)\buniv\. ', 'university'
-'(?i)\buni\.', 'university'
-'\b(?i)st\.', 'Saint'
-'(?i)inst\.','institute'
-'(?i)u\. of', 'university of'
-'(?i)awslabs|\\baws\\b', 'Amazon Web Services'
-'(?i)redhat','Red Hat '
-'\w\-\w', ' '
-'HewlettPackard|Hewlett Packard Enterprise', 'Hewlett Packard'
+'(?i)dept\.', department
+'(?i)\bdept ', department
+'(?i)\buniv\. ', university
+'(?i)\buni\.', university
+'\b(?i)st\.', Saint
+'(?i)inst\.',institute
+'(?i)u\. of', university of
+'(?i)awslabs|\baws\b', Amazon Web Services
+'(?i)redhat',Red Hat
+'HewlettPackard|Hewlett Packard Enterprise', Hewlett Packard
+
