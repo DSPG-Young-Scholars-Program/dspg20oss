@@ -25,7 +25,7 @@ conn <- dbConnect(drv = PostgreSQL(),
 users_gh <- dbGetQuery(conn, "SELECT login, email, company
                               FROM gh.ctrs_extra")
 
-institutions_hipolabs <- dbGetQuery(conn, "SELECT institution, domains FROM hipolabs.universities")
+institutions_hipolabs <- dbGetQuery(conn, "SELECT institution, country, country_code, domains FROM hipolabs.universities")
 ```
 
 ```{r}
@@ -316,9 +316,6 @@ email_domains <- users_gh %>% drop_na(email) %>%
 dt_mutate(domains = str_replace_all(email, "^[a-zA-Z0-9_.+-]+@", ""))
 
 # match academic institutions from hipolabs to users based on email domains
-# We can match the academic institution for 17,514 users based on email domains. But, some of this is redundant or not consistent with what the user already reported for "company". Here we impute the institution only when nothing was entered for company.
-
-# match academic institutions from hipolabs to users based on email domains
 # only impute company when it was NA
 imputed_institutions <- email_domains %>%
   as.data.table() %>%
@@ -335,4 +332,94 @@ overlap <- semi_join(org_counts, institutions_hipolabs, by = c("organization" = 
 sum(overlap[,"n"])
 ```
 
-New total is 35,263 users matched to academic institutions.
+New total is 35,089 users matched to academic institutions.
+
+```{r}
+# use hipolabs dataset to get countries
+academic_counts <- left_join(overlap, distinct(institutions_hipolabs, institution, country, country_code), by = c("organization" = "institution"))
+
+sum(academic_counts[,"n"]) # 35,740
+
+# larger than before because it's double-counting the institutions that are in multiple countries
+academic_counts[duplicated(academic_counts$organization), ]
+df <- academic_counts[!duplicated(academic_counts$organization), ] # will need to fine-tune this to select the primary country
+
+sum(df[,"n"]) # 35,089
+```
+
+
+
+```{r}
+percent_us_institution <- length(filter(df, country_code == "US")$organization) / length(df$organization)
+percent_us_users <- sum(filter(df, country_code == "US")[, "n"]) / sum(df[, "n"])
+```
+
+```{r}
+country_frequency_users <- df %>% group_by(country) %>% count(sort = TRUE)
+country_frequency_institutions <- df %>% group_by(country) %>% count(wt = n(), sort = TRUE)
+```
+
+```{r}
+us_5 <- df %>% filter(country == "United States")
+us_5 <- us_5[1:5, ]
+cn_5 <- df %>% filter(country == "China")
+cn_5 <- cn_5[1:5, ]
+uk_5 <- df %>% filter(country == "United Kingdom")
+uk_5 <- uk_5[1:5, ]
+ca_5 <- df %>% filter(country == "Canada")
+ca_5 <- ca_5[1:5, ]
+jp_5 <- df %>% filter(country == "Japan")
+jp_5 <- jp_5[1:5, ]
+```
+
+
+```{r}
+library(plotly)
+
+labels <- country_frequency_users$country[1:5] %>%
+  append(us_5$organization) %>%
+  append(cn_5$organization) %>%
+  append(uk_5$organization) %>%
+  append(ca_5$organization) %>%
+  append(jp_5$organization)
+
+parents <- c("", "", "", "", "") %>%
+  append(rep("United States", length.out = 5)) %>%
+  append(rep("China", length.out = 5)) %>%
+  append(rep("United Kingdom", length.out = 5)) %>%
+  append(rep("Canada", length.out = 5)) %>%
+  append(rep("Japan", length.out = 5))
+
+values <- country_frequency_users$n[1:5] %>%
+  append(us_5$n) %>%
+  append(cn_5$n) %>%
+  append(uk_5$n) %>%
+  append(ca_5$n) %>%
+  append(jp_5$n)
+
+fig <- plot_ly(
+  labels = labels, 
+  parents = parents,
+  values = values,
+  type = 'sunburst'
+)
+
+fig
+```
+
+
+
+
+```{r}
+df_sorted <- df %>%
+  arrange(n) %>%
+  #arrange(desc(n))[1:50, ] %>%
+  dt_mutate(organization = factor(organization, levels = organization))
+
+
+ggplot(df_sorted[(.N-50):.N, ]) +
+  geom_point(aes(x = organization, y = n)) +
+  #geom_segment(data = df_sorted, mapping = aes(x=x, xend=x, y=0, yend=y), inherit.aes = FALSE)
+  coord_flip()
+```
+
