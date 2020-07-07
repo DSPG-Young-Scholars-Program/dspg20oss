@@ -35,7 +35,7 @@ us_gov_azindex <- dbGetQuery(conn, "SELECT * FROM us_gov_depts.us_gov_azindex_cl
 us_gov_manual <- dbGetQuery(conn, "SELECT * FROM us_gov_depts.us_gov_manual")
 
 # query the email domain data
-email_domain_datahub <- dbGetQuery(conn, "SELECT * FROM datahub.domain_names")
+#email_domain_datahub <- dbGetQuery(conn, "SELECT * FROM datahub.domain_names")
 
 # goverment email domains
 #https://home.dotgov.gov/data/ (All .gov domains)
@@ -43,36 +43,109 @@ email_domain_datahub <- dbGetQuery(conn, "SELECT * FROM datahub.domain_names")
 #List of .gov domains - includes all federal, state, interstate, local, and tribal .gov and .fed.us domains.
 email_domain_gov <- read_csv("/sfs/qumulo/qhome/zz3hs/oss-data/email_domain_federal_full.csv")%>%
    rename("domain_name" = "Domain Name", "domain_type" ="Domain Type")%>%
-  select(-"Security Contact Email")%>%
+  select(-"Security Contact Email", -"City", -"State")%>%
   mutate(domain_name = tolower(domain_name), gov = T)
+
+
+#email domain country
+#https://www.sitepoint.com/complete-list-country-code-top-level-domains/
+email_domain_cc <- read.delim("/sfs/qumulo/qhome/zz3hs/oss-data/email_domain_country.txt")
+email_domain_cc <- rbind(colnames(email_domain_cc), email_domain_cc)
+colnames(email_domain_cc) <- "email_domain"
+# email_domain_cc <- email_domain_cc%>%
+#   mutate(country_code = if_else(grepl(".", email_domain, fixed = T) == T))
+email_domain_cc$country_code <- "NA"
+
+for (i in (1:nrow(email_domain_cc))){
+  cc_i <- email_domain_cc[i,1]
+  if(grepl(".", cc_i, fixed = T)){
+    email_domain_cc[i, 2] = email_domain_cc[i+1, 1]
+  }else{
+    email_domain_cc[i, 2] =NA
+  }
+}
+email_domain_cc <- email_domain_cc%>%
+  filter(!is.na(country_code))
+
+email_domain_cc$email_domain <- str_replace_all(email_domain_cc$email_domain, fixed("."), "") 
 
 # disconnect from postgresql database 
 dbDisconnect(conn)
 ```
 
+```{r}
+email_domain_datahub_cc <- email_domain_datahub%>%
+        filter(type == "country-code")
+```
+
 
 ```{r}
-#match the full domain (Ex .newyorkhealth.gov)
+#match email adress domain
+gh_extra <- gh_extra%>%
+  as.data.table() #convert to data table
+  
+  
 email_clean <- gh_extra%>%
-  as.data.table()%>%
-  filter(!is.na(email))%>%
-  select(login, email, company)%>%
-  #mutate(email_domain_short = str_extract(email, "@[a-z]+"))%>% #the first string after @
-  mutate(email_domain_long =  str_extract(email, "(?<=@).*"))%>% #all strings after @
-  mutate(is_gov_email_domain = if_else(str_detect(email, ".gov$") == T, T, F))
+  filter(!is.na(email))
+
+nrow(email_clean)/nrow(gh_extra) #27% of github users had email address
+
+email_domain_country_vector <- unlist(email_domain_cc$email_domain)
+
+email_domain_country_pattern <- email_domain_country_vector[1]
+for (i in 2:length(email_domain_country_vector)){
+  email_domain_country_i<- email_domain_country_vector[i]
+  email_domain_country_pattern <- paste(email_domain_country_pattern, email_domain_country_i, sep = "|")
+}
+
+email_domain_country_pattern <- paste("\\b(?i)(", email_domain_country_pattern, ")\\b", sep="")
+
+email_clean <- email_clean %>%
+  select(login, email, company, cc_multiple)%>% #might add cc_multiple later
+  mutate(email_domain_full =  str_extract(email, "(?<=@).*"))%>% #all strings after @
+  mutate(email_domain_first = str_extract(email_domain_full, ".*(?=[.])"))%>% #first part of the full domain
+  mutate(is_gov_email_domain = if_else(str_detect(email_domain_full, "\\b(?i)(gov|fed.us|.mil)\\b") == T, T, F)) %>% #note that we are matching any string that contains gov 
+  filter(!is.na(email_domain_full))%>%
+  mutate(is_country_email_domain = if_else(str_detect(email_domain_full, email_domain_country_pattern) == T, T, F))
+
+email_clean_is_country_email_domain <- email_clean%>%
+  filter(is_country_email_domain)
+
+table(is.na(email_clean_is_country_email_domain$cc_multiple)) #26053 github users don't have country code(cc_multiple) but has country related email domain
+
+###  
+# 
+# library(stringi)
+# split_ls <- stri_split_fixed(email_clean$email_domain_full, ".")
+# id <- 1:length(split_ls)
+# 
+# split_df <- data.frame(c1 = NA, c2=NA, c3=NA, c4 = NA)
+#   for (i in 1:length(split_ls)){
+#     id_i <- id[i]
+#     for (j in 1:length(split_ls[[i]])){
+#       split_df[i,j] <- split_ls[[i]][j]
+#     }
+#   }
+###
+table(email_clean$is_gov_email_domain) #726 gh users had .gov (717) or fed.us (only 1), or .mil (only 8) emails
+
+string <- "apple.gov.us"
+unlist(strsplit(string, "[.]"))
+
+
 
 #join the cleaned email from gh with the email domain gov
-email_clean <- left_join(email_clean, email_domain_gov, by = c("email_domain_long" = "domain_name"))
+email_clean <- email_clean%>%
+  left_join(email_domain_gov, by = c("email_domain_full" = "domain_name"))%>% 
+  dplyr::mutate(gov= replace_na(gov, FALSE))
+
+table(email_clean$gov, email_clean$is_gov_email_domain) #430 gh users matched with the email_domain_gov, 296 didn't match (these might be foreign gov)
 
 email_clean <- email_clean %>%
   mutate(is.gov = if_else(is_gov_email_domain == T | gov==T, T, F))%>%
   select(-is_gov_email_domain, -gov)
 
-email_clean <- email_clean%>% 
-  dplyr::mutate(is.gov= replace_na(is.gov, FALSE))
-
-table(email_clean$is.gov)
-
+table(email_clean$is.gov) #consistent with the first match, 726 gh users are gov related
 
 #match the domain ending (Ex .gov)
 #1.organization that contains gov string
@@ -88,17 +161,16 @@ table(email_clean$is.gov)
 
 # .gov email domain
 There are 86 unique gov ending emails.       
--nist: National Institute of Standards and Technology
--usgs: U.S. Geological Survey
--llnl: Lawrence Livermore National Laboratory
--lbl: Lawrence Berkeley National Laboratory
+
 ```{r}
 email_clean%>%
-  group_by(gov_email_domain)%>%
-  summarize(N=n(), `percent(%)` = round(100* N/nrow(email_clean), digits= 2))%>%
+  filter(is.gov)%>%
+  group_by(email_domain_full)%>%
+  summarize(domain_type = unique(domain_type), agency=first(Agency), organization = first(Organization), N=n(),  `percent(%)` = round(100* N/nrow(email_clean), digits= 2))%>%
   arrange(desc(N))%>%
   mutate(sum = sum(N))%>%
   top_n(20, N)%>%
+  select(-sum)%>%
   gt()
 
 length(unique(email_clean$gov_email_domain))
@@ -106,21 +178,47 @@ length(unique(email_clean$gov_email_domain))
 
 
 ```{r}
-# email_clean_gov <- email_clean%>%
-#   mutate(gov = if_else(str_detect(string = company, 
-#                                                  pattern = "\\b(?i)(certificate|certificate)\\b"),T,F))
-
 #company cleaning
-company_clean <- email_clean%>%
-    mutate(company = tolower(company))%>% 
-  mutate_all(na_if,"")%>%
-  filter(!is.na(company))
-company_clean$company <- str_replace_all(company_clean$company , fixed("@"), "") 
+email_clean <- email_clean%>%
+    mutate(company = tolower(company))
 
-company_top <- company_clean %>%
+  # mutate_all(na_if,"")
+  # mutate(gov= replace_na(gov, FALSE))
+
+email_clean$company <- str_replace_all(email_clean$company , fixed("@"), "") 
+
+company_confirm_gov <- email_clean%>%
+  filter(is.gov)%>%
   group_by(company)%>%
   summarize(N=n())%>%
-  arrange(desc(N))
+  filter(company != "")%>%
+  filter(!is.na(company))%>%
+  arrange(desc(N))%>%
+  filter(N > 1)
+
+company_confirm_gov_vector <- unlist(company_confirm_gov$company)
+
+company_confirm_gov_pattern <- company_confirm_gov_vector[1]
+for (i in 2:length(company_confirm_gov_vector)){
+  company_confirm_gov_i<- company_confirm_gov_vector[i]
+  company_confirm_gov_pattern <- paste(company_confirm_gov_pattern, company_confirm_gov_i, sep = "|")
+}
+
+company_confirm_gov_pattern <- paste("\\b(?i)(", company_confirm_gov_pattern, ")\\b", sep="")
+
+email_clean <- email_clean%>%
+  mutate(company_match_gov = if_else(str_detect(company, company_confirm_gov_pattern) == T, T, F))%>%
+  mutate(company_match_gov= replace_na(company_match_gov, FALSE))
+
+nrow(filter(email_clean, !is.gov & company_match_gov==T))
+
+check <- email_clean%>%
+  filter(!is.gov & company_match_gov ==T)
+
+email_clean <- email_clean%>%
+  mutate(is.gov = if_else(company_match_gov==T, T, is.gov))
+
+table(email_clean$is.gov)  #total: 989 gh users
 ```
 
 ```{r}
@@ -148,7 +246,8 @@ az_list_gov_agency <- distinct(us_gov_azindex, gov_agency) %>%
 #gov_branch_names <- unlist(strsplit(gov_branch_names, "/"))
 az_list_gov_branch <- distinct(us_gov_azindex, gov_branch)%>%
   rename(institution = gov_branch)%>%
-  mutate(dataset = "azindex_gov_branch")
+  mutate(dataset = "azindex_gov_branch")%>%
+  filter(institution != "None")
 
 ##I.4 child agency
 az_list_child_agency <- distinct(us_gov_azindex, child_agency)%>%
@@ -181,13 +280,13 @@ ffrdc_list_sub_agency <- us_gov_ffrdcs%>%
   mutate(dataset = "ffrdc_sub_agency" )
 
 ##II.3 admin name
-ffrdc_list_admin <- us_gov_ffrdcs%>%
-  distinct(Admin_Name)%>%
-  rename(institution = Admin_Name)%>%
-  mutate(dataset = "ffrdc_admin")%>%
-  mutate(is.university = str_detect(institution, "Univ"))%>%
-  filter(!is.university)%>%
-  select(-is.university)
+# ffrdc_list_admin <- us_gov_ffrdcs%>%
+#   distinct(Admin_Name)%>%
+#   rename(institution = Admin_Name)%>%
+#   mutate(dataset = "ffrdc_admin")%>%
+#   mutate(is.university = str_detect(institution, "Univ"))%>%
+#   filter(!is.university)%>%
+#   select(-is.university)
 
 #III.usman
 usman_list <- us_gov_manual%>%
@@ -195,7 +294,8 @@ usman_list <- us_gov_manual%>%
   rename(institution = AgencyName)%>%
   mutate(dataset = "usman")
 
-all_lists <- rbind(az_list_agency, az_list_gov_agency, az_list_gov_branch, az_list_child_agency, ffrdc_list_agency, ffrdc_list_sub_agency, ffrdc_list_admin, usman_list)
+# all_lists <- rbind(az_list_agency, az_list_gov_agency, az_list_gov_branch, az_list_child_agency, ffrdc_list_agency, ffrdc_list_sub_agency, ffrdc_list_admin, usman_list)
+all_lists <- rbind(az_list_agency, az_list_gov_agency, az_list_gov_branch, az_list_child_agency, ffrdc_list_agency, ffrdc_list_sub_agency, usman_list)
 all_lists <- distinct(all_lists, institution, .keep_all = TRUE)
 
 all_lists_clean <- all_lists %>% 
@@ -212,23 +312,49 @@ all_lists_clean <- all_lists %>%
 all_lists_clean <- as.data.frame(unlist(strsplit(all_lists_clean$institution, "\\(")))
 names(all_lists_clean) <- "institution"
 all_lists_clean$institution <- str_replace_all(all_lists_clean$institution , fixed(")"), "") 
-all_lists_clean <- all_lists_clean%>%
-  mutate(company_name_is.gov = T)
 
 
 
-#joing gh with all_lists_clean
-company_clean_join <- left_join(company_clean, all_lists_clean, by = c("company" = "institution"))
+###Unlist
+gov_name_vector <- unlist(all_lists_clean$institution)
 
-table(company_clean_join$company_name_is.gov)
+gov_name_pattern <- gov_name_vector[1]
+for (i in 2:length(gov_name_vector)){
+  gov_name_i<- gov_name_vector[i]
+  gov_name_pattern <- paste(gov_name_pattern, gov_name_i, sep = "|")
+}
 
-gh_final <- company_clean_join%>%
-  mutate(is.gov = if_else(company_name_is.gov, T, is.gov))%>%
-  select(-company_name_is.gov)
-gh_final$is.gov <-  replace_na("FALSE")
+gov_name_pattern <- paste("\\b(?i)(", gov_name_pattern, ")\\b", sep="")
 
-table(company_clean_join$is.gov)
+email_clean <- email_clean%>%
+  mutate(gov_name_match_company = if_else(str_detect(company, gov_name_pattern) == T, T, F))%>%
+  mutate(gov_name_match_company= replace_na(gov_name_match_company, FALSE))
+
+
+nrow(filter(email_clean, !is.gov, gov_name_match_company == T))
+
+check <- filter(email_clean, !is.gov, gov_name_match_company == T)
+
+
+email_clean <- email_clean%>%
+  mutate(is.gov = if_else(gov_name_match_company==T, T, is.gov))
+
+table(email_clean$is.gov)
+
+email_clean <- email_clean%>%
+  mutate(is.gov.extra = if_else(str_detect(company, "\\b(?i)(government|national laboratory|Bureau|federalhomeland security|fbi|cia)\\b") == T, T, F))%>%
+  mutate(is.gov.extra= replace_na(is.gov.extra, FALSE))
+
+check <- filter(email_clean, !is.gov, is.gov.extra == T)
+
+nrow(filter(email_clean, !is.gov, is.gov.extra == T))
+
+email_clean <- email_clean%>%
+    mutate(is.gov = if_else(is.gov.extra==T, T, is.gov))
+
+table(email_clean$is.gov)
 ```
+
 
 ```{r}
 organization_counts <- gh_extra %>% 
