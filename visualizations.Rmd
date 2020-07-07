@@ -1,0 +1,81 @@
+---
+title: "Data Viz"
+author: "Morgan Klutzke"
+date: "7/7/2020"
+output: html_document
+---
+
+```{r}
+percent_us_institution <- length(filter(df, country_code == "US")$organization) / length(df$organization)
+percent_us_users <- sum(filter(df, country_code == "US")[, "n"]) / sum(df[, "n"])
+```
+
+```{r}
+country_frequency_users <- df %>% group_by(country) %>% count(sort = TRUE)
+country_frequency_institutions <- df %>% group_by(country) %>% count(wt = n(), sort = TRUE)
+```
+
+Sunburst chart
+
+```{r}
+library(plotly)
+
+us_5 <- df %>% filter(country == "United States")
+us_5 <- us_5[1:5, ]
+cn_5 <- df %>% filter(country == "China")
+cn_5 <- cn_5[1:5, ]
+uk_5 <- df %>% filter(country == "United Kingdom")
+uk_5 <- uk_5[1:5, ]
+ca_5 <- df %>% filter(country == "Canada")
+ca_5 <- ca_5[1:5, ]
+jp_5 <- df %>% filter(country == "Japan")
+jp_5 <- jp_5[1:5, ]
+
+labels <- country_frequency_users$country[1:5] %>%
+  append(us_5$organization) %>%
+  append(cn_5$organization) %>%
+  append(uk_5$organization) %>%
+  append(ca_5$organization) %>%
+  append(jp_5$organization)
+
+parents <- c("", "", "", "", "") %>%
+  append(rep("United States", length.out = 5)) %>%
+  append(rep("China", length.out = 5)) %>%
+  append(rep("United Kingdom", length.out = 5)) %>%
+  append(rep("Canada", length.out = 5)) %>%
+  append(rep("Japan", length.out = 5))
+
+values <- country_frequency_users$n[1:5] %>%
+  append(us_5$n) %>%
+  append(cn_5$n) %>%
+  append(uk_5$n) %>%
+  append(ca_5$n) %>%
+  append(jp_5$n)
+
+fig <- plot_ly(
+  labels = labels, 
+  parents = parents,
+  values = values,
+  type = 'sunburst'
+)
+
+fig
+```
+
+
+
+
+```{r,fig.height=7}
+df_sorted <- df %>%
+  arrange(n) %>%
+  #arrange(desc(n))[1:50, ] %>%
+  dt_mutate(organization = factor(organization, levels = organization))
+
+
+ggplot(df_sorted[(.N-50):.N, ]) +
+  geom_point(aes(x = organization, y = n)) +
+  geom_segment(data = df_sorted[(.N-50):.N, ], mapping = aes(x = organization, xend = organization, y = 0, yend = n), inherit.aes = FALSE) +
+  coord_flip()
+```
+
+
