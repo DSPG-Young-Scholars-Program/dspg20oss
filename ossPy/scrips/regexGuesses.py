@@ -4,7 +4,8 @@
 Created on Sat Jun 20 21:11:53 2020
 This script iterates across unique listings in the workplace association
 column and performs a "string contains" operation on that term to return
-all those other workplaces which feature this string.  In a sense, this relies
+all those other workplaces which feature this string.  Furthermore, it
+iterates in from most common listings to less common.  In a sense, this relies
 on a "wisdom of crowds" and "lowest common denominator" effect, such that
 (1) its safe to assume that the most commonly listed workplace names are 
 accurately spelled and the most viable label for that company and (2) that 
@@ -24,16 +25,22 @@ import re
 import matplotlib.pyplot as plt
 import os
 import numpy as np
+import seaborn as sns
+
 
 #perform sql query to get company column
 postgreSql_selectQuery="SELECT company FROM gh.ctrs_raw ;"
 inputRaw=ossPyFuncs.queryToPDTable(postgreSql_selectQuery)
 
+currentDir=os.path.dirname('ossPyFuncs.py')
+replaceList=pd.read_csv(os.path.join(currentDir,'keyFiles/expandAbrevs.csv'),quotechar="'",header=None)
+semiCleanedOutput=pd.DataFrame(ossPyFuncs.expandFromColumn(inputRaw['company'],replaceList))
+
 #obtain the eralse list
 currentDir=os.path.dirname('ossPyFuncs.py')
 eraseList=pd.read_csv(os.path.join(currentDir,'keyFiles/eraseStrings_v6.csv'),quotechar="'")
 #apply the erase list
-semiCleanedOutput=pd.DataFrame(ossPyFuncs.eraseFromColumn(inputRaw['company'],eraseList))
+semiCleanedOutput=pd.DataFrame(ossPyFuncs.eraseFromColumn(semiCleanedOutput['company'],eraseList))
 
 #get the counts for the unique values
 tableUniqueFullNameCounts=semiCleanedOutput.iloc[:,0].value_counts()
@@ -46,13 +53,20 @@ tableUniqueFullNameCounts.rename(columns={"company":"count","index":"company"},i
 #create some new columns
 tableUniqueFullNameCounts['guesses']=''
 tableUniqueFullNameCounts['additionalIndividuals']=''
+tableUniqueFullNameCounts['timesCounted']=0
 
 #iterate acroos unique listings
 for iAttempts in range(len(tableUniqueFullNameCounts.index)):
+    
+    #formulate a good regex expression
+    currentRegex=re.compile('(?i)\\b'+tableUniqueFullNameCounts['company'].iloc[iAttempts]+'\\b')
+    
     #get all company listings that feature the current company string
-    currentBool=tableUniqueFullNameCounts['company'].str.contains( tableUniqueFullNameCounts['company'].iloc[iAttempts])
-    #get teh indexes associated with those names
+    currentBool=tableUniqueFullNameCounts['company'].str.contains(currentRegex)
+    #get the indexes associated with those names
     currentIndexes=currentBool[currentBool].index
+    tableUniqueFullNameCounts['timesCounted'].iloc[currentIndexes]=tableUniqueFullNameCounts['timesCounted'].iloc[currentIndexes].add(1)
+    
     #find the number of additional individuals that are found with
     #the regex search
     currentAdditionalIndividuals=np.sum(tableUniqueFullNameCounts['count'].iloc[currentIndexes])-tableUniqueFullNameCounts['count'].iloc[iAttempts]
