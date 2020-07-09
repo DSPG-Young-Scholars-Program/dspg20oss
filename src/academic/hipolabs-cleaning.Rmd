@@ -28,3 +28,15 @@ hipolabs <- dbGetQuery(conn, "SELECT * FROM hipolabs.universities")
 # disconnect from postgresql database 
 dbDisconnect(conn)
 ```
+
+Cleaning hipolabs data before using it with github users
+
+```{r}
+institutions_hipolabs <- institutions_hipolabs %>% as.data.table() %>% dt_mutate(institution = str_to_lower(institution))
+```
+
+To do:
+* Remove duplicates
+* Add a new column for alternative names, split with pipes or commas
+* Include a category for misc. students
+* Address specific problem universities, e.g. university of tokyo, xidian university, broad institute, iiit hyderabad, aalto university

@@ -18,17 +18,18 @@ country_frequency_institutions <- df %>% group_by(country) %>% count(wt = n(), s
 Sunburst chart
 
 ```{r}
+# NO
 library(plotly)
 
-us_5 <- df %>% filter(country == "United States")
+us_5 <- df %>% filter(country == "United States") %>% dt_mutate(organization = fct_reorder(organization, n))
 us_5 <- us_5[1:5, ]
-cn_5 <- df %>% filter(country == "China")
+cn_5 <- df %>% filter(country == "China") %>% dt_mutate(organization = fct_reorder(organization, n))
 cn_5 <- cn_5[1:5, ]
-uk_5 <- df %>% filter(country == "United Kingdom")
+uk_5 <- df %>% filter(country == "United Kingdom") %>% dt_mutate(organization = fct_reorder(organization, n))
 uk_5 <- uk_5[1:5, ]
-ca_5 <- df %>% filter(country == "Canada")
+ca_5 <- df %>% filter(country == "Canada") %>% dt_mutate(organization = fct_reorder(organization, n))
 ca_5 <- ca_5[1:5, ]
-jp_5 <- df %>% filter(country == "Japan")
+jp_5 <- df %>% filter(country == "Japan") %>% dt_mutate(organization = fct_reorder(organization, n))
 jp_5 <- jp_5[1:5, ]
 
 labels <- country_frequency_users$country[1:5] %>%
@@ -64,6 +65,15 @@ fig
 
 
 
+```{r}
+# NO
+grid.arrange(ggplot(us_5, aes(x = organization, y = n)) + geom_col() + coord_flip(),
+             ggplot(uk_5, aes(x = organization, y = n)) + geom_col() + coord_flip(),
+             ggplot(cn_5, aes(x = organization, y = n)) + geom_col() + coord_flip(),
+             ggplot(ca_5, aes(x = organization, y = n)) + geom_col() + coord_flip())
+```
+
+
 
 ```{r,fig.height=7}
 df_sorted <- df %>%
@@ -72,10 +82,39 @@ df_sorted <- df %>%
   dt_mutate(organization = factor(organization, levels = organization))
 
 
-ggplot(df_sorted[(.N-50):.N, ]) +
+ggplot(df_sorted[(.N-50):.N, ], aes(color = country)) +
   geom_point(aes(x = organization, y = n)) +
-  geom_segment(data = df_sorted[(.N-50):.N, ], mapping = aes(x = organization, xend = organization, y = 0, yend = n), inherit.aes = FALSE) +
+  geom_segment(data = df_sorted[(.N-50):.N, ], mapping = aes(x = organization, xend = organization, y = 0, yend = n)) +
+  scale_color_manual(values = c("United States" = "#8F8F8F", "China" = "#E57200", "United Kingdom" = "#12B2CE", "Canada" = "#485C99")) +
+  labs(x = "Academic Institution", y = "Number of Users", color = "Country") +
+  theme_classic() +
   coord_flip()
 ```
 
+
+```{r,fig.height=7}
+us_df <- df_sorted %>% filter(country == "United States")
+
+ggplot(us_df[(.N-50):.N, ]) +
+  geom_point(aes(x = organization, y = n)) +
+  geom_segment(data = us_df[(.N-50):.N, ], mapping = aes(x = organization, xend = organization, y = 0, yend = n)) +
+  labs(x = "Academic Institution", y = "Number of Users") +
+  theme_classic() +
+  coord_flip()
+```
+
+```{r,fig.height=7}
+country_users_sorted <- country_frequency_users %>%
+  arrange(n) %>%
+  #arrange(desc(n))[1:50, ] %>%
+  dt_mutate(country = factor(country, levels = country))
+
+ggplot(country_users_sorted[(.N-50):.N, ]) +
+  geom_point(aes(x = country, y = n)) +
+  geom_segment(data = country_users_sorted[(.N-50):.N, ], mapping = aes(x = country, xend = country, y = 0, yend = n)) +
+  labs(x = "Country", y = "Number of Users") +
+  theme_classic() +
+  scale_y_log10() +
+  coord_flip()
+```
 
