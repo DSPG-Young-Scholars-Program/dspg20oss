@@ -1,0 +1,123 @@
+---
+title: "05 Data Map Collapsible Tree"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(collapsibleTree)
+library(dplyr)
+library(tidyr)
+library(gt)
+```
+
+# Construct Dataframe
+```{r}
+OSS <- data.frame(
+    Sector = c(
+        "Academic", "Academic","Academic", "Academic", "Academic", "Academic","Academic","Academic","Academic","Academic","Academic","Academic","Academic","Academic","Academic","Academic","Academic","Academic","Academic",
+        
+        "Business","Business","Business","Business","Business", "Business", "Business", "Business", "Business", "Business","Business","Business", "Business",
+        
+        "Government", "Government","Government", "Government","Government","Government","Government", "Government", "Government","Government", "Government", "Government",
+        
+        "International","International","International"
+    ),
+    DataSource = c(
+      #academic
+        "github","github", "github","github","github",
+        "orcid", 
+        "hipolabs", "hipolabs","hipolabs",
+        "NCSES","NCSES", "NCSES", "NCSES","NCSES", "NCSES", "NCSES","NCSES", "NCSES","NCSES",
+        
+      #business
+      "github","github", 
+      "Enterprise-Driven OSS", "Enterprise-Driven OSS",  
+      "forbes",  "forbes", "forbes", 
+      "Global Legal Entity Identifier Foundation (GLEIF)", 
+      "Data Hub", "Data Hub", "Data Hub", 
+      "2020 US Business Database",
+      
+    #gov  
+        "github","github", "System for Award Management (SAM)", "System for Award Management (SAM)","System for Award Management (SAM)","us gov","us gov","us gov","us gov","us gov","us gov", "code gov", "crowdsourced",
+     
+     #international
+       "github","github", "mindmap"
+    ),
+    SubData = c(
+      #academic
+        "contributor","contributor","contributor","contributor","commits", 
+        "orcid", 
+        "hipolabs", "hipolabs","hipolabs",
+        "Survey of Federal Science and Engineering Support 2018", "Survey of Federal Science and Engineering Support 2018", "Survey of Federal Science and Engineering Support 2018", "Survey of Federal Science and Engineering Support 2018", "Higher Education Research and Development Survey 2018", "Higher Education Research and Development Survey 2018", "Higher Education Research and Development Survey 2018", "Higher Education Research and Development Survey 2018", "Higher Education Research and Development Survey 2018", "Higher Education Research and Development Survey 2018", 
+        
+      #business
+        "contributor", "commits", 
+      "cohort project details", "enterprise project",
+      "Fortune's Annual Ranking of Companies 2018 (US 1000)", "Fortune's Annual Ranking of Companies 2019 (US 1000)", "Fortune's Annual Ranking of Companies 2020 (Global 2000)", 
+      "GLEIF", 
+      "email domains",  "email domains", "email domains", 
+      "2020 US Business Database",
+        
+      #gov
+        "contributor", "commits", 
+        "System for Award Management (SAM)","System for Award Management (SAM)","System for Award Management (SAM)","Federally Funded R&D Centers", "Federally Funded R&D Centers", 
+        "A-Z Index","A-Z Index", "A-Z Index","A-Z Index",
+        "code gov", "crowdsourced", 
+    
+      #international    
+        "contributor", "commits", "mindmap"
+    ),
+    Variables = c(
+        "login", "email","organization","company","commits",
+        "orcid", 
+        "institution",
+        "country",
+        "domains",
+        "institution", "rank","all federal obligations" , "R&D", "institution", "rank", "R&D expenditure", "federal gov fund", "state local gov fund", "institution funds",
+        
+        "contributor", "commits", 
+        "cohort project details", "enterprise project", 
+        "Fortune's Annual Ranking of Companies 2018 (US 1000)", "Fortune's Annual Ranking of Companies 2019 (US 1000)", "Fortune's Annual Ranking of Companies 2020 (Global 2000)", 
+        "country", 
+        "domain", "type", "organization", "2020 US Business Database",
+        
+        "contributor", "commits",  "parent","fhorgtype", "fhorgname", "ffrdc name", "agency", "agency", "gov branch", "parent agency", "parent agency parent", "code gov", "crowdsourced", 
+        
+        "contributor", "commits", "mindmap"
+    )
+)
+
+OSS%>%
+  top_n(10)%>%
+  gt()
+
+```
+
+# Collapsible Tree
+```{r}
+# OSS <- OSS%>%
+#   mutate(Color = if_else(Sector == "Academic", "#E57200",
+#                          if_else(Sector == "Business", "#232D4B",
+#                                  if_else(Sector == "Government", "#E57200", 
+#                                         "#232D4B"))))
+
+
+collapsibleTree(OSS, 
+                c("Sector", "DataSource", "SubData", "Variables"), 
+                collapsed = T,
+                fill ="#E57200"
+)
+
+# length(Sector)
+# length(DataSource)
+# length(SubData)
+# length(Variables)
+
+
+
+```
+
