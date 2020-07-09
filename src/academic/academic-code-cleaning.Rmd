@@ -48,9 +48,19 @@ length(valid_company_codes$company)
 length(valid_company_codes$company) / length(users_gh$company)
 # putting us at 19.7124% that are identifiable for now 
 
+# organize by company
+orgs_initial <- users_gh %>% 
+  drop_na(company) %>% 
+  dt_mutate(organization = str_to_lower(company)) %>% 
+  group_by(organization) %>% count() %>% arrange(-n)
+
+# compare with hipolabs dataset
+institutions_hipolabs <- institutions_hipolabs %>% as.data.table() %>% dt_mutate(institution = str_to_lower(institution))
+initial_overlap <- semi_join(orgs_initial, institutions_hipolabs, by = c("organization" = "institution"))
+sum(initial_overlap[,"n"]) # 16,443 identified users from academic institutions
 ```
 
-Recoding company information, using regex to catch variations
+Recode company variable, using string matching to catch name variations
 
 ```{r regex recode}
 orgs_clean <- users_gh %>%
@@ -327,9 +337,6 @@ institutions_hipolabs <- institutions_hipolabs %>% as.data.table() %>% dt_mutate
 overlap <- semi_join(org_counts, institutions_hipolabs, by = c("organization" = "institution"))
 sum(overlap[,"n"])
 
-# everyone likes visuals
-ggplot(data = overlap[1:10,]) + geom_col(mapping = aes(n, reorder(organization, n), fill = n)) + labs(y = "Academic institution", x = "User count")
-
 # make a table to see what isn't caught by hipolabs
 leftover <- anti_join(org_counts, overlap)
 ```
@@ -373,6 +380,9 @@ academic_counts[duplicated(academic_counts$organization), ]
 df <- academic_counts[!duplicated(academic_counts$organization), ] # will need to fine-tune this to select the primary country
 
 sum(df[,"n"]) # 35,405
+
+# everyone likes visuals
+ggplot(data = df[1:10,]) + geom_col(mapping = aes(n, reorder(organization, n), fill = n)) + labs(y = "Academic institution", x = "User count")
 ```
 
 

@@ -37,6 +37,8 @@ institutions_hipolabs <- institutions_hipolabs %>% as.data.table() %>% dt_mutate
 
 To do:
 * Remove duplicates
+* Address how to deal with universities in multiple countries
 * Add a new column for alternative names, split with pipes or commas
 * Include a category for misc. students
 * Address specific problem universities, e.g. university of tokyo, xidian university, broad institute, iiit hyderabad, aalto university
+* Add a column of shortened names for visuals (?)

@@ -6,8 +6,10 @@ output: html_document
 ---
 
 ```{r}
-percent_us_institution <- length(filter(df, country_code == "US")$organization) / length(df$organization)
-percent_us_users <- sum(filter(df, country_code == "US")[, "n"]) / sum(df[, "n"])
+# get some good numbers
+percent_us_institution <- length(filter(df, country_code == "US")$organization) / length(df$organization) # 0.332
+percent_us_users <- sum(filter(df, country_code == "US")[, "n"]) / sum(df[, "n"]) # 0.587
+percent_academic_users <- sum(df[,"n"]) / 2435698 # 0.0145
 ```
 
 ```{r}
@@ -89,6 +91,14 @@ ggplot(df_sorted[(.N-50):.N, ], aes(color = country)) +
   labs(x = "Academic Institution", y = "Number of Users", color = "Country") +
   theme_classic() +
   coord_flip()
+
+ggplot(df_sorted[(.N-20):.N, ], aes(color = country)) +
+  geom_point(aes(x = organization, y = n)) +
+  geom_segment(data = df_sorted[(.N-20):.N, ], mapping = aes(x = organization, xend = organization, y = 0, yend = n)) +
+  scale_color_manual(values = c("United States" = "#485C99", "China" = "#E57200", "Canada" = "#12B2CE")) +
+  labs(x = "Academic Institution", y = "Number of Users", color = "Country", title = "Top 20 universities by number of users") +
+  #theme_classic() +
+  coord_flip()
 ```
 
 
@@ -116,5 +126,21 @@ ggplot(country_users_sorted[(.N-50):.N, ]) +
   theme_classic() +
   scale_y_log10() +
   coord_flip()
+```
+
+```{r, fig.width=7}
+# NO
+world <- map_data("world")
+
+choro <- merge(world, df, sort = FALSE, by.x = "region", by.y = "country")
+choro <- choro[order(choro$order), ]
+
+ggplot(choro, aes(long, lat)) + 
+  geom_polygon(aes(group = group, fill = n)) +
+  theme_classic()
+```
+
+```{r}
+
 ```
 
