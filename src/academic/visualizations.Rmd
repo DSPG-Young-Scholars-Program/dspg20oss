@@ -10,6 +10,10 @@ output: html_document
 percent_us_institution <- length(filter(df, country_code == "US")$organization) / length(df$organization) # 0.332
 percent_us_users <- sum(filter(df, country_code == "US")[, "n"]) / sum(df[, "n"]) # 0.587
 percent_academic_users <- sum(df[,"n"]) / 2435698 # 0.0145
+
+options(scipen = 10)
+country_user_percentages <- df %>% group_by(country) %>% select(country, n) %>% summarise(n = sum(n) / sum(df[, "n"])) %>% arrange(-n)
+country_user_percentages
 ```
 
 ```{r}
