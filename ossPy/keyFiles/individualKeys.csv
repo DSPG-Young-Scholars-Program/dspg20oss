@@ -5,6 +5,7 @@
 '(?i)^individual$'
 '(?i)^myself$'
 '(?i)^me$'
+'(?i)^house$'
 '(?i)^independent$'
 '(?i)independent contractor'
 '(?i)^consultant$'
