@@ -35,3 +35,42 @@ for iAttempts in range(len(unverifiedCompanies)):
     
     unverifiedCompanies['guesses'].iloc[iAttempts]=difflib.get_close_matches(unverifiedCompanies['company'].iloc[iAttempts],verifiedCompanies['company'],cutoff=0.8)
 
+unverifiedCompanies.to_csv('/home/dnb3k/git/dspg20oss/ossPy/PackageOuts/diffLibGuesses.csv')
+
+sensibleGuesses=unverifiedCompanies.loc[[6614,6628,6650,6677,6680,6774,6788,6867]]
+
+sensibleGuesses.head(8)
+
+
+import numpy as np
+
+string1='theironyard'
+string2='the iron yard'
+
+string1NoSpaces=string1.replace(' ', '')
+string2NoSpaces=string2.replace(' ', '')
+onlySpaceDiff=string1NoSpaces==string2NoSpaces
+
+unverifiedCompanies['spaceDiffMap']=''
+entriesWithGuesses=unverifiedCompanies.index[unverifiedCompanies['guesses'].str.len()>0]
+
+for iAttempts in range(len(entriesWithGuesses)):
+        currentEntry=entriesWithGuesses[iAttempts]
+        string1=unverifiedCompanies['company'].loc[currentEntry]
+        
+        currentGuesses=unverifiedCompanies['guesses'].loc[currentEntry]
+        
+        for iGuesses in range(len(currentGuesses)):
+            string2=currentGuesses[iGuesses]
+            
+            string1NoSpaces=string1.replace(' ', '')
+            string2NoSpaces=string2.replace(' ', '')
+            string2HasSpaces=string2.find(' ')!=-1
+            onlySpaceDiff=string1NoSpaces==string2NoSpaces
+            
+            if string2HasSpaces & onlySpaceDiff:
+                unverifiedCompanies['spaceDiffMap'].loc[iAttempts]=string2
+            
+    
+        #place the guesses for each unverified company, if applicable.
+        unverifiedCompanies['guesses'].iloc[iAttempts]=difflib.get_close_matches(unverifiedCompanies['company'].iloc[iAttempts],verifiedCompanies['company'],cutoff=0.8)
