@@ -257,6 +257,10 @@ def createSubstringMatrix(inputColumn):
     #rename the columns
     tableUniqueFullNameCounts.rename(columns={inputColumnName[0]:"count","index":inputColumnName[0]},inplace=True)
 
+    tableUniqueFullNameCounts=tableUniqueFullNameCounts.sort_values(by=['count',inputColumnName[0]],ascending=[False,False])
+
+    tableUniqueFullNameCounts=tableUniqueFullNameCounts.reset_index(drop=True)
+
     import scipy.sparse as sparse
     import re
 
@@ -271,11 +275,11 @@ def createSubstringMatrix(inputColumn):
     
         #formulate a good regex expression
         currentRegex=re.compile('(?i)\\b'+re.escape(tableUniqueFullNameCounts[inputColumnName[0]].loc[index])+'\\b')
-    
+        #print(currentRegex)
         #get all company listings that feature the current company string
         currentBool=tableUniqueFullNameCounts[inputColumnName[0]].str.contains(currentRegex)
     
         #fill in boolean values
         accessibleMatrix[index,:]=currentBool
     
-    return accessibleMatrix
+    return tableUniqueFullNameCounts, accessibleMatrix
