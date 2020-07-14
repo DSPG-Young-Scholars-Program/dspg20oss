@@ -130,8 +130,9 @@ def expandFromColumn(inputColumn,replaceList):
     Keyword arguments:
     inputColumn -- a column from a pandas dataframe, this will be the set of
     target words/entries that deletions will be made from
-    eraseList -- a column containing strings (regex expressions) which will be
-    deleted from the inputColumn, in an iterative fashion
+    replaceList -- a two column (pandas) object.  The first column containing strings 
+    (regex expressions) which will be
+    replaced  by the entry (from the same row) from the second column, in an iterative fashion
     """
     
    import pandas as pd
@@ -205,3 +206,76 @@ def addBooleanColumnFromCriteria(inputDataToAssess,assessItems,newColumnName):
        inputDataToAssess[newColumnName].loc[CurrentBoolVec]=True
 
     return inputDataToAssess;
+
+def iterativeFullFuzzyMatch(inputColumn):
+    """iteratively perform a fuzzy match on entire input column
+    
+    Keyword arguments:
+    inputColumn -- a SINGLE column from a pandas dataframe, this will be the set of
+    target words/entries will be iteratively matched against (except self) seeking
+    close matches
+    """
+    #get the input column names
+    inputColumnName=inputColumn.columns
+    #get the unique values (and counts)
+    tableUniqueFullNameCounts=inputColumn[inputColumnName[0]].value_counts()
+    #convert that output to a proper table
+    tableUniqueFullNameCounts=tableUniqueFullNameCounts.reset_index()
+    #rename the columns
+    tableUniqueFullNameCounts.rename(columns={inputColumnName[0]:"count","index":inputColumnName[0]},inplace=True)
+
+    import difflib
+    import numpy as np
+    
+    #create blank column
+    tableUniqueFullNameCounts['guesses']=''
+
+    for index, row in tableUniqueFullNameCounts.iterrows():
+       blankBool=np.full((len(tableUniqueFullNameCounts.index)),True)
+       curBool=blankBool
+       curBool[index]=False
+       currentChecklist=tableUniqueFullNameCounts[inputColumnName[0]].loc[curBool]
+       tableUniqueFullNameCounts['guesses'].loc[index]=difflib.get_close_matches(tableUniqueFullNameCounts[inputColumnName[0]].loc[index],currentChecklist,cutoff=0.8)
+    
+    return tableUniqueFullNameCounts
+
+def createSubstringMatrix(inputColumn):
+    """iteratively perform substring assesment across all entries and map these 
+    relations into a directed matrix
+    Keyword arguments:
+    inputColumn -- a SINGLE column from a pandas dataframe, this will be the set of
+    target words/entries will be iterated over when performing the substring matching
+    NOTE: The returned matrix is in a strange format and mary require converstion to
+    interact with
+    """
+    #get the input column names
+    inputColumnName=inputColumn.columns
+    #get the unique values (and counts)
+    tableUniqueFullNameCounts=inputColumn[inputColumnName[0]].value_counts()
+    #convert that output to a proper table
+    tableUniqueFullNameCounts=tableUniqueFullNameCounts.reset_index()
+    #rename the columns
+    tableUniqueFullNameCounts.rename(columns={inputColumnName[0]:"count","index":inputColumnName[0]},inplace=True)
+
+    import scipy.sparse as sparse
+    import re
+
+    #create a sparse matrix of appropriate dimensions
+    substringMatrix=sparse.coo_matrix((len(tableUniqueFullNameCounts.index),len(tableUniqueFullNameCounts.index)),dtype=bool)
+
+    #convert to format the permits modification
+    accessibleMatrix=substringMatrix.tolil()
+
+    #iterate acroos unique listings
+    for index, row in tableUniqueFullNameCounts.iterrows():
+    
+        #formulate a good regex expression
+        currentRegex=re.compile('(?i)\\b'+re.escape(tableUniqueFullNameCounts[inputColumnName[0]].loc[index])+'\\b')
+    
+        #get all company listings that feature the current company string
+        currentBool=tableUniqueFullNameCounts[inputColumnName[0]].str.contains(currentRegex)
+    
+        #fill in boolean values
+        accessibleMatrix[index,:]=currentBool
+    
+    return accessibleMatrix
