@@ -75,6 +75,8 @@ city_clean_final_aggregate_country <- city_clean_final%>%
   arrange(desc(ttl_users))
 #city_clean_final_aggregate_country$country_code <- gsub(" ", "", city_clean_final_aggregate_country$country_code, fixed = TRUE)
 
+#aggregate by state
+
 #aggregate by city
 city_clean_final_aggregate <- city_clean_final%>%
   group_by(c_city_code, c_country_name)%>%
@@ -94,6 +96,7 @@ city_clean_final_aggregate <- city_clean_final_aggregate%>%
   mutate(top_city = if_else(c_city_code %in% top_city_vector, "topcity", "not topcity"))
 ```
 
+
 # Top Continents are Github Users Located 
 North America is the continent that has the highest number of github users, following by Europe, and Asia.
 ```{r fig.width=8, fig.height=6, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
@@ -105,8 +108,8 @@ gh_continent$Continent_Name <- factor(gh_continent$c_continent_name, levels = gh
 ggplot(gh_continent, aes(x = Continent_Name, y = ttl_users, fill = ttl_users))+
   geom_bar(stat = "identity")+ 
   scale_fill_continuous(low = uva_color_palette[5], high=uva_color_palette[8])+
-  labs(title = "Continents where Github users are located", x = "continent", y = "total number of users")+
-  theme_bw()
+  labs(title = "Continents where Github users are located", x = "continent", y = "total number of users", fill = "total number \n of users")+
+  theme_bw() 
 ```
 
 # Top Countries Where Github Users are Located
@@ -121,7 +124,7 @@ gh_country$c_country_name <- factor(gh_country$c_country_name, levels = gh_count
 ggplot(gh_country, aes(x = c_country_name, y = ttl_users, fill = ttl_users)) +
   geom_bar(stat = "identity")+ 
   scale_fill_continuous(low = uva_color_palette[5], high=uva_color_palette[8])+
-  labs(title = "Countries where Github users are located", x = "country", y = "total number of users") +
+  labs(title = "Countries where Github users are located", x = "country", y = "total number of users", fill = "total number \n of users") +
   theme_bw()
 ```
 
@@ -143,7 +146,7 @@ gh_city$city_country <- factor(gh_city$city_country, levels = gh_city$city_count
 ggplot(gh_city, aes(x = city_country, y = ttl_users, fill = ttl_users))+
   geom_bar(stat = "identity")+ 
   scale_fill_continuous(low = uva_color_palette[5], high=uva_color_palette[8])+
-  labs(title = "Countries where Github users are located", x = "city", y = "total number of users") +
+  labs(title = "Countries where Github users are located", x = "city", y = "total number of users", fill = "total number \n of users") +
   theme_bw()
 ```
 
@@ -151,7 +154,7 @@ ggplot(gh_city, aes(x = city_country, y = ttl_users, fill = ttl_users))+
 ```{r visualization interactive map, eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
 #In this map, the color of the circle indicates the number of github users in each city, still under development.
 city_clean_final_aggregate_top <- city_clean_final_aggregate%>%
-  filter(ttl_users > 1)%>%
+  filter(ttl_users > 10)%>%
   mutate(ttl_users_t = log(ttl_users), perc = ttl_users_t/max(ttl_users_t))
 
 # hist(city_clean_final_aggregate_top$perc)
@@ -207,6 +210,7 @@ pal <- colorFactor(
 
 #ttl user indicated by size
 city_clean_final_aggregate %>%
+#  mutate(ttl_users_exp = exp(ttl_users)^(1/3))%>%
   leaflet()%>%
   addTiles()%>%
   addSearchOSM()%>%
@@ -217,7 +221,7 @@ city_clean_final_aggregate %>%
     lng = ~long , 
     lat = ~lat, 
     label = ~ paste(city_country,", ", ttl_users, " user(s)", sep = ""),
-    radius = ~ttl_users^(1/3), 
+    radius = ~ttl_users, 
     color  = ~pal(top_city))%>% 
   addLegend(pal = pal, values = c( "not topcity", "topcity"))
 
