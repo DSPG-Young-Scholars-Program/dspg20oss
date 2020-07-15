@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Python on UVA Biocomplexity Institute</title>
+    <title>python on UVA Biocomplexity Institute</title>
     <link>/tags/python/</link>
-    <description>Recent content in Python on UVA Biocomplexity Institute</description>
+    <description>Recent content in python on UVA Biocomplexity Institute</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     
@@ -11,16 +11,7 @@
     
     
     <item>
-      <title>Classifying GitHub Users by Sector</title>
-      <link>/analyses/sectoring/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>/analyses/sectoring/</guid>
-      <description>Our analyses are underway&amp;hellip;</description>
-    </item>
-    
-    <item>
-      <title>OSS in the Business Sector</title>
+      <title>OSS in the Household/Business Sectors</title>
       <link>/analyses/business/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       

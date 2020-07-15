@@ -12,12 +12,13 @@
     
     
     <item>
-      <title>Classifying GitHub Users by Sector</title>
-      <link>/analyses/sectoring/</link>
+      <title>Geographical Analyses of GitHub Users</title>
+      <link>/analyses/geographic/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>/analyses/sectoring/</guid>
-      <description>Our analyses are underway&amp;hellip;</description>
+      <guid>/analyses/geographic/</guid>
+      <description>We conducted analysis on GitHub users&#39; geographic location, which was scraped from their public user profile. While 77.23% geographic information (country and city name) were missing, we were still able to map 488104 GitHub users in our final analyses.
+Top Continents Where GitHub Users are Located North America is the continent with the highest number of GitHub users - followed by Europe and Asia.</description>
     </item>
     
     <item>
@@ -26,24 +27,6 @@
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>/analyses/academic/</guid>
-      <description>Our analyses are underway&amp;hellip;</description>
-    </item>
-    
-    <item>
-      <title>OSS in the Business Sector</title>
-      <link>/analyses/business/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>/analyses/business/</guid>
-      <description>Our analyses are underway&amp;hellip;</description>
-    </item>
-    
-    <item>
-      <title>OSS in the Household Sector</title>
-      <link>/analyses/household/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>/analyses/household/</guid>
       <description>Our analyses are underway&amp;hellip;</description>
     </item>
     
@@ -57,13 +40,12 @@
     </item>
     
     <item>
-      <title>Github Users Around the World</title>
-      <link>/analyses/geographic/</link>
+      <title>OSS in the Household/Business Sectors</title>
+      <link>/analyses/business/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>/analyses/geographic/</guid>
-      <description>We conduct analysis on github users&#39; geographic location, which is extracted from the user profile. We ackowledge 77.23 % missing geographic information (country and city name), which leaves us with 488104 github users in our analysis.
-Top Continents are Github Users Located North America is the continent that has the highest number of github users, following by Europe, and Asia.</description>
+      <guid>/analyses/business/</guid>
+      <description>Our analyses are underway&amp;hellip;</description>
     </item>
     
     <item>

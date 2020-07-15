@@ -3,7 +3,7 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
-    <loc>/analyses/sectoring/</loc>
+    <loc>/analyses/geographic/</loc>
   </url>
   
   <url>
@@ -11,19 +11,11 @@
   </url>
   
   <url>
-    <loc>/analyses/business/</loc>
-  </url>
-  
-  <url>
-    <loc>/analyses/household/</loc>
-  </url>
-  
-  <url>
     <loc>/analyses/government/</loc>
   </url>
   
   <url>
-    <loc>/analyses/geographic/</loc>
+    <loc>/analyses/business/</loc>
   </url>
   
   <url>
@@ -71,19 +63,19 @@
   </url>
   
   <url>
+    <loc>/tags/big-data/</loc>
+  </url>
+  
+  <url>
     <loc>/categories/</loc>
   </url>
   
   <url>
-    <loc>/tags/geospatial/</loc>
+    <loc>/tags/interactive-map/</loc>
   </url>
   
   <url>
-    <loc>/tags/matching/</loc>
-  </url>
-  
-  <url>
-    <loc>/tags/networks/</loc>
+    <loc>/tags/nlp/</loc>
   </url>
   
   <url>
