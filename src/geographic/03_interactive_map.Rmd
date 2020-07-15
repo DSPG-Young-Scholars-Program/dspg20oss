@@ -75,7 +75,7 @@ city_clean_final_aggregate_country <- city_clean_final%>%
   arrange(desc(ttl_users))
 #city_clean_final_aggregate_country$country_code <- gsub(" ", "", city_clean_final_aggregate_country$country_code, fixed = TRUE)
 
-#aggregate by state
+#aggregate by U.S. state
 
 #aggregate by city
 city_clean_final_aggregate <- city_clean_final%>%
@@ -151,57 +151,13 @@ ggplot(gh_city, aes(x = city_country, y = ttl_users, fill = ttl_users))+
 ```
 
 # City-level Interactive map
-```{r visualization interactive map, eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
+In this map, the size of the circle indicates the number of github users in each city. You can zoom in and hover over the circle to see how many users are in that city. You can also type in the city that you are interested in.
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 #In this map, the color of the circle indicates the number of github users in each city, still under development.
 city_clean_final_aggregate_top <- city_clean_final_aggregate%>%
   filter(ttl_users > 10)%>%
   mutate(ttl_users_t = log(ttl_users), perc = ttl_users_t/max(ttl_users_t))
 
-# hist(city_clean_final_aggregate_top$perc)
-# hist(city_clean_final_aggregate_top$perc*255)
-
-
-# pal <- colorNumeric(palette = c("#51a6b5", "#052e2c"), domain = c(min(city_clean_final_aggregate_top$ttl_users): max(city_clean_final_aggregate_top$ttl_users)), reverse = F)
-
-#Define the breaks and associated RGB value
-# vec_breaks <- c(min(city_clean_final_aggregate_top$ttl_users), 5000, 10000, max(city_clean_final_aggregate_top$ttl_users))
-# 
-# vec_rgb    <- c("#a4fa8c","#6bd64d", "#369e19",  "#196604") 
-# 
-# #Add a colour column, and put in the appropriate RGB value
-for (i in 1:nrow(city_clean_final_aggregate_top)) {
-    city_clean_final_aggregate_top$colour[i] <- paste("rgb(", 20 , ",", 150, ",",round( 255*city_clean_final_aggregate_top$perc[i],digits = 0), ")", sep="")
-      #city_clean_final_aggregate_top$colour[i] <- vec_rgb[min(which(vec_breaks > city_clean_final_aggregate_top$ttl_users[i])) - 1]
-}
- 
-
-
-#ttl user indicated by color
-city_clean_final_aggregate_top %>%
-  leaflet()%>%
-  addTiles()%>%
-  addSearchOSM()%>%
-  addReverseSearchOSM()%>%
-  clearMarkers()%>%
-  addResetMapButton()%>%
-  addCircleMarkers(
-    lng = ~long , 
-    lat = ~lat, 
-    color =  ~colour,
-    label = ~ paste(city, country, sep = ', \n'),
-    radius = 2)
-
-# %>%
-#   addLegend(title = "Number of Github Users", 
-#           pal = ~colour, 
-#             values = c(0: 15927), 
-#             position = "bottomright", 
-#             opacity = 0.5)
-  
-```
-
-In this map, the size of the circle indicates the number of github users in each city. You can zoom in and hover over the circle to see how many users are in that city. You can also type in the city that you are interested in.
-```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 pal <- colorFactor(
   palette = c(uva_color_palette[4], uva_color_palette[8]),
   levels = c( "not topcity", "topcity")
@@ -209,7 +165,7 @@ pal <- colorFactor(
 
 
 #ttl user indicated by size
-city_clean_final_aggregate %>%
+city_clean_final_aggregate%>%
 #  mutate(ttl_users_exp = exp(ttl_users)^(1/3))%>%
   leaflet()%>%
   addTiles()%>%
@@ -221,9 +177,8 @@ city_clean_final_aggregate %>%
     lng = ~long , 
     lat = ~lat, 
     label = ~ paste(city_country,", ", ttl_users, " user(s)", sep = ""),
-    radius = ~ttl_users, 
+    radius = ~ttl_users^(1/3), 
     color  = ~pal(top_city))%>% 
   addLegend(pal = pal, values = c( "not topcity", "topcity"))
-
 ```
 
