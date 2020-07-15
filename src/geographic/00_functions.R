@@ -159,7 +159,7 @@ cleancity <- function(df = ctrs_extra){
     df_nocb <- df_dup_i_check%>%
       filter(!combine)%>%
       select(city_code, user_geo_location)%>%
-      dt_mutate(user_geo_location_new = user_geo_location)
+      mutate(user_geo_location_new = user_geo_location)
     
     update_geocode <- rbind(df_cb, df_nocb)
     
