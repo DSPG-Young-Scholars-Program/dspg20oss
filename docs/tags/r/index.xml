@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>R on UVA Biocomplexity Institute</title>
+    <link>/tags/r/</link>
+    <description>Recent content in R on UVA Biocomplexity Institute</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    
+	<atom:link href="/tags/r/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Classifying GitHub Users by Sector</title>
+      <link>/analyses/sectoring/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/analyses/sectoring/</guid>
+      <description>Our analyses are underway&amp;hellip;</description>
+    </item>
+    
+    <item>
+      <title>OSS in the Academic Sector</title>
+      <link>/analyses/academic/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/analyses/academic/</guid>
+      <description>Our analyses are underway&amp;hellip;</description>
+    </item>
+    
+    <item>
+      <title>OSS in the Business Sector</title>
+      <link>/analyses/business/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/analyses/business/</guid>
+      <description>Our analyses are underway&amp;hellip;</description>
+    </item>
+    
+    <item>
+      <title>OSS in the Household Sector</title>
+      <link>/analyses/household/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/analyses/household/</guid>
+      <description>Our analyses are underway&amp;hellip;</description>
+    </item>
+    
+    <item>
+      <title>OSS in the Governmental Sector</title>
+      <link>/analyses/government/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/analyses/government/</guid>
+      <description>Our analyses are underway&amp;hellip;</description>
+    </item>
+    
+    <item>
+      <title>Geospatial Analyses</title>
+      <link>/analyses/geospatial/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/analyses/geospatial/</guid>
+      <description>Our analyses are underway&amp;hellip;</description>
+    </item>
+    
+  </channel>
+</rss>

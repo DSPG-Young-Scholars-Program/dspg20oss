@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  
+  <url>
+    <loc>/analyses/sectoring/</loc>
+  </url>
+  
+  <url>
+    <loc>/analyses/academic/</loc>
+  </url>
+  
+  <url>
+    <loc>/analyses/business/</loc>
+  </url>
+  
+  <url>
+    <loc>/analyses/household/</loc>
+  </url>
+  
+  <url>
+    <loc>/analyses/government/</loc>
+  </url>
+  
+  <url>
+    <loc>/analyses/geospatial/</loc>
+  </url>
+  
+  <url>
+    <loc>/antiquated/</loc>
+    <lastmod>2014-09-28T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/antiquated/creating-a-new-theme/</loc>
+    <lastmod>2014-09-28T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/</loc>
+    <lastmod>2014-09-28T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/antiquated/goisforlovers/</loc>
+    <lastmod>2014-04-02T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/antiquated/hugoisforlovers/</loc>
+    <lastmod>2014-04-02T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/antiquated/migrate-from-jekyll/</loc>
+    <lastmod>2014-03-10T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/dspg/</loc>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/oss/</loc>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/analyses/</loc>
+  </url>
+  
+  <url>
+    <loc>/categories/</loc>
+  </url>
+  
+  <url>
+    <loc>/tags/geospatial/</loc>
+  </url>
+  
+  <url>
+    <loc>/tags/matching/</loc>
+  </url>
+  
+  <url>
+    <loc>/tags/networks/</loc>
+  </url>
+  
+  <url>
+    <loc>/tags/python/</loc>
+  </url>
+  
+  <url>
+    <loc>/tags/r/</loc>
+  </url>
+  
+  <url>
+    <loc>/tags/regex/</loc>
+  </url>
+  
+  <url>
+    <loc>/tags/</loc>
+  </url>
+  
+</urlset>
