@@ -1,7 +1,7 @@
 ---
 title: "OSS in the Academic Sector"
 description: "Project description here"
-tags: ["R","regex","matching"]
+tags: ["R","nlp","regex","big data"]
 weight: 2
 draft: false
 ---

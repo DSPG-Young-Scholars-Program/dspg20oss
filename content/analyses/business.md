@@ -1,8 +1,8 @@
 ---
-title: "OSS in the Business Sector"
+title: "OSS in the Household/Business Sectors"
 description: "Project description here"
-tags: ["R","Python","regex","matching"]
-weight: 3
+tags: ["python","nlp","regex","big data"]
+weight: 4
 draft: false
 ---
 
