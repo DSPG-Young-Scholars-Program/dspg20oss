@@ -75,7 +75,19 @@ city_clean_final_aggregate_country <- city_clean_final%>%
   arrange(desc(ttl_users))
 #city_clean_final_aggregate_country$country_code <- gsub(" ", "", city_clean_final_aggregate_country$country_code, fixed = TRUE)
 
+
 #aggregate by U.S. state
+city_clean_final_us <- city_clean_final%>%
+  filter(c_country_name == "US")
+check <- city_clean_final_us%>%
+  group_by(raw_city, c_geo_code)%>%
+  summarize(N=n())%>%
+  group_by(raw_city)%>%
+  summarize(N=n())%>%
+  mutate(is.dup = if_else(N >1, T,F))
+table(check$is.dup)
+453/(453 + 3199)
+table(is.na(city_clean_final_us$raw_state))
 
 #aggregate by city
 city_clean_final_aggregate <- city_clean_final%>%
