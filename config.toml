@@ -8,6 +8,7 @@ googleAnalytics = ""
 ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "public/"]
 publishDir = "docs"
 
+
 [permalinks]
     post = "/:year/:month/:day/:slug/"
 
