@@ -111,12 +111,17 @@ gh_continent<- city_clean_final_aggregate_continent%>%
 
 gh_continent$Continent_Name <- factor(gh_continent$c_continent_name, levels = gh_continent$c_continent_name[order(gh_continent$ttl_users)])
 
+min = min(gh_continent$ttl_users)
+max = max(gh_continent$ttl_users)
+
 ggplot(gh_continent, aes(x = Continent_Name, y = ttl_users, fill = ttl_users))+
   geom_bar(stat = "identity")+ 
-  scale_fill_continuous(low = uva_color_palette[3], high=uva_color_palette[2])+
+  scale_fill_continuous(low = uva_color_palette[3], high=uva_color_palette[2], breaks=c(min,50000,100000,150000,max), labels = c(as.character(min),"50000","100000","150000", as.character(max)))+
   labs(#title = "Continents where Github users are located", 
-       x = "Continent", y = "Total Number of Users", fill = "Total Number \n    of Users")+
-  theme_bw() 
+       x = "Continent", y = "Total Number of Users", fill = "Total Number \n    of Users") +
+  scale_y_continuous(breaks=c(min,50000,100000,150000,max), labels = c(as.character(min),"50000","100000","150000", as.character(max))) +
+  theme_bw() +
+  theme( legend.spacing.y = unit(1,"cm"))
 ```
 
 ### Top Countries Where GitHub Users are Located 
@@ -130,12 +135,31 @@ gh_country <- city_clean_final_aggregate_country%>%
 
 gh_country$c_country_name <- factor(gh_country$c_country_name, levels = gh_country$c_country_name[order(gh_country$ttl_users)])
 
+
+
+min = min(gh_country$ttl_users)
+max = max(gh_country$ttl_users)
+
 ggplot(gh_country, aes(x = c_country_name, y = ttl_users, fill = ttl_users)) +
   geom_bar(stat = "identity")+ 
-  scale_fill_continuous(low = "#E6890F", high=uva_color_palette[9])+
+  scale_fill_continuous(
+    low = "#E6890F", 
+    high=uva_color_palette[9], 
+    breaks=c(min, 60000, 100000, 140000, max), 
+    labels = c(
+      as.character(min), 
+      "60000",
+      "100000",
+      "140000",
+      as.character(max)
+      )
+    )+
   labs(#title = "Countries where Github users are located", 
        x = "Country", y = "Total Number of Users", fill = "Total Number \n    of Users") +
-  theme_bw()
+  theme_bw()+
+  theme(legend.spacing.y = unit(1,"cm"))
+
+
 ```
 
 
@@ -155,12 +179,25 @@ gh_city$city_country <- str_replace_all(gh_city$city_country, fixed(","), "\n")
 gh_city$city_country <- factor(gh_city$city_country, levels = gh_city$city_country[order(gh_city$ttl_users)])
 # NOTE ::: Could you please shorten the labels for the USA and Russia cities 
 
+
+
+min = min(gh_city$ttl_users)
+max = max(gh_city$ttl_users)
+
 ggplot(gh_city, aes(x = city_country, y = ttl_users, fill = ttl_users))+
-  geom_bar(stat = "identity")+ 
-  scale_fill_continuous(low = uva_color_palette[3], high=uva_color_palette[2])+
+  geom_bar(stat = "identity") + 
+  scale_fill_continuous(
+    low = uva_color_palette[3], 
+    high=uva_color_palette[2],
+   breaks=c(0,min, 8000, 10000,12000, 14000,max), 
+    labels = c("0", as.character(min),"8000", "10000",  "12000", "14000",as.character(max))
+   )+
   labs(#title = "Countries where Github users are located", 
-       x = "City", y = "Total Number of Users", fill = "Total Number \n    of Users") +
-  theme_bw()
+       x = "City", y = "Total Number of Users", fill = "Total Number \n    of Users")+
+  theme_bw()+
+  scale_y_continuous(breaks=c(0,2000, 4000, 6000, 8000, 10000,12000, 14000,max), 
+    labels = c("0", "2000", "4000", "6000","8000", "10000",  "12000", "14000",as.character(max)))+
+  theme(legend.spacing.y = unit(1,"cm"))
 ```
 
 ### City-Level Interactive Map of GitHub Users
