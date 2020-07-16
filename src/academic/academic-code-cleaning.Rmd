@@ -78,7 +78,7 @@ orgs_initial <- users_gh %>%
 
 # compare with hipolabs dataset
 initial_overlap <- semi_join(orgs_initial, institutions_hipolabs, by = c("organization" = "institution"))
-sum(initial_overlap[,"n"]) # 16,663 identified users from academic institutions
+sum(initial_overlap[,"n"]) # 17,128 identified users from academic institutions
 ```
 
 Recode company variable, using string matching to catch name variations
@@ -469,12 +469,14 @@ org_counts <- orgs_clean %>% group_by(organization) %>% count() %>% arrange(-n)
 institutions_hipolabs <- institutions_hipolabs %>% as.data.table() %>% dt_mutate(institution = str_to_lower(institution))
 overlap <- semi_join(org_counts, institutions_hipolabs, by = c("organization" = "institution"))
 sum(overlap[,"n"])
+sum(filter(overlap, organization != "misc. student")[,"n"])
+filter(overlap, organization == "misc. student")$n
 
 # make a table to see what isn't caught by hipolabs
 leftover <- anti_join(org_counts, overlap)
 ```
 
-At this point, we have 24,360 users matched to academic institutions and 1,564 identified as misc. students.
+At this point, we have 29,115 users in the academic sector: 27,551 matched to academic institutions and 1,564 identified as misc. students.
 
 We can boost this number by looking at the users' email domains:
 
@@ -491,7 +493,7 @@ imputed_institutions <- email_domains %>%
   subset(is.na(company)) %>%
   dt_mutate(organization = institution)
 
-nrow(imputed_institutions) # 11,636 imputed
+nrow(imputed_institutions) # 11,761 imputed
 
 # join with other recoded data to update academic counts
 orgs_clean <- full_join(orgs_clean, imputed_institutions[,c("login","email","organization")])
@@ -500,31 +502,35 @@ overlap <- semi_join(org_counts, institutions_hipolabs, by = c("organization" = 
 sum(overlap[,"n"])
 ```
 
-New total is 35,996 users matched to academic institutions and 1,564 students.
+New total is 40,876 users in the academic sector.
 
 ```{r}
+# use hipolabs dataset to get countries
+# remove misc. students for future analyses
+academic_counts <- left_join(overlap, institutions_hipolabs, by = c("organization" = "institution")) %>% filter(!(organization == "misc. student"))
+
+sum(academic_counts[,"n"]) # 43,569
+
+# larger than before because it's double-counting the institutions that are in multiple countries or have multiple domains
 # group together different country and domain values for the same institution
-test <- institutions_hipolabs[duplicated(institutions_hipolabs$institution), ] %>% rename(c(country2 = country, domains2 = domains))
-test2 <- test[duplicated(test$institution), ] %>% rename(c(country3 = country2, domains3 = domains2))
-test3 <- test2[duplicated(test2$institution), ] %>% rename(c(country4 = country3, domains4 = domains3))
-test4 <- test3[duplicated(test3$institution), ] %>% rename(c(country5 = country4, domains5 = domains4))
-test5 <- test4[duplicated(test4$institution), ] %>% rename(c(country6 = country5, domains6 = domains5))
+test <- academic_counts[duplicated(academic_counts$organization), ] %>% rename(c(country2 = country, domains2 = domains))
+test2 <- test[duplicated(test$organization), ] %>% rename(c(country3 = country2, domains3 = domains2))
+test3 <- test2[duplicated(test2$organization), ] %>% rename(c(country4 = country3, domains4 = domains3))
+test4 <- test3[duplicated(test3$organization), ] %>% rename(c(country5 = country4, domains5 = domains4))
 
-test <- test[!duplicated(test$institution), ]
-test2 <- test2[!duplicated(test2$institution), ]
-test3 <- test3[!duplicated(test3$institution), ]
-test4 <- test4[!duplicated(test4$institution), ]
-test5 <- test5[!duplicated(test5$institution), ]
+test <- test[!duplicated(test$organization), ]
+test2 <- test2[!duplicated(test2$organization), ]
+test3 <- test3[!duplicated(test3$organization), ]
+test4 <- test4[!duplicated(test4$organization), ]
 
-institutions_hipolabs <- institutions_hipolabs[!duplicated(institutions_hipolabs$institution), ] %>% 
+academic_counts <- academic_counts[!duplicated(academic_counts$organization), ] %>% 
   left_join(test) %>%
   left_join(test2) %>%
   left_join(test3) %>%
   left_join(test4) %>%
-  left_join(test5) %>%
   mutate_all(str_replace_na)
 
-institutions_hipolabs <- institutions_hipolabs %>%
+academic_counts <- academic_counts %>%
   dt_mutate(country2 = if_else(country == country2, "NA", country2)) %>%
   dt_mutate(country3 = if_else(country == country3, "NA", country3)) %>%
   dt_mutate(domains2 = if_else(domains == domains2, "NA", domains2)) %>%
@@ -532,35 +538,31 @@ institutions_hipolabs <- institutions_hipolabs %>%
   dt_mutate(domains4 = if_else(domains == domains4, "NA", domains4)) %>%
   dt_mutate(domains5 = if_else(domains == domains5, "NA", domains5))
 
-institutions_hipolabs <- institutions_hipolabs %>%
-  dt_mutate(country_combined = str_c(country, country2, country3, country4, country5, country6, sep = ", ")) %>%
-  dt_mutate(domains_combined = str_c(domains, domains2, domains3, domains4, domains5, domains6, sep = ", ")) %>%
-  transmute(institution = institution, country = country_combined, domains = domains_combined)
+academic_counts <- academic_counts %>%
+  dt_mutate(country = if_else(condition = organization %chin% c("universidad simón bolivar", "suleyman demirel university", "universidad de córdoba", "aga khan university", "southeast university", "universidad de los andes", "korea university"), true = country2, false = country)) %>%
+  dt_mutate(domains_combined = str_c(domains, domains2, domains3, domains4, domains5, sep = ", ")) %>%
+  transmute(organization = organization, n = n, country = country, domains = domains_combined)
 
-institutions_hipolabs <- institutions_hipolabs %>% 
-  dt_mutate(country = str_replace_all(country, ", NA", "")) %>%
+academic_counts <- academic_counts %>% 
   dt_mutate(domains = str_replace_all(domains, ", NA", ""))
-
-```
-
-```{r}
-# use hipolabs dataset to get countries
-# remove misc. students for future analyses
-academic_counts <- left_join(overlap, institutions_hipolabs, by = c("organization" = "institution")) %>% filter(!(organization == "misc. student"))
-
-sum(academic_counts[,"n"]) # 35996
-
-# everyone likes visuals
-ggplot(data = academic_counts[1:10,]) + geom_col(mapping = aes(n, reorder(organization, n), fill = n)) + labs(y = "Academic institution", x = "User count")
 ```
 
 Visualizations
 
+```{r, fig.width = 12}
+academic_counts_sorted <- academic_counts %>% 
+  dt_mutate(n = as.numeric(n)) %>%
+  arrange(n) %>%
+  dt_mutate(organization = factor(organization, levels = organization))
+
+ggplot(data = academic_counts_sorted[(.N-10):.N,]) + geom_col(mapping = aes(organization, n, fill = n)) + labs(x = "Academic institution", y = "User count") + coord_flip()
+```
+
 ```{r}
 # get some good numbers
-percent_us_institution <- length(filter(academic_counts, country == "United States")$organization) / length(academic_counts$organization) # 0.317
-percent_us_users <- sum(filter(academic_counts, country == "United States")[, "n"]) / sum(academic_counts[, "n"]) # 0.539
-percent_academic_users <- sum(academic_counts[,"n"]) / 2435698 # 0.015
+percent_us_institution <- length(filter(academic_counts, country == "United States")$organization) / length(academic_counts$organization) # 0.330
+percent_us_users <- sum(filter(academic_counts, country == "United States")[, "n"]) / sum(academic_counts[, "n"]) # 0.543
+percent_academic_users <- sum(academic_counts[,"n"]) / 2435698 # 0.016
 
 options(scipen = 10)
 country_user_percentages <- academic_counts %>% group_by(country) %>% select(country, n) %>% summarise(n = sum(n) / sum(academic_counts[, "n"])) %>% arrange(-n)
@@ -572,23 +574,8 @@ country_frequency_users <- academic_counts %>% group_by(country) %>% count(sort 
 country_frequency_institutions <- academic_counts %>% group_by(country) %>% count(wt = n(), sort = TRUE)
 ```
 
-```{r,fig.height=7}
-academic_counts_sorted <- academic_counts %>%
-  arrange(n) %>%
-  #arrange(desc(n))[1:50, ] %>%
-  dt_mutate(organization = factor(organization, levels = organization))
 
-
-ggplot(academic_counts_sorted[(.N-50):.N, ], aes(color = country)) +
-  geom_point(aes(x = organization, y = n)) +
-  geom_segment(data = academic_counts_sorted[(.N-50):.N, ], mapping = aes(x = organization, xend = organization, y = 0, yend = n)) +
-  scale_color_manual(values = c("United States" = "#8F8F8F", "China" = "#E57200", "United Kingdom" = "#12B2CE", "Canada" = "#485C99")) +
-  labs(x = "Academic Institution", y = "Number of Users", color = "Country") +
-  theme_classic() +
-  coord_flip()
-```
 ```{r, fig.height = 7, fig.width = 12}
-
 ggplot(academic_counts_sorted[(.N-20):.N, ], aes(color = country)) +
   geom_point(aes(x = organization, y = n), size = 4) +
   geom_segment(data = academic_counts_sorted[(.N-20):.N, ], mapping = aes(x = organization, xend = organization, y = 0, yend = n), size = 1) +
@@ -603,9 +590,9 @@ ggplot(academic_counts_sorted[(.N-20):.N, ], aes(color = country)) +
 ```{r,fig.height=7}
 us_academic_counts <- academic_counts_sorted %>% filter(country == "United States")
 
-ggplot(us_academic_counts[(.N-50):.N, ]) +
+ggplot(us_academic_counts[(.N-20):.N, ]) +
   geom_point(aes(x = organization, y = n)) +
-  geom_segment(data = us_academic_counts[(.N-50):.N, ], mapping = aes(x = organization, xend = organization, y = 0, yend = n)) +
+  geom_segment(data = us_academic_counts[(.N-20):.N, ], mapping = aes(x = organization, xend = organization, y = 0, yend = n)) +
   labs(x = "Academic Institution", y = "Number of Users") +
   theme_classic() +
   coord_flip()
@@ -614,12 +601,11 @@ ggplot(us_academic_counts[(.N-50):.N, ]) +
 ```{r,fig.height=7}
 country_users_sorted <- country_frequency_users %>%
   arrange(n) %>%
-  #arrange(desc(n))[1:50, ] %>%
   dt_mutate(country = factor(country, levels = country))
 
-ggplot(country_users_sorted[(.N-50):.N, ]) +
+ggplot(country_users_sorted[(.N-20):.N, ]) +
   geom_point(aes(x = country, y = n)) +
-  geom_segment(data = country_users_sorted[(.N-50):.N, ], mapping = aes(x = country, xend = country, y = 0, yend = n)) +
+  geom_segment(data = country_users_sorted[(.N-20):.N, ], mapping = aes(x = country, xend = country, y = 0, yend = n)) +
   labs(x = "Country", y = "Number of Users") +
   theme_classic() +
   scale_y_log10() +
