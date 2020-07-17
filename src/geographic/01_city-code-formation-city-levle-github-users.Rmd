@@ -43,7 +43,8 @@ dbDisconnect(conn)
 source("~/git/dspg20oss/src/geographic/00_functions.R", echo = T, prompt.echo = "", spaced = F)
 ```
 
-# Write the updated citycode to pgAdmin
+# Finished product
+## Write the updated citycode to pgAdmin
 ```{r}
 ls_cleancity <- cleancity(ctrs_extra, country_code_dict)
 
@@ -64,7 +65,7 @@ dbDisconnect(conn)
 ```
 
 
-
+# Process forming city code
 ```{r eda, message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
 
 user_us <- users_gh%>%
@@ -128,13 +129,6 @@ The final "city_code" is a concactinated form of:
   -city
   -latitude (round to a whole number)
   -longitude (round to a whole number)
-
-
-# Clean citycode
-```{r message=FALSE, warning=FALSE, paged.print=FALSE}
-ls_cleancity <- cleancity(users_gh)
-```
-
 
 # city code analysis
 ```{r city code and visualization, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}

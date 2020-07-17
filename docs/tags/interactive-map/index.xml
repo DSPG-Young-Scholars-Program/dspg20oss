@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>interactive map on UVA Biocomplexity Institute</title>
+    <link>/tags/interactive-map/</link>
+    <description>Recent content in interactive map on UVA Biocomplexity Institute</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    
+	<atom:link href="/tags/interactive-map/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Geographical Analyses of GitHub Users</title>
+      <link>/analyses/geographic/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/analyses/geographic/</guid>
+      <description>We conducted analysis on GitHub users&#39; geographic location, which was scraped from their public user profile. While 77.23% geographic information (country and city name) were missing, we were still able to map 488104 GitHub users in our final analyses.
+Top Continents Where GitHub Users are Located North America is the continent with the highest number of GitHub users - followed by Europe and Asia.</description>
+    </item>
+    
+    <item>
+      <title>Geographical Analyses of GitHub Users</title>
+      <link>/analyses/government/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/analyses/government/</guid>
+      <description> Test Tabs By Product (tab content)
+ By Region (tab content)
+ By Third Category (tab content)
+  </description>
+    </item>
+    
+  </channel>
+</rss>

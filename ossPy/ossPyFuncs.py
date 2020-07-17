@@ -47,13 +47,22 @@ def composeWorkplaceOntology():
     postgreSql_selectQuery="SELECT institution FROM hipolabs.universities ;"
     #pass querry and obtain table
     univTable=ossPyFuncs.queryToPDTable(postgreSql_selectQuery)
+    
+    postgreSql_selectQuery="SELECT company FROM forbes.fortune2018_us1000;"
+    businesses1=ossPyFuncs.queryToPDTable(postgreSql_selectQuery)
+    
+    postgreSql_selectQuery="SELECT company FROM forbes.fortune2019_us1000;"
+    businesses2=ossPyFuncs.queryToPDTable(postgreSql_selectQuery)
+    
+    postgreSql_selectQuery="SELECT company FROM forbes.fortune2020_global2000;"
+    businesses3=ossPyFuncs.queryToPDTable(postgreSql_selectQuery)
 
     #combine theinsitutions into a vector
-    combinedSeries=[govTable['AgencyName'],univTable['institution']]
+    combinedSeries=[govTable['AgencyName'],univTable['institution'],businesses1['company'],businesses2['company'],businesses3['company']]
     #turn the multi item vector into a single series
     fullWordbank=pd.concat(combinedSeries)
     #turn that series into a pd dataframe
-    wordbankTable=pd.DataFrame(fullWordbank)
+    wordbankTable=pd.DataFrame(fullWordbank.unique())
 
     return wordbankTable
 
@@ -97,16 +106,71 @@ def eraseFromColumn(inputColumn,eraseList):
     
    import pandas as pd
    import re
-
+   
+   eraseList['changeNum']=0
+   eraseList['changeIndexes']=''
+   
+   #necessary, due to escape nonsense
+   inputColumn=inputColumn.replace(regex=True, to_replace='\\\\',value='/')
+     
    for index, row in eraseList.iterrows():
-       print(row[0])
+       
        curReplaceVal=row[0]
        currentRegexExpression=re.compile(curReplaceVal)
-        
+       CurrentBoolVec=inputColumn.str.contains(currentRegexExpression,na=False)
+       eraseList['changeIndexes'].iloc[index]=[i for i, x in enumerate(CurrentBoolVec) if x]
+       eraseList['changeNum'].iloc[index]=len(eraseList['changeIndexes'].iloc[index])
+       inputColumn.replace(regex=True, to_replace=currentRegexExpression,value='', inplace=True)
+
+   return inputColumn, eraseList;
+
+def expandFromColumn(inputColumn,replaceList):
+   """iteratively delete regex query matches from input list
     
-       holdColumn=inputColumn.replace(regex=True, to_replace=currentRegexExpression,value='')
-       tabulationTable=inputColumn.eq(holdColumn).value_counts()
-       tabulationTable
-       print(str(inputColumn.size-tabulationTable.loc[True])+ " items changed")
-       inputColumn=holdColumn
-   return inputColumn
+    Keyword arguments:
+    inputColumn -- a column from a pandas dataframe, this will be the set of
+    target words/entries that deletions will be made from
+    eraseList -- a column containing strings (regex expressions) which will be
+    deleted from the inputColumn, in an iterative fashion
+    """
+    
+   import pandas as pd
+   import re
+   
+   #necessary, due to escape nonsense
+   inputColumn=inputColumn.replace(regex=True, to_replace='\\\\',value='/')
+   
+   replaceList['changeNum']=0
+   replaceList['changeIndexes']=''
+
+   for index, row in replaceList.iterrows():
+       curReplaceVal=row[0]
+       currentRegexExpression=re.compile(curReplaceVal)
+       CurrentBoolVec=inputColumn.str.contains(currentRegexExpression,na=False)
+       replaceList['changeIndexes'].iloc[index]=[i for i, x in enumerate(CurrentBoolVec) if x]
+       replaceList['changeNum'].iloc[index]=len(replaceList['changeIndexes'].iloc[index])
+       inputColumn=inputColumn.replace(regex=True, to_replace=currentRegexExpression,value=row[1])
+   return inputColumn, replaceList;
+
+def uniquePandasIndexMapping(inputColumn):
+    import numpy as np
+    
+    inputColumn.sort_values(by=['company'], inplace=True)
+    sortedInputColumn=inputColumn.reset_index() 
+    sortedInputColumn.rename(columns={"index":"userIndex"},inplace=True)
+    
+    tableUniqueFullNameCounts=inputColumn.iloc[:,0].value_counts()  
+    tableUniqueFullNameCounts=tableUniqueFullNameCounts.reset_index() 
+    tableUniqueFullNameCounts.rename(columns={"company":"count","index":"company"},inplace=True)
+    
+    tableUniqueFullNameCounts.sort_values(by=['company'], inplace=True)
+    sortedTableUniqueFullNameCounts=tableUniqueFullNameCounts.reset_index()
+    sortedTableUniqueFullNameCounts['inputIndexMapping']=''
+    
+    currentSum=0
+    for index, row in sortedTableUniqueFullNameCounts.iterrows():
+        currentRange=np.arange(currentSum,currentSum+sortedTableUniqueFullNameCounts['count'].iloc[index])
+        sortedTableUniqueFullNameCounts['inputIndexMapping'].iloc[index]=sortedInputColumn['userIndex'].iloc[currentRange].array
+        currentSum=currentSum+sortedTableUniqueFullNameCounts['count'].iloc[index]
+
+    return sortedInputColumn, sortedTableUniqueFullNameCounts;
