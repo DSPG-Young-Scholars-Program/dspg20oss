@@ -30,14 +30,12 @@ conn <- dbConnect(drv = PostgreSQL(),
                   password = Sys.getenv("db_pwd"))
 
 # query the ctrs_extra data from github data 
-ctrs_extra <- dbGetQuery(conn, "SELECT login, created_at, city, state, country_code, location, long, lat, cc_multiple, cc_viz
-                              FROM gh.ctrs_extra")
+city_clean_final <- dbGetQuery(conn, "SELECT *
+                              FROM gh.sna_ctr_city_codes")
 
 # disconnect from postgresql database 
 dbDisconnect(conn)
 
-#source functions 
-source("~/git/dspg20oss/src/geographic/00_functions.R", echo = T, prompt.echo = "", spaced = F)
 
 #https://coolors.co/232d4b-2c4f6b-0e879c-60999a-d1e0bf-d9e12b-e6ce3a-e6a01d-e57200-fdfdfd
 uva_color_palette <- 
@@ -51,13 +49,7 @@ c("#232D4B", #space cadet
   "#E6A01D", #marigold
   "#E57200" #princeton orange
 )
-new_sample <- ctrs_extra%>%
-  filter(is.na(country_code) & !is.na(cc_multiple))
 
-ls_cleancity <- cleancity(ctrs_extra)
-
-city_clean_final <- ls_cleancity$cleaned_df
-nrow(city_clean_final)
 ```
 
 We conduct analysis on github users' geographic location, which is extracted from the user profile. We ackowledge  `r round(sum(is.na(ctrs_extra$cc_multiple) | is.na(ctrs_extra$city))/nrow(ctrs_extra) * 100, digits = 2)` % missing geographic information (country and city name), which leaves us with `r sum(!is.na(ctrs_extra$cc_multiple) & !is.na(ctrs_extra$city))` github users in our analysis.

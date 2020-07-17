@@ -6,12 +6,12 @@ CapStr <- function(y) {
 
 
 #function: cleancity
-#param: df, default to ctrs_extra in gh schema
+#param: df, default to ctrs_extra in gh schema; country_code_dict, data hosted on pgAdmin
 #output:a list with two data tables: clean and analysis. Clean table gives cleaned citycode, analysis table gives detailed city geographic locations that could be used for sanity check
 #Example:
 ####ls_cleancity <- cleancity(ctrs_extra)
 ####city_clean_final <- ls_cleancity$cleaned_df
-cleancity <- function(df = ctrs_extra){
+cleancity <- function(df = ctrs_extra, country_code_dict = country_code_dict){
   #exclude missing values
   df <-  df%>%
     as.data.table() %>%
@@ -185,13 +185,13 @@ cleancity <- function(df = ctrs_extra){
   
   df_cleaned <- left_join(df_multiple_country, df_update_geocode_all, by="city_code")
   
-  #note that when you import this csv, you have to set na equals to null. In the continent name, NA represents North America. Otherwise, North America will become NA (null) values.
   #https://datahub.io/JohnSnowLabs/country-and-continent-codes-list/r/0.html
-  #Question4. Here I imported a dataset from oneline, did find any r built-in package that we could use
-  country_code_dict <- read_csv("~/git/dspg20oss/src/geographic/country_code_dict.csv", na = "null")%>%
+  #data hosted on pgAdmin under datahub schema
+  country_code_dict <- country_code_dict%>%
     mutate(Two_Letter_Country_Code = str_to_lower(Two_Letter_Country_Code)) %>%
     mutate(Country_Name = if_else(grepl(",", Country_Name), str_extract(Country_Name, "(?:(?!,).)*"), Country_Name))%>%
     mutate(Country_Name = if_else(grepl("&", Country_Name), str_extract(Country_Name, "(?:(?!&).)*"), Country_Name))
+  
   
   country_code_dict$Country_Name <- trimws(country_code_dict$Country_Name)
 

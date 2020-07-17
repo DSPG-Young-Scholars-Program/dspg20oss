@@ -15,7 +15,7 @@ for (pkg in c("tidyverse", "igraph", "data.table", "R.utils", "RPostgreSQL", "co
 # connect to postgresql to get our data
 conn <- dbConnect(drv = PostgreSQL(), 
                   dbname = "sdad", 
-                  host = "10.250.124.195", 
+                  host = "10.250.124.195",
                   port = 5432, 
                   user = Sys.getenv("db_userid"), 
                   password = Sys.getenv("db_pwd"))
@@ -351,7 +351,7 @@ ffrdc_list_agency <- us_gov_ffrdcs%>%
   rename(institution = agency_name)%>%
   mutate(dataset = "ffrdc_agency")
 
-##II.2 sub agency
+##II.3 sub agency
 ffrdc_list_sub_agency <- us_gov_ffrdcs%>%
   select(FFRDC_Name, Sub_Agency, Sub_Agency2, Sub_Agency3)%>%
   gather("agency_type", "agency_name")%>%
@@ -360,6 +360,22 @@ ffrdc_list_sub_agency <- us_gov_ffrdcs%>%
   rename(institution = agency_name)%>%
   mutate(dataset = "ffrdc_sub_agency" )
 
+##II.4. 
+ffrdc_list_admin <- us_gov_ffrdcs%>%
+  select(Admin_Name)%>%
+  filter(!is.na(Admin_Name))
+
+ffrdc_list_admin$Admin_Name <- str_replace_all(ffrdc_list_admin$Admin_Name, fixed("Corp."), "Corporation") 
+
+`%notin%` <- Negate(`%in%`)
+
+ffrdc_list_admin <- ffrdc_list_admin %>%
+  distinct(Admin_Name) %>% 
+  rename(institution = Admin_Name)%>%
+  mutate(dataset = "ffrdc_admin")%>%
+  filter(institution %notin% c("University of California", "Stanford University", "Princeton University", "Massachusetts Institute of Technology", "Iowa State University", "Carnegie Mellon University", "California Institute of Technology"))
+
+  
 #III.usman
 usman_list <- us_gov_manual%>%
   distinct( AgencyName)  %>% 
@@ -368,7 +384,7 @@ usman_list <- us_gov_manual%>%
 
 
 # bind all lists
-all_lists <- rbind(az_list_agency, az_list_gov_agency, az_list_gov_branch, az_list_child_agency, ffrdc_list_agency, ffrdc_list_sub_agency, usman_list)
+all_lists <- rbind(az_list_agency, az_list_gov_agency, az_list_gov_branch, az_list_child_agency, ffrdc_list_agency, ffrdc_list_sub_agency, ffrdc_list_admin, usman_list)
 #all_lists <- distinct(all_lists, institution, .keep_all = TRUE) #exclude duplicates
 
 
@@ -522,20 +538,23 @@ table(gh_extra_company$is.gov)
 ```{r}
 nrow(gh_extra_company)-nrow(gh_extra) #check that we didn't lose any gh users
 gh_extra_company_final <- gh_extra_company%>%
-  select(login, is.gov)
-  
-  
-#household
-organization_counts <- gh_extra %>% 
-  drop_na(company) %>% 
-  mutate(organization = str_to_lower(company)) %>% 
-  mutate(organization = str_trim(organization)) %>% 
-  mutate(organization = ifelse(test = str_detect(string = organization, 
-                              pattern = "\\b(?i)(freelancer|freelance|freelancing|freelancers|freelances|self|personal|home|private|individual|myself|me|independent|independent contractor|contractor|private|household|house|home|my house|jobless|looking for a job|looking for job|seeking employment|seeking|actively seeking employment|seeking opportunities|seeking internship|seeking work)\\b"), 
-                              yes = "household", no = organization)) %>%
-  mutate(organization = ifelse(test = str_detect(string = organization, 
-                              pattern = "\\b(?i)(n/a|none|null|no|na)\\b"),      
-                              yes = "none/null", no = organization)) %>% 
-  group_by(organization) %>% count() %>% arrange(-n)
+  select(login, is.gov)%>%
+  mutate(is.gov= replace_na(is.gov, FALSE))%>%
+  rename(is_gov = is.gov)%>%
+  filter(is_gov)
+
+#table(gh_extra_company_final$is_gov)
+
+# reconnecting to the database 
+conn <- dbConnect(drv = PostgreSQL(), 
+                  dbname = "sdad", 
+                  host = "10.250.124.195", 
+                  port = 5432, 
+                  user = Sys.getenv("db_userid"), 
+                  password = Sys.getenv("db_pwd"))
+# writing the new gh_extra_company_final table to postgis_2
+dbWriteTable(conn, c("gh", "sna_ctr_gov"), gh_extra_company_final)
+# disconnect from postgresql database  
+dbDisconnect(conn)
 ```
 
