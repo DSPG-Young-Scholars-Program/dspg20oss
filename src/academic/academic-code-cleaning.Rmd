@@ -1,18 +1,18 @@
 ---
-title: "Academic cleaning"
+title: "Academic Counts on GitHub"
 author: "Morgan Klutzke"
 date: "06/11/2020"
 output: html_document
 ---
 
-```{r packages}
+```{r packages, results="hide"}
 rm(list = ls())
 
 # load packages 
 for (pkg in c("tidyverse", "igraph", "visNetwork", "data.table", "R.utils", "RPostgreSQL", "cowplot", "maditr", "stringr", "stringi", "gridExtra")) {library(pkg, character.only = TRUE)}
 ```
 
-```{r loading data}
+```{r loading_data}
 # connect to postgresql to get our data
 conn <- dbConnect(drv = PostgreSQL(), 
                   dbname = "sdad", 
@@ -27,20 +27,23 @@ users_gh <- dbGetQuery(conn, "SELECT login, email, company
 
 institutions_hipolabs <- dbGetQuery(conn, "SELECT institution, country, domains FROM hipolabs.universities")
 ```
-```{r}
+```{r disconnect}
 # disconnect from postgresql database 
 dbDisconnect(conn)
 ```
 
-Cleaning hipolabs data before using it with github users
+First, cleaning hipolabs data before comparing it with github users.
 
-```{r}
-# remove duplicates, make all lowercase
+```{r clean_hipolabs}
 institutions_hipolabs <- institutions_hipolabs %>% 
   as.data.table() %>% 
-  dt_mutate(institution = str_to_lower(institution)) %>% 
+  # convert to lower case
+  dt_mutate(institution = str_to_lower(institution)) %>%
+  # remove duplicates
   distinct() %>%
+  # add category for students
   add_row(institution = "misc. student") %>%
+  # add academic/research organizations present in users_gh but not in hipo labs data
   add_row(institution = "university of tokyo", country = "Japan", domains = "u-tokyo.ac.jp") %>%
   add_row(institution = "aalto university", country = "Finland", domains = "aalto.fi") %>%
   add_row(institution = "international institute of information technology, hyderabad", country = "India", domains = "iiit.ac.in") %>%
@@ -51,15 +54,12 @@ institutions_hipolabs <- institutions_hipolabs %>%
   add_row(institution = "space telescope science institute", country = "United States", domains = "stsci.edu") %>%
   add_row(institution = "wellcome trust sanger institute", country = "United Kingdom", domains = "sanger.ac.uk") %>%
   add_row(institution = "hasso plattner institute", country = "Germany", domains = "hpi.de") %>%
-  add_row(institution = "institut", country = "Germany", domains = "hpi.de") %>%
   dt_mutate(institution = if_else(institution == "xi'an university of electronic science and technology", "xidian university", institution))
 ```
 
-Total numbers before any recoding/cleaning
+Looking at the total numbers before any recoding.
 
-```{r}
-users_gh
-
+```{r initial_counts}
 length(users_gh$company) 
 # 2,143,407 total entries 
 # note: there are actually 2,435,698 total users
@@ -76,14 +76,15 @@ orgs_initial <- users_gh %>%
   dt_mutate(organization = str_to_lower(company)) %>% 
   group_by(organization) %>% count() %>% arrange(-n)
 
-# compare with hipolabs dataset
+# compare with hipo labs dataset
 initial_overlap <- semi_join(orgs_initial, institutions_hipolabs, by = c("organization" = "institution"))
-sum(initial_overlap[,"n"]) # 17,128 identified users from academic institutions
+sum(initial_overlap[,"n"])
+# 17,128 identified users from academic institutions
 ```
 
-Recode company variable, using string matching to catch name variations
+Recoding the companies in users_gh, using string matching to catch name variations.
 
-```{r regex recode}
+```{r regex_recode}
 orgs_clean <- users_gh %>%
   # remove all na's 
   drop_na(company) %>% 
@@ -91,9 +92,11 @@ orgs_clean <- users_gh %>%
   dt_mutate(organization = str_to_lower(company)) %>%
   # remove @ from start of names 
   dt_mutate(organization = str_replace_all(organization, "@", " ")) %>% 
+  # remove uninformative words "inc." and "the"
   dt_mutate(organization = str_replace_all(organization, "\\b(, inc\\.|, inc| inc\\.| inc|\\.$)\\b", "")) %>%
-  dt_mutate(organization = str_replace_all(organization, "\\b(univ\\.|univ)\\b", "university")) %>%
   dt_mutate(organization = str_replace_all(organization, "\\b(the )\\b", "")) %>%
+  # expand abbreviations "univ." and "iit"
+  dt_mutate(organization = str_replace_all(organization, "\\b(univ\\.|univ)\\b", "university")) %>%
   dt_mutate(organization = str_replace_all(organization, "\\b(iit)\\b", "indian institute of technology,")) %>%
   dt_mutate(organization = str_trim(organization)) %>% 
   # classifying students
@@ -140,9 +143,6 @@ orgs_clean <- users_gh %>%
   dt_mutate(organization = ifelse(test = str_detect(string = organization, 
   pattern = "\\b(?i)(university of washington|university of washington(?! state)|univerisity of washington|univeristy of washington|universityofwashington|univesity of washington)\\b"),
                               yes = "university of washington", no = organization)) %>%
-  #dt_mutate(organization = ifelse(test = str_detect(string = organization, 
-                              #pattern = "\\b(?i)(university of california, san diego|university of california san diego|ucsd|university of california berkeley|uc berkeley|ucla|university of california, berkeley|university of california davis|university of california, davis|university of california irvine|university of california, irvine|california digital library, ucop|california digital library|university of california, san francisco|uc san francisco|university of california san francisco|uc san diego|uc davis)\\b"), 
-                              #yes = "university of california system", no = organization)) %>%
   dt_mutate(organization = ifelse(test = str_detect(string = organization,
                               pattern = "\\b(?i)(university of california, san francisco|uc san francisco|university of california san francisco|ucsf)\\b"),
                               yes = "university of california, san francisco", no = organization)) %>%
@@ -251,9 +251,6 @@ orgs_clean <- users_gh %>%
   dt_mutate(organization = ifelse(test = str_detect(string = organization, 
                               pattern = "\\b(?i)(^university of chicago|^university of chicago,|^the university of chicago|university of chicago$|^uchicago|uchicago$|^u of chicago|u of chicago$)\\b"), 
                               yes = "university of chicago", no = organization)) %>%
-  #dt_mutate(organization = ifelse(test = str_detect(string = organization, 
-                              #pattern = "\\b(?i)(^university of illinois|^university of illinois,|^the university of illinois|university of illinois$|university of illinois at chicago|at urbana-champaign$)\\b"), 
-                              #yes = "university of illinois system", no = organization)) %>%
   dt_mutate(organization = ifelse(test = str_detect(string = organization, 
                               pattern = "\\b(?i)(university of illinois at chicago|university of illinois chicago|university of illinois, chicago)\\b"), 
                               yes = "university of illinois at chicago", no = organization)) %>%
@@ -459,28 +456,31 @@ orgs_clean <- users_gh %>%
                               pattern = "\\b(?i)(bits pilani)\\b"),
                               yes = "birla institute of technology and science", no = organization)) %>%
   dt_mutate(organization = ifelse(test = str_detect(string = organization, 
+                              pattern = "\\b(?i)(hasso plattner institut|hasso-plattner-institute|hasso-plattner-institut|hasso-plattner institut|hasso plattner institute)\\b"),
+                              yes = "hasso plattner institute", no = organization)) %>%
+  dt_mutate(organization = ifelse(test = str_detect(string = organization, 
                               pattern = "\\b(?i)(whu)\\b"),
                               yes = "wissenschaftliche hochschule für unternehmensführung, otto-beisheim hochschule", no = organization))
 
 # create a frequency table
 org_counts <- orgs_clean %>% group_by(organization) %>% count() %>% arrange(-n) 
 
-# compare with hipolabs dataset to pull out academic institutions
+# compare with hipo labs dataset to pull out academic institutions
 institutions_hipolabs <- institutions_hipolabs %>% as.data.table() %>% dt_mutate(institution = str_to_lower(institution))
 overlap <- semi_join(org_counts, institutions_hipolabs, by = c("organization" = "institution"))
 sum(overlap[,"n"])
 sum(filter(overlap, organization != "misc. student")[,"n"])
 filter(overlap, organization == "misc. student")$n
 
-# make a table to see what isn't caught by hipolabs
+# make a table to see what isn't caught by hipo labs
 leftover <- anti_join(org_counts, overlap)
 ```
 
-At this point, we have 29,115 users in the academic sector: 27,551 matched to academic institutions and 1,564 identified as misc. students.
+At this point, we have 29,134 users in the academic sector: 27,570 matched to academic institutions and 1,564 identified as misc. students.
 
-We can boost this number by looking at the users' email domains:
+We can boost this number by looking at the users' email domains.
 
-```{r domains recoding}
+```{r domains_recode}
 # get just the domains from the emails
 email_domains <- users_gh %>% drop_na(email) %>%
 dt_mutate(domains = str_replace_all(email, "^[a-zA-Z0-9_.+-]+@", ""))
@@ -493,7 +493,8 @@ imputed_institutions <- email_domains %>%
   subset(is.na(company)) %>%
   dt_mutate(organization = institution)
 
-nrow(imputed_institutions) # 11,761 imputed
+nrow(imputed_institutions)
+# 11,760 imputed
 
 # join with other recoded data to update academic counts
 orgs_clean <- full_join(orgs_clean, imputed_institutions[,c("login","email","organization")])
@@ -502,35 +503,53 @@ overlap <- semi_join(org_counts, institutions_hipolabs, by = c("organization" = 
 sum(overlap[,"n"])
 ```
 
-New total is 40,876 users in the academic sector.
+New total is 40,894 users in the academic sector.
 
-```{r}
-# use hipolabs dataset to get countries
-# remove misc. students for future analyses
-academic_counts <- left_join(overlap, institutions_hipolabs, by = c("organization" = "institution")) %>% filter(!(organization == "misc. student"))
+At this point, we can make a table of users in the academic sector to push to our database.
 
-sum(academic_counts[,"n"]) # 43,569
+```{r final_table}
+# create final table
+final_table <- orgs_clean %>%
+  semi_join(institutions_hipolabs, by = c("organization" = "institution")) %>%
+  transmute(login = login, company_raw = company, company_cleaned = organization, is_academic = 1)
+```
 
+Now that we have the counts for GitHub users at academic institutions, we'd like to recombine this with the Hipo Labs data to get the country locations for these institutions.
+
+```{r get_countries}
+# rejoin with hipo labs data
+academic_counts <- overlap %>%
+  left_join(institutions_hipolabs, by = c("organization" = "institution")) %>% 
+  filter(!(organization == "misc. student")) # remove misc. students for future analyses
+
+sum(academic_counts[,"n"]) 
+# now there are 43,587 users?
 # larger than before because it's double-counting the institutions that are in multiple countries or have multiple domains
+
 # group together different country and domain values for the same institution
-test <- academic_counts[duplicated(academic_counts$organization), ] %>% rename(c(country2 = country, domains2 = domains))
-test2 <- test[duplicated(test$organization), ] %>% rename(c(country3 = country2, domains3 = domains2))
-test3 <- test2[duplicated(test2$organization), ] %>% rename(c(country4 = country3, domains4 = domains3))
-test4 <- test3[duplicated(test3$organization), ] %>% rename(c(country5 = country4, domains5 = domains4))
+group1 <- academic_counts[duplicated(academic_counts$organization), ] %>% rename(c(country2 = country, domains2 = domains))
+group2 <- group1[duplicated(group1$organization), ] %>% rename(c(country3 = country2, domains3 = domains2))
+group3 <- group2[duplicated(group2$organization), ] %>% rename(c(country4 = country3, domains4 = domains3))
+group4 <- group3[duplicated(group3$organization), ] %>% rename(c(country5 = country4, domains5 = domains4))
 
-test <- test[!duplicated(test$organization), ]
-test2 <- test2[!duplicated(test2$organization), ]
-test3 <- test3[!duplicated(test3$organization), ]
-test4 <- test4[!duplicated(test4$organization), ]
+# remove duplicates so each group has unique values
+group1 <- group1[!duplicated(group1$organization), ]
+group2 <- group2[!duplicated(group2$organization), ]
+group3 <- group3[!duplicated(group3$organization), ]
+group4 <- group4[!duplicated(group4$organization), ]
 
+# add back in the multiple countries/domains, but as additional columns
+# now there is only one row for each institution
 academic_counts <- academic_counts[!duplicated(academic_counts$organization), ] %>% 
-  left_join(test) %>%
-  left_join(test2) %>%
-  left_join(test3) %>%
-  left_join(test4) %>%
-  mutate_all(str_replace_na)
+  left_join(group1) %>%
+  left_join(group2) %>%
+  left_join(group3) %>%
+  left_join(group4)
 
+# add NAs for when multiple country listings are the same (if the duplicated institution is from multiple domains)
+# or when multiple domain listings are the same (if the duplicated institution is from multiple countries)
 academic_counts <- academic_counts %>%
+  mutate_all(str_replace_na) %>%
   dt_mutate(country2 = if_else(country == country2, "NA", country2)) %>%
   dt_mutate(country3 = if_else(country == country3, "NA", country3)) %>%
   dt_mutate(domains2 = if_else(domains == domains2, "NA", domains2)) %>%
@@ -538,44 +557,47 @@ academic_counts <- academic_counts %>%
   dt_mutate(domains4 = if_else(domains == domains4, "NA", domains4)) %>%
   dt_mutate(domains5 = if_else(domains == domains5, "NA", domains5))
 
+# collapse into single columns for country/domains
+# we want to avoid having multiple countries for an institution, since they'd be double-counted in the following analyses
+# for the 21 institutions represented that are in multiple countries, the primary country is manually coded
 academic_counts <- academic_counts %>%
   dt_mutate(country = if_else(condition = organization %chin% c("universidad simón bolivar", "suleyman demirel university", "universidad de córdoba", "aga khan university", "southeast university", "universidad de los andes", "korea university"), true = country2, false = country)) %>%
   dt_mutate(domains_combined = str_c(domains, domains2, domains3, domains4, domains5, sep = ", ")) %>%
   transmute(organization = organization, n = n, country = country, domains = domains_combined)
 
+# remove remaining NAs
 academic_counts <- academic_counts %>% 
-  dt_mutate(domains = str_replace_all(domains, ", NA", ""))
+  dt_mutate(domains = str_replace_all(domains, ", NA", "")) %>%
+  dt_mutate(n = as.numeric(n)) # for some reason n got changed to chr type
 ```
 
-Visualizations
+Now let's look at some statistics.
 
-```{r, fig.width = 12}
-academic_counts_sorted <- academic_counts %>% 
-  dt_mutate(n = as.numeric(n)) %>%
-  arrange(n) %>%
-  dt_mutate(organization = factor(organization, levels = organization))
+```{r stats}
+length(filter(academic_counts, country == "United States")$organization) / length(academic_counts$organization)
+# 33% of academic institutions represented are in the U.S.
+sum(filter(academic_counts, country == "United States")[, "n"]) / sum(academic_counts[, "n"])
+# 54.3% of users in the academic sector are at U.S. institutions
+sum(academic_counts[,"n"]) / 2435698
+# 1.6% of all users have been matched to an academic institution
 
-ggplot(data = academic_counts_sorted[(.N-10):.N,]) + geom_col(mapping = aes(organization, n, fill = n)) + labs(x = "Academic institution", y = "User count") + coord_flip()
-```
-
-```{r}
-# get some good numbers
-percent_us_institution <- length(filter(academic_counts, country == "United States")$organization) / length(academic_counts$organization) # 0.330
-percent_us_users <- sum(filter(academic_counts, country == "United States")[, "n"]) / sum(academic_counts[, "n"]) # 0.543
-percent_academic_users <- sum(academic_counts[,"n"]) / 2435698 # 0.016
-
+# look at percentage of academic sector users in each country
 options(scipen = 10)
 country_user_percentages <- academic_counts %>% group_by(country) %>% select(country, n) %>% summarise(n = sum(n) / sum(academic_counts[, "n"])) %>% arrange(-n)
 country_user_percentages
 ```
 
-```{r}
-country_frequency_users <- academic_counts %>% group_by(country) %>% count(sort = TRUE)
-country_frequency_institutions <- academic_counts %>% group_by(country) %>% count(wt = n(), sort = TRUE)
+Finally, let's plot some of this stuff.
+
+```{r, top_ten, fig.width = 12}
+academic_counts_sorted <- academic_counts %>% 
+  arrange(n) %>%
+  dt_mutate(organization = factor(organization, levels = organization))
+
+ggplot(data = academic_counts_sorted[(.N-10):.N,]) + geom_col(mapping = aes(organization, n, fill = n)) + labs(x = "Academic institution", y = "User count", title = "Top 10 universities by users") + coord_flip()
 ```
 
-
-```{r, fig.height = 7, fig.width = 12}
+```{r, by_country, fig.height = 7, fig.width = 12}
 ggplot(academic_counts_sorted[(.N-20):.N, ], aes(color = country)) +
   geom_point(aes(x = organization, y = n), size = 4) +
   geom_segment(data = academic_counts_sorted[(.N-20):.N, ], mapping = aes(x = organization, xend = organization, y = 0, yend = n), size = 1) +
@@ -586,19 +608,21 @@ ggplot(academic_counts_sorted[(.N-20):.N, ], aes(color = country)) +
   coord_flip()
 ```
 
-
-```{r,fig.height=7}
+```{r, us_universities, fig.height=7}
 us_academic_counts <- academic_counts_sorted %>% filter(country == "United States")
 
 ggplot(us_academic_counts[(.N-20):.N, ]) +
   geom_point(aes(x = organization, y = n)) +
   geom_segment(data = us_academic_counts[(.N-20):.N, ], mapping = aes(x = organization, xend = organization, y = 0, yend = n)) +
-  labs(x = "Academic Institution", y = "Number of Users") +
+  labs(x = "Academic Institution", y = "Number of Users", title = "Top 20 universities in the United States") +
   theme_classic() +
   coord_flip()
 ```
 
-```{r,fig.height=7}
+```{r, countries_users, fig.height=7}
+#country_frequency_institutions <- academic_counts %>% group_by(country) %>% count(wt = n(), sort = TRUE)
+
+country_frequency_users <- academic_counts %>% group_by(country) %>% count(sort = TRUE, wt = n)
 country_users_sorted <- country_frequency_users %>%
   arrange(n) %>%
   dt_mutate(country = factor(country, levels = country))
@@ -606,7 +630,7 @@ country_users_sorted <- country_frequency_users %>%
 ggplot(country_users_sorted[(.N-20):.N, ]) +
   geom_point(aes(x = country, y = n)) +
   geom_segment(data = country_users_sorted[(.N-20):.N, ], mapping = aes(x = country, xend = country, y = 0, yend = n)) +
-  labs(x = "Country", y = "Number of Users") +
+  labs(x = "Country", y = "Number of Users", title = "Top 20 countries by users in the academic sector") +
   theme_classic() +
   scale_y_log10() +
   coord_flip()
