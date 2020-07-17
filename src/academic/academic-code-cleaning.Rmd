@@ -508,10 +508,21 @@ New total is 40,894 users in the academic sector.
 At this point, we can make a table of users in the academic sector to push to our database.
 
 ```{r final_table}
-# create final table
 final_table <- orgs_clean %>%
   semi_join(institutions_hipolabs, by = c("organization" = "institution")) %>%
   transmute(login = login, company_raw = company, company_cleaned = organization, is_academic = 1)
+```
+```{r}
+# connect to postgresql to get data (in rivanna)
+conn <- dbConnect(drv = PostgreSQL(), 
+ dbname = "sdad", 
+ host = "10.250.124.195", 
+ port = 5432, 
+ user = Sys.getenv("db_userid"), 
+ password = Sys.getenv("db_pwd"))
+dbWriteTable(conn, c("gh", "sna_ctr_academic"), final_table)
+# disconnect from postgresql database 
+dbDisconnect(conn)
 ```
 
 Now that we have the counts for GitHub users at academic institutions, we'd like to recombine this with the Hipo Labs data to get the country locations for these institutions.
