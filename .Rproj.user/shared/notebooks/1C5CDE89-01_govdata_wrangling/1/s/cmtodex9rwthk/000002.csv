@@ -1,0 +1,188 @@
+"0","rm(list = ls())"
+"0","# install.packages(c(""tidyverse"", ""igraph"", ""visNetwork"", ""bc3net"", ""data.table"", ""R.utils"", ""RPostgreSQL"", ""cowplot"", ""maditr""))"
+"0","# load packages "
+"0","for (pkg in c(""tidyverse"", ""igraph"", ""data.table"", ""R.utils"", ""RPostgreSQL"", ""cowplot"", ""maditr"")) {library(pkg, character.only = TRUE)}"
+"2","Registered S3 method overwritten by 'dplyr':
+  method           from
+  print.rowwise_df     
+"
+"2","Registered S3 methods overwritten by 'dbplyr':
+  method         from
+  print.tbl_lazy     
+  print.tbl_sql      
+"
+"2","[37m── [1mAttaching packages[22m ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse 1.3.0 ──[39m
+"
+"2","[37m[32m✓[37m [34mggplot2[37m 3.3.0     [32m✓[37m [34mpurrr  [37m 0.3.3
+[32m✓[37m [34mtibble [37m 3.0.1     [32m✓[37m [34mdplyr  [37m 0.8.4
+[32m✓[37m [34mtidyr  [37m 1.0.2     [32m✓[37m [34mstringr[37m 1.4.0
+[32m✓[37m [34mreadr  [37m 1.3.1     [32m✓[37m [34mforcats[37m 0.4.0[39m
+"
+"2","[37m── [1mConflicts[22m ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
+[31mx[37m [34mdplyr[37m::[32mfilter()[37m masks [34mstats[37m::filter()
+[31mx[37m [34mdplyr[37m::[32mlag()[37m    masks [34mstats[37m::lag()[39m
+"
+"2","
+Attaching package: ‘igraph’
+
+"
+"2","The following objects are masked from ‘package:dplyr’:
+
+    as_data_frame, groups, union
+
+"
+"2","The following objects are masked from ‘package:purrr’:
+
+    compose, simplify
+
+"
+"2","The following object is masked from ‘package:tidyr’:
+
+    crossing
+
+"
+"2","The following object is masked from ‘package:tibble’:
+
+    as_data_frame
+
+"
+"2","The following objects are masked from ‘package:stats’:
+
+    decompose, spectrum
+
+"
+"2","The following object is masked from ‘package:base’:
+
+    union
+
+"
+"2","Registered S3 method overwritten by 'data.table':
+  method           from
+  print.data.table     
+"
+"2","data.table 1.12.8 using 1 threads (see ?getDTthreads).  Latest news: r-datatable.com
+"
+"2","
+Attaching package: ‘data.table’
+
+"
+"2","The following objects are masked from ‘package:dplyr’:
+
+    between, first, last
+
+"
+"2","The following object is masked from ‘package:purrr’:
+
+    transpose
+
+"
+"2","Loading required package: R.oo
+"
+"2","Loading required package: R.methodsS3
+"
+"2","R.methodsS3 v1.8.0 (2020-02-14 07:10:20 UTC) successfully loaded. See ?R.methodsS3 for help.
+"
+"2","R.oo v1.23.0 successfully loaded. See ?R.oo for help.
+"
+"2","
+Attaching package: ‘R.oo’
+
+"
+"2","The following object is masked from ‘package:R.methodsS3’:
+
+    throw
+
+"
+"2","The following object is masked from ‘package:igraph’:
+
+    hierarchy
+
+"
+"2","The following objects are masked from ‘package:methods’:
+
+    getClasses, getMethods
+
+"
+"2","The following objects are masked from ‘package:base’:
+
+    attach, detach, load, save
+
+"
+"2","R.utils v2.9.2 successfully loaded. See ?R.utils for help.
+"
+"2","
+Attaching package: ‘R.utils’
+
+"
+"2","The following object is masked from ‘package:tidyr’:
+
+    extract
+
+"
+"2","The following object is masked from ‘package:utils’:
+
+    timestamp
+
+"
+"2","The following objects are masked from ‘package:base’:
+
+    cat, commandArgs, getOption, inherits, isOpen, nullfile, parse, warnings
+
+"
+"2","Loading required package: DBI
+"
+"2","
+********************************************************
+"
+"2","Note: As of version 1.0.0, cowplot does not change the
+"
+"2","  default ggplot2 theme anymore. To recover the previous
+"
+"2","  behavior, execute:
+  theme_set(theme_cowplot())
+"
+"2","********************************************************
+
+"
+"2","
+To aggregate all non-grouping columns: take(mtcars, fun = mean, by = am)
+
+"
+"2","
+Attaching package: ‘maditr’
+
+"
+"2","The following objects are masked from ‘package:data.table’:
+
+    dcast, melt
+
+"
+"2","The following objects are masked from ‘package:dplyr’:
+
+    between, coalesce, first, last
+
+"
+"2","The following object is masked from ‘package:purrr’:
+
+    transpose
+
+"
+"0","# connect to postgresql to get our data"
+"0","conn <- dbConnect(drv = PostgreSQL(), "
+"0","                  dbname = ""sdad"", "
+"0","                  host = ""10.250.124.195"", "
+"0","                  port = 5432, "
+"0","                  user = Sys.getenv(""db_userid""), "
+"0","                  password = Sys.getenv(""db_pwd""))"
+"0","# query the users_gh data (table of all github users) "
+"0","us_gov_ffrdcs <- dbGetQuery(conn, ""SELECT * FROM us_gov_depts.us_gov_ffrdcs"")"
+"0","# query the users_gh data (table of all github users) "
+"0","us_gov_azindex <- dbGetQuery(conn, ""SELECT * FROM us_gov_depts.us_gov_azindex_clean"")"
+"0","# query the users_gh data (table of all github users) "
+"0","us_gov_manual <- dbGetQuery(conn, ""SELECT * FROM us_gov_depts.us_gov_manual"")"
+"0","# disconnect from postgresql database "
+"0","dbDisconnect(conn)"
+"1","[1]"
+"1"," TRUE"
+"1","
+"

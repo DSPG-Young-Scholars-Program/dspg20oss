@@ -1,0 +1,9 @@
+{
+    "path" : "~/oss-data",
+    "sortOrder" : [
+        {
+            "ascending" : true,
+            "columnIndex" : 2
+        }
+    ]
+}
