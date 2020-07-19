@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1595180897553.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2004610733",
+    "id" : "BBB354A4",
+    "lastKnownWriteTime" : 1595182375,
+    "last_content_update" : 1595182375421,
+    "path" : "~/git/dspg20oss/src/academic/academic-code-cleaning.Rmd",
+    "project_path" : "src/academic/academic-code-cleaning.Rmd",
+    "properties" : {
+        "cursorPosition" : "600,2",
+        "scrollLine" : "587"
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}

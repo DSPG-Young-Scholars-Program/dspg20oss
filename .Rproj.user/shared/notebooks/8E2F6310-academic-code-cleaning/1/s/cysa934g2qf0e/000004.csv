@@ -1,0 +1,5 @@
+"0","academic_counts_sorted <- academic_counts %>% "
+"0","  arrange(n) %>%"
+"0","  dt_mutate(organization = factor(organization, levels = organization))"
+"0","ggplot(data = academic_counts_sorted[(.N-10):.N,]) + geom_col(mapping = aes(organization, n, fill = n)) + labs(x = ""Academic institution"", y = ""User count"", title = ""Top 10 universities by users"") + coord_flip() +"
+"0","  theme_minimal()"

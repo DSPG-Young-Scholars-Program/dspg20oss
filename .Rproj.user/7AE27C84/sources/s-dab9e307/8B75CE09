@@ -1,0 +1,29 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1595181433579.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "8B75CE09",
+    "lastKnownWriteTime" : 7089057434746972531,
+    "last_content_update" : 1595181433579,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "cacheKey" : "332466DF",
+        "caption" : "initial_overlap",
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=initial_overlap&cache_key=332466DF",
+        "displayedObservations" : 1572,
+        "environment" : "",
+        "object" : "initial_overlap",
+        "preview" : 0,
+        "totalObservations" : 1572,
+        "variables" : 2
+    },
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_dataframe"
+}

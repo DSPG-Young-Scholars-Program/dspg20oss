@@ -1,0 +1,4 @@
+"0","rm(list = ls())"
+"0","# load packages "
+"0","for (pkg in c(""tidyverse"", ""igraph"", ""visNetwork"", ""data.table"", ""R.utils"", "
+"0","              ""RPostgreSQL"", ""cowplot"", ""maditr"", ""stringr"", ""stringi"", ""gridExtra"")) {library(pkg, character.only = TRUE)}"
