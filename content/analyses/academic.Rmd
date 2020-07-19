@@ -1,19 +1,21 @@
 ---
-title: "Academic Counts on GitHub"
-author: "Morgan Klutzke"
-date: "06/11/2020"
+title: "OSS in the Academic Sector"
+description: "This page focuses on classifying GitHub users into academic institutions."
+tags: ["R","nlp","regex","big data"]
+weight: 2
+draft: false
 output: html_document
 ---
 
-```{r packages, results="hide"}
+One of the main goals of our summer project is to understand who is producting open-source software (OSS) and important characteristics about them, including which sectors they are embedded within. This page focuses on the approach we took to classifying GitHub users into the academic sector as well as the prodcedures that we took to finding out which institutions they are affiliated. 
+
+```{r packages, message = FALSE, results = FALSE, warning = FALSE, echo=FALSE}
 rm(list = ls())
 
 # load packages 
-for (pkg in c("tidyverse", "igraph", "visNetwork", "data.table", "R.utils", 
+for (pkg in c("tidyverse", "igraph", "visNetwork", "data.table", "R.utils", "DT",
               "RPostgreSQL", "cowplot", "maditr", "stringr", "stringi", "gridExtra")) {library(pkg, character.only = TRUE)}
-```
 
-```{r loading_data}
 # connect to postgresql to get our data
 conn <- dbConnect(drv = PostgreSQL(), 
                   dbname = "sdad", 
@@ -34,7 +36,7 @@ dbDisconnect(conn)
 
 First, cleaning hipolabs data before comparing it with github users.
 
-```{r clean_hipolabs}
+```{r clean_hipolabs, message = FALSE, results = FALSE, warning = FALSE, echo=FALSE}
 institutions_hipolabs <- institutions_hipolabs %>% 
   as.data.table() %>% 
   # convert to lower case
@@ -59,7 +61,7 @@ institutions_hipolabs <- institutions_hipolabs %>%
 
 Looking at the total numbers before any recoding.
 
-```{r initial_counts}
+```{r initial_counts, message = FALSE, results = FALSE, warning = FALSE, echo=FALSE}
 length(users_gh$company) 
 # 2,143,407 total entries 
 # note: there are actually 2,435,698 total users
@@ -84,7 +86,7 @@ sum(initial_overlap[,"n"])
 
 Recoding the companies in users_gh, using string matching to catch name variations.
 
-```{r regex_recode}
+```{r regex_recode, message = FALSE, results = FALSE, warning = FALSE, echo=FALSE}
 orgs_clean <- users_gh %>%
   # remove all na's 
   drop_na(company) %>% 
@@ -480,7 +482,7 @@ At this point, we have 29,134 users in the academic sector: 27,570 matched to ac
 
 We can boost this number by looking at the users' email domains.
 
-```{r domains_recode}
+```{r domains_recode, message = FALSE, results = FALSE, warning = FALSE, echo=FALSE}
 # get just the domains from the emails
 email_domains <- users_gh %>% drop_na(email) %>%
 dt_mutate(domains = str_replace_all(email, "^[a-zA-Z0-9_.+-]+@", ""))
@@ -507,7 +509,7 @@ New total is 40,894 users in the academic sector.
 
 At this point, we can make a table of users in the academic sector to push to our database.
 
-```{r final_table}
+```{r final_table, message = FALSE, results = FALSE, warning = FALSE, echo=FALSE}
 final_table <- orgs_clean %>%
   semi_join(institutions_hipolabs, by = c("organization" = "institution")) %>%
   transmute(login = login, company_raw = company, company_cleaned = organization, is_academic = 1)
@@ -515,7 +517,7 @@ final_table <- orgs_clean %>%
 
 Now that we have the counts for GitHub users at academic institutions, we'd like to recombine this with the Hipo Labs data to get the country locations for these institutions.
 
-```{r get_countries}
+```{r get_countries, message = FALSE, results = FALSE, warning = FALSE, echo=FALSE}
 # rejoin with hipo labs data
 academic_counts <- overlap %>%
   left_join(institutions_hipolabs, by = c("organization" = "institution")) %>% 
@@ -572,7 +574,7 @@ academic_counts <- academic_counts %>%
 
 Now let's look at some statistics.
 
-```{r stats}
+```{r stats, message = FALSE,  results=FALSE, warning = FALSE, echo=FALSE}
 length(filter(academic_counts, country == "United States")$organization) / length(academic_counts$organization)
 # 33% of academic institutions represented are in the U.S.
 sum(filter(academic_counts, country == "United States")[, "n"]) / sum(academic_counts[, "n"])
@@ -582,13 +584,17 @@ sum(academic_counts[,"n"]) / 2435698
 
 # look at percentage of academic sector users in each country
 options(scipen = 10)
-country_user_percentages <- academic_counts %>% group_by(country) %>% select(country, n) %>% summarise(n = sum(n) / sum(academic_counts[, "n"])) %>% arrange(-n)
-country_user_percentages
+country_user_percentages <- academic_counts %>% 
+  group_by(country) %>% 
+  select(country, n) %>% 
+  summarise(n = sum(n) / sum(academic_counts[, "n"])) %>% 
+  mutate(percentage = round(n, 2)) %>% 
+  arrange(-n) %>% select(-n)
 ```
 
 Finally, let's plot some of this stuff.
 
-```{r, top_ten, fig.width = 12}
+```{r, top_ten,  echo=FALSE, include=FALSE}
 academic_counts_sorted <- academic_counts %>% 
   arrange(n) %>%
   dt_mutate(organization = factor(organization, levels = organization))
@@ -602,55 +608,74 @@ ggplot(data = academic_counts_sorted[(.N-10):.N,]) +
   theme_minimal()
 ```
 
-```{r, by_country, fig.height = 7, fig.width = 12}
+```{r, by_country, fig.height = 7,  warning = FALSE,  echo=FALSE}
 ggplot(academic_counts_sorted[(.N-20):.N, ], aes(color = country)) +
   geom_point(aes(x = organization, y = n), size = 4) +
   geom_segment(data = academic_counts_sorted[(.N-20):.N, ], mapping = aes(x = organization, xend = organization, y = 0, yend = n), size = 1) +
   scale_color_manual(values = c("United States" = "#485C99", "China" = "#E57200", "Canada" = "#12B2CE")) +
-  labs(x = "Academic Institution", y = "Number of Users", color = "Country", title = "Top 20 universities by number of users") +
+  labs(x = "Academic Institution", y = "Number of Users", color = "Country", title = "Top-20 Universities by Number of Users") +
   #theme_classic() +
-  theme(axis.text.y = element_text(size = 12)) +
   coord_flip() +
-  theme_minimal()
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.3),
+        axis.text.y = element_text(size = 10),
+        legend.position = c(.9, .1),
+        legend.justification = c("right", "bottom"),
+        legend.box.just = "right",
+        legend.margin = margin(6, 6, 6, 6),
+        legend.background = element_rect(fill="white",
+                                  size=0.5, linetype="solid", 
+                                  colour ="black")) 
 ```
 
-```{r, us_universities, fig.height=7}
+```{r, us_universities, fig.height = 7,  warning = FALSE, echo=FALSE}
 us_academic_counts <- academic_counts_sorted %>% filter(country == "United States")
 
 ggplot(us_academic_counts[(.N-20):.N, ]) +
-  geom_point(aes(x = organization, y = n)) +
-  geom_segment(data = us_academic_counts[(.N-20):.N, ], mapping = aes(x = organization, xend = organization, y = 0, yend = n)) +
-  labs(x = "Academic Institution", y = "Number of Users", title = "Top 20 universities in the United States") +
-  theme_classic() +
-  coord_flip()
+  geom_point(aes(x = organization, y = n), size = 4) +
+  geom_segment(data = us_academic_counts[(.N-20):.N, ], mapping = aes(x = organization, xend = organization, y = 0, yend = n), size = 1) +
+  labs(x = "Academic Institution", y = "Number of Users", title = "Top-20 Universities in the United States") +
+  coord_flip() +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.35))
 ```
 
-```{r, countries_users, fig.height=7}
+```{r, countries_users, fig.height = 7,  warning = FALSE, echo=FALSE}
 #country_frequency_institutions <- academic_counts %>% group_by(country) %>% count(wt = n(), sort = TRUE)
 
-country_frequency_users <- academic_counts %>% group_by(country) %>% count(sort = TRUE, wt = n)
+country_frequency_users <- academic_counts %>% 
+  mutate(country = tolower(country)) %>% 
+  dt_mutate(country = str_replace_all(country, "korea, republic of", "south korea")) %>%
+  dt_mutate(country = str_replace_all(country, "russian federation", "russia")) %>%
+  group_by(country) %>% 
+  count(sort = TRUE, wt = n)
 country_users_sorted <- country_frequency_users %>%
   arrange(n) %>%
   dt_mutate(country = factor(country, levels = country))
 
 ggplot(country_users_sorted[(.N-20):.N, ]) +
-  geom_point(aes(x = country, y = n)) +
-  geom_segment(data = country_users_sorted[(.N-20):.N, ], mapping = aes(x = country, xend = country, y = 0, yend = n)) +
-  labs(x = "Country", y = "Number of Users", title = "Top 20 countries by users in the academic sector") +
-  theme_classic() +
+  geom_point(aes(x = country, y = n), size = 4) +
+  geom_segment(data = country_users_sorted[(.N-20):.N, ], mapping = aes(x = country, xend = country, y = 0, yend = n), size = 1) +
+  theme_minimal() +
+  labs(x = "Country", y = "Number of Users", title = "Top-20 Countries by Users in Academic Sector") +
+  theme(plot.title = element_text(hjust = 0.5)) +
   scale_y_log10() +
-  coord_flip()
+  coord_flip() 
+```
+```{r stats, message = FALSE,  warning = FALSE, echo=FALSE}
+datatable(country_user_percentages)
 ```
 
-```{r}
+
+```{r, message = FALSE, results = FALSE, warning = FALSE, echo=FALSE}
 # connect to postgresql to get data (in rivanna)
-conn <- dbConnect(drv = PostgreSQL(), 
- dbname = "sdad", 
- host = "10.250.124.195", 
- port = 5432, 
- user = Sys.getenv("db_userid"), 
- password = Sys.getenv("db_pwd"))
-dbWriteTable(conn, c("gh", "sna_ctr_academic"), final_table)
+#conn <- dbConnect(drv = PostgreSQL(), 
+# dbname = "sdad", 
+# host = "10.250.124.195", 
+# port = 5432, 
+# user = Sys.getenv("db_userid"), 
+# password = Sys.getenv("db_pwd"))
+#dbWriteTable(conn, c("gh", "sna_ctr_academic"), final_table)
 # disconnect from postgresql database 
-dbDisconnect(conn)
+#dbDisconnect(conn)
 ```
