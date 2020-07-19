@@ -1,5 +1,5 @@
 ---
-title: "07 edgelist"
+title: "07 Form City Edgelist"
 output: html_document
 ---
 
@@ -19,11 +19,11 @@ conn <- dbConnect(drv = PostgreSQL(),
                   password = Sys.getenv("db_pwd"))
 
 # query the bipartite edgelist data from github data  
-city_nodelist <- dbGetQuery(conn, "SELECT * FROM gh.sna_ctr_city_codes")
+ctr_nodelist_all <- dbGetQuery(conn, "SELECT * FROM gh.sna_ctr_city_codes")
 
 # query the bipartite edgelist data from github data  
-ctr_edgelist <- dbGetQuery(conn, "SELECT * FROM gh.sna_ctr_edgelist_08")
-#ctr_edgelist <- dbGetQuery(conn, "SELECT * FROM gh.sna_ctr_edgelist_0819")
+#ctr_edgelist <- dbGetQuery(conn, "SELECT * FROM gh.sna_ctr_edgelist_08")
+ctr_edgelist <- dbGetQuery(conn, "SELECT * FROM gh.sna_ctr_edgelist_0819")
 
 # disconnect from postgresql
 dbDisconnect(conn)
@@ -33,74 +33,53 @@ dbDisconnect(conn)
 ```{r}
 # some ctrs used continents in location data. let's remove that by 
 # creating a list and defining a %notin% function to remove them. 
-unique(city_nodelist$c_continent_name)
+unique(ctr_nodelist_all$c_continent_name)
 
 # north america network
-intl_ctr_nodelist <- city_nodelist%>% 
-  filter(c_continent_name == "North America")
+ctr_nodelist <- ctr_nodelist_all%>%
+  filter(c_continent_name == "Oceania")
 
-# join the country_codes to ctr_edgelist
-intl_ctr_edgelist <- ctr_edgelist %>% 
+#contributor 1
+city_edgelist <- ctr_edgelist %>% 
   # in this file, we do NOT want to filter out self-loops 
   # this would remove all isolates and bias our results for ctr nets 
-  #filter(ctr1 != ctr2) %>% 
+  filter(ctr1 != ctr2) %>% 
   rename(login = ctr1) %>% 
-  inner_join(intl_ctr_nodelist, by = c( "login" = "raw_login")) %>% 
+  inner_join(ctr_nodelist, by = c( "login" = "raw_login")) %>% 
   rename(ctr1 = login, citycode1 = c_city_code) %>% 
-  select(ctr1, citycode1, ctr2, repo_wts) 
-# this joins cc to original edgelist, gets longer bc of multiple ctry_codes
-
-# join the country_codes to ctr_edgelist
-intl_ctr_edgelist <- intl_ctr_edgelist %>% 
+  select(ctr1, citycode1, ctr2, repo_wts)%>%
+#contributor 2
   rename(login = ctr2) %>% 
-  inner_join(intl_ctr_nodelist, by = c( "login" = "raw_login")) %>% 
+  inner_join(ctr_nodelist, by = c( "login" = "raw_login")) %>% 
   rename(ctr2 = login, citycode2 = c_city_code) %>%  
   select(ctr1, citycode1, ctr2, citycode2, repo_wts) 
 
 #create sna_intl_city_edgelist
-sna_intl_ctr_edgelist <- intl_ctr_edgelist %>% 
-  select(ctr1, ctr2, repo_wts)
+city_edgelist <- city_edgelist %>%
+  group_by(citycode1, citycode2)%>%
+  summarize(ttl_repo = sum(repo_wts))%>%
+  rename(from=citycode1, to=citycode2, weight=ttl_repo)%>% 
+  rename(source = from, target = to)
 ```
 
-```{r}
-intl_ctr_edgelist
-```
-
-
-
-Let's take a look at the degree distributions to see if the samples compare. 
-```{r}
-ctr_edgelist %>% 
-  count(repo_wts) %>% 
-  rename(count = n) %>% 
-  filter(repo_wts < 500) %>% 
-  ggplot(aes(x=repo_wts, y=count)) +
-    geom_bar(stat="identity")
-
-intl_ctr_edgelist %>% 
-  count(repo_wts) %>% 
-  rename(count = n) %>% 
-  filter(repo_wts < 500) %>% 
-  ggplot(aes(x=repo_wts, y=count)) +
-    geom_bar(stat="identity")
-
-```
 
 Before we write these edgelists to the database, let's make sure that these can be converted to networks in igraph. igraph requires the nodelist and edgelist to match when you draw from both and I find this to be a good test that all the data is aligned. 
 
 ```{r}
 
 # we will bring together our new intl_ctr_network & original nodelist (without the country_codes split into new rows)
-intl_ctr_network <- graph.data.frame(sna_intl_ctr_edgelist, directed = FALSE)
+intl_city_network <- simplify(graph.data.frame(city_edgelist, directed = F),
+                              remove.loops = FALSE,
+                              edge.attr.comb = igraph_opt("edge.attr.comb"))
 
 # extract the nodelist from our new network  
-sna_intl_ctr_nodelist <- data.frame(id = c(1:(igraph::vcount(intl_ctr_network))), login = igraph::V(intl_ctr_network)$name)
+sna_intl_city_nodelist <- data.frame(id = c(1:(igraph::vcount(intl_city_network))), login = igraph::V(intl_city_network)$name)
 
 # counting the number of isolates 
-gorder(intl_ctr_network) 
-gsize(intl_ctr_network)
-sum(degree(simplify(intl_ctr_network))==0)
-mean(degree(intl_ctr_network))
+gorder(intl_city_network) 
+gsize(intl_city_network)
+sum(degree(simplify(intl_city_network))==0)
+mean(degree(intl_city_network))
 #degree(intl_ctr_network)
 
 ```
@@ -118,12 +97,14 @@ conn <- dbConnect(drv = PostgreSQL(),
                   password = Sys.getenv("db_pwd"))
 
 # write the edgelist to the database
-dbWriteTable(conn, name = c(schema = "gh" , name = "sna_intl_ctr_edgelist_0819"), 
-             value = sna_intl_ctr_edgelist, row.names = FALSE, temporary = TRUE)
+dbWriteTable(conn, name = c(schema = "gh" , name = "sna_city_oceania_edgelist_0819"), 
+             value = city_edgelist, row.names = FALSE, temporary = TRUE)
 
 # disconnect from postgresql
 dbDisconnect(conn)
 
+
+rm(city_edgelist, intl_city_network, sna_intl_city_nodelist, ctr_nodelist, city_nodelist)
 ```
 
 # Note that the contributor and country nodelists are in 02_international-collaboration > 01_data-cleaning folder. 
