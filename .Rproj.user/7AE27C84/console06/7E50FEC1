@@ -1,65 +1,0 @@
-newgrp: group 'bii_sdad_fairfaxexport' does not exist
-]0;/sfs/qumulo/qhome/kb7hp/git/dspg20ossudc-aj37-14c0$[Kudc-aj37-14c0$git check [Kout -b g[Kcz-geo
-fatal: A branch named 'cz-geo' already exists.
-]0;/sfs/qumulo/qhome/kb7hp/git/dspg20ossudc-aj37-14c0$git branch cz-geog[K
-fatal: A branch named 'cz-geo' already exists.
-]0;/sfs/qumulo/qhome/kb7hp/git/dspg20ossudc-aj37-14c0$c[Kgitc [K[K checkout cz-geo
-Already on 'cz-geo'
-Your branch is up to date with 'origin/cz-geo'.
-]0;/sfs/qumulo/qhome/kb7hp/git/dspg20ossudc-aj37-14c0$git checkout master 
-Checking out files:  31% (57/182)   Checking out files:  32% (59/182)   Checking out files:  33% (61/182)   Checking out files:  34% (62/182)   Checking out files:  35% (64/182)   Checking out files:  36% (66/182)   Checking out files:  37% (68/182)   Checking out files:  38% (70/182)   Checking out files:  39% (71/182)   Checking out files:  40% (73/182)   Checking out files:  41% (75/182)   Checking out files:  42% (77/182)   Checking out files:  43% (79/182)   Checking out files:  44% (81/182)   Checking out files:  45% (82/182)   Checking out files:  46% (84/182)   Checking out files:  47% (86/182)   Checking out files:  48% (88/182)   Checking out files:  48% (89/182)   Checking out files:  49% (90/182)   Checking out files:  50% (91/182)   Checking out files:  51% (93/182)   Checking out files:  52% (95/182)   Checking out files:  53% (97/182)   Checking out files:  54% (99/182)   Checking out files:  55% (101/182)   Checking out files:  56% (102/182)   Checking out files:  57% (104/182)   Checking out files:  58% (106/182)   Checking out files:  59% (108/182)   Checking out files:  60% (110/182)   Checking out files:  61% (112/182)   Checking out files:  62% (113/182)   Checking out files:  63% (115/182)   Checking out files:  63% (116/182)   Checking out files:  64% (117/182)   Checking out files:  65% (119/182)   Checking out files:  66% (121/182)   Checking out files:  67% (122/182)   Checking out files:  68% (124/182)   Checking out files:  69% (126/182)   Checking out files:  70% (128/182)   Checking out files:  71% (130/182)   Checking out files:  72% (132/182)   Checking out files:  73% (133/182)   Checking out files:  74% (135/182)   Checking out files:  75% (137/182)   Checking out files:  76% (139/182)   Checking out files:  77% (141/182)   Checking out files:  78% (142/182)   Checking out files:  79% (144/182)   Checking out files:  80% (146/182)   Checking out files:  81% (148/182)   Checking out files:  82% (150/182)   Checking out files:  83% (152/182)   Checking out files:  84% (153/182)   Checking out files:  85% (155/182)   Checking out files:  86% (157/182)   Checking out files:  87% (159/182)   Checking out files:  88% (161/182)   Checking out files:  89% (162/182)   Checking out files:  90% (164/182)   Checking out files:  91% (166/182)   Checking out files:  92% (168/182)   Checking out files:  92% (169/182)   Checking out files:  93% (170/182)   Checking out files:  94% (172/182)   Checking out files:  95% (173/182)   Checking out files:  96% (175/182)   Checking out files:  97% (177/182)   Checking out files:  98% (179/182)   Checking out files:  99% (181/182)   Checking out files: 100% (182/182)   Checking out files: 100% (182/182), done.
-Switched to branch 'master'
-Your branch is up to date with 'origin/master'.
-]0;/sfs/qumulo/qhome/kb7hp/git/dspg20ossudc-aj37-14c0$git merge cz-geo
-hint: Waiting for your editor to close the file... error: unable to start editor 'vi'
-Not committing merge; use 'git commit' to complete the merge.
-]0;/sfs/qumulo/qhome/kb7hp/git/dspg20ossudc-aj37-14c0$git branch 
-  cz-geo[m
-* [32mmaster[m
-]0;/sfs/qumulo/qhome/kb7hp/git/dspg20ossudc-aj37-14c0$git status 
-On branch master
-Your branch is up to date with 'origin/master'.
-
-All conflicts fixed but you are still merging.
-  (use "git commit" to conclude merge)
-
-Changes to be committed:
-
-	[32mmodified:   src/geographic/00_functions.R[m
-	[32mmodified:   src/geographic/03_interactive_map.Rmd[m
-	[32mmodified:   src/geographic/03_interactive_map.html[m
-	[32mmodified:   src/government/02_name_cleaning.Rmd[m
-
-]0;/sfs/qumulo/qhome/kb7hp/git/dspg20ossudc-aj37-14c0$git brac[Knch 
-  cz-geo[m
-* [32mmaster[m
-]0;/sfs/qumulo/qhome/kb7hp/git/dspg20ossudc-aj37-14c0$git checkout cz-geo
-Switched to branch 'cz-geo'
-Your branch is up to date with 'origin/cz-geo'.
-]0;/sfs/qumulo/qhome/kb7hp/git/dspg20ossudc-aj37-14c0$git branch 
-* [32mcz-geo[m
-  master[m
-]0;/sfs/qumulo/qhome/kb7hp/git/dspg20ossudc-aj37-14c0$git status 
-On branch cz-geo
-Your branch is up to date with 'origin/cz-geo'.
-
-nothing to commit, working tree clean
-]0;/sfs/qumulo/qhome/kb7hp/git/dspg20ossudc-aj37-14c0$git sta[K[K[Kcheckout master 
-Checking out files:  26% (49/182)   Checking out files:  27% (50/182)   Checking out files:  28% (51/182)   Checking out files:  29% (53/182)   Checking out files:  30% (55/182)   Checking out files:  31% (57/182)   Checking out files:  32% (59/182)   Checking out files:  33% (61/182)   Checking out files:  34% (62/182)   Checking out files:  35% (64/182)   Checking out files:  36% (66/182)   Checking out files:  37% (68/182)   Checking out files:  38% (70/182)   Checking out files:  39% (71/182)   giChecking out files:  40% (73/182)   Checking out files:  41% (75/182)   Checking out files:  42% (77/182)   Checking out files:  43% (79/182)   Checking out files:  44% (81/182)   Checking out files:  45% (82/182)   Checking out files:  46% (84/182)   Checking out files:  47% (86/182)   Checking out files:  48% (88/182)   Checking out files:  49% (90/182)   Checking out files:  50% (91/182)   Checking out files:  51% (93/182)   Checking out files:  52% (95/182)   Checking out files:  53% (97/182)   Checking out files:  54% (99/182)   Checking out files:  55% (101/182)   Checking out files:  56% (102/182)   Checking out files:  57% (104/182)   Checking out files:  58% (106/182)   Checking out files:  59% (108/182)   Checking out files:  60% (110/182)   Checking out files:  61% (112/182)   Checking out files:  62% (113/182)   Checking out files:  63% (115/182)   Checking out files:  64% (117/182)   Checking out files:  65% (119/182)   Checking out files:  66% (121/182)   Checking out files:  67% (122/182)   Checking out files:  68% (124/182)   Checking out files:  68% (125/182)   Checking out files:  69% (126/182)   Checking out files:  70% (128/182)   Checking out files:  71% (130/182)   Checking out files:  72% (132/182)   Checking out files:  73% (133/182)   Checking out files:  74% (135/182)   Checking out files:  75% (137/182)   Checking out files:  76% (139/182)   Checking out files:  77% (141/182)   Checking out files:  78% (142/182)   Checking out files:  79% (144/182)   Checking out files:  80% (146/182)   Checking out files:  81% (148/182)   Checking out files:  82% (150/182)   Checking out files:  83% (152/182)   Checking out files:  84% (153/182)   Checking out files:  85% (155/182)   Checking out files:  86% (157/182)   Checking out files:  87% (159/182)   Checking out files:  88% (161/182)   Checking out files:  89% (162/182)   Checking out files:  90% (164/182)   Checking out files:  91% (166/182)   Checking out files:  92% (168/182)   Checking out files:  93% (170/182)   Checking out files:  94% (172/182)   Checking out files:  95% (173/182)   Checking out files:  96% (175/182)   Checking out files:  97% (177/182)   Checking out files:  98% (179/182)   Checking out files:  99% (181/182)   Checking out files: 100% (182/182)   Checking out files: 100% (182/182), done.
-Switched to branch 'master'
-Your branch is up to date with 'origin/master'.
-]0;/sfs/qumulo/qhome/kb7hp/git/dspg20ossudc-aj37-14c0$git status 
-On branch master
-Your branch is up to date with 'origin/master'.
-
-nothing to commit, working tree clean
-]0;/sfs/qumulo/qhome/kb7hp/git/dspg20ossudc-aj37-14c0$git sutat[K[K[K[K[Kstatus 
-On branch master
-Your branch is up to date with 'origin/master'.
-
-nothing to commit, working tree clean
-]0;/sfs/qumulo/qhome/kb7hp/git/dspg20ossudc-aj37-14c0$git branch [K[K[K[K[K[K[Kcheck [Kout gz[K[Kcz-geo
-Checking out files:  65% (119/182)   Checking out files:  66% (121/182)   Checking out files:  67% (122/182)   Checking out files:  68% (124/182)   Checking out files:  69% (126/182)   Checking out files:  70% (128/182)   Checking out files:  71% (130/182)   Checking out files:  72% (132/182)   Checking out files:  73% (133/182)   Checking out files:  74% (135/182)   Checking out files:  75% (137/182)   Checking out files:  76% (139/182)   Checking out files:  77% (141/182)   Checking out files:  78% (142/182)   Checking out files:  79% (144/182)   Checking out files:  80% (146/182)   Checking out files:  81% (148/182)   Checking out files:  82% (150/182)   Checking out files:  83% (152/182)   Checking out files:  84% (153/182)   Checking out files:  85% (155/182)   Checking out files:  86% (157/182)   Checking out files:  87% (159/182)   Checking out files:  88% (161/182)   Checking out files:  89% (162/182)   Checking out files:  90% (164/182)   Checking out files:  91% (166/182)   Checking out files:  92% (168/182)   Checking out files:  93% (170/182)   Checking out files:  94% (172/182)   Checking out files:  95% (173/182)   Checking out files:  96% (175/182)   Checking out files:  97% (177/182)   Checking out files:  98% (179/182)   Checking out files:  99% (181/182)   Checking out files: 100% (182/182)   Checking out files: 100% (182/182), done.
-Switched to branch 'cz-geo'
-Your branch is up to date with 'origin/cz-geo'.
-]0;/sfs/qumulo/qhome/kb7hp/git/dspg20ossudc-aj37-14c0$
