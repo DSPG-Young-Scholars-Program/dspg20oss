@@ -9,6 +9,12 @@ output: html_document
 
 One of the main goals of our summer project is to understand who is producting open-source software (OSS) and important characteristics about them, including which sectors they are embedded within. This page focuses on the approach we took to classifying GitHub users into the academic sector as well as the prodcedures that we took to finding out which institutions they are affiliated. 
 
+First, we looked for a data source for organizations in the academic sector. We ended up using [this dataset](https://github.com/Hipo/university-domains-list/) from Hipo Labs, which has the names, countries, and domain names for most universities in the world. (how many?) With this, we could identify which users are in the academic sector by looking at what self-reported company they have on their profile, and looking for a match in our university dataset. 
+
+However, only around 20% of our GitHub users have any company information on their profile, and those who did had staggering amounts of variation in how they reported their company. (examples?) 
+
+
+
 ```{r packages, message = FALSE, results = FALSE, warning = FALSE, echo=FALSE}
 rm(list = ls())
 
@@ -574,7 +580,7 @@ academic_counts <- academic_counts %>%
 
 Now let's look at some statistics.
 
-```{r stats_new, message = FALSE, results=FALSE, warning = FALSE, echo=FALSE}
+```{r stats, message = FALSE, results=FALSE, warning = FALSE, echo=FALSE}
 length(filter(academic_counts, country == "United States")$organization) / length(academic_counts$organization)
 # 33% of academic institutions represented are in the U.S.
 sum(filter(academic_counts, country == "United States")[, "n"]) / sum(academic_counts[, "n"])
@@ -587,12 +593,10 @@ options(scipen = 10)
 country_user_percentages <- academic_counts %>% 
   group_by(country) %>% 
   select(country, n) %>% 
-  summarise(n = sum(n) / sum(academic_counts[, "n"])) %>% 
-  mutate(percentage = round(n, 2)) %>% 
-  arrange(-n) %>% select(-n)
+  summarise(n = sum(n), percentage = sum(n) / sum(academic_counts[, "n"])) %>% 
+  mutate(percentage = round(percentage, 5)) %>% 
+  arrange(-n)
 ```
-
-Finally, let's plot some of this stuff.
 
 ```{r, top_ten, fig.width=12, echo=FALSE, include=FALSE}
 academic_counts_sorted <- academic_counts %>% 
@@ -606,6 +610,7 @@ ggplot(data = academic_counts_sorted[(.N-10):.N,]) +
        title = "Top 10 universities by users") + 
   coord_flip() +
   theme_minimal()
+
 ```
 
 ```{r, by_country, fig.height = 7, fig.width=12, warning = FALSE,  echo=FALSE}
@@ -627,20 +632,11 @@ ggplot(academic_counts_sorted[(.N-20):.N, ], aes(color = country)) +
                                   size=0.5, linetype="solid", 
                                   colour ="black")) 
 ```
-
-```{r, us_universities, fig.height = 7,  warning = FALSE, echo=FALSE}
-us_academic_counts <- academic_counts_sorted %>% filter(country == "United States")
-
-ggplot(us_academic_counts[(.N-20):.N, ]) +
-  geom_point(aes(x = organization, y = n), size = 4) +
-  geom_segment(data = us_academic_counts[(.N-20):.N, ], mapping = aes(x = organization, xend = organization, y = 0, yend = n), size = 1) +
-  labs(x = "Academic Institution", y = "Number of Users", title = "Top-20 Universities in the United States") +
-  coord_flip() +
-  theme_minimal() +
-  theme(plot.title = element_text(hjust = 0.35))
+```{r institutions_table, message = FALSE,  warning = FALSE, echo=FALSE}
+datatable(transmute(academic_counts, organization = organization, n = n, country = country))
 ```
 
-```{r, countries_users, fig.height = 7,  warning = FALSE, echo=FALSE}
+```{r, countries_users, fig.height = 7, fig.width = 12, warning = FALSE, echo=FALSE}
 #country_frequency_institutions <- academic_counts %>% group_by(country) %>% count(wt = n(), sort = TRUE)
 
 country_frequency_users <- academic_counts %>% 
@@ -662,9 +658,24 @@ ggplot(country_users_sorted[(.N-20):.N, ]) +
   scale_y_log10() +
   coord_flip() 
 ```
-```{r stats, message = FALSE,  warning = FALSE, echo=FALSE}
+```{r country_percentage_table, message = FALSE,  warning = FALSE, echo=FALSE}
 datatable(country_user_percentages)
 ```
+
+```{r, us_universities, fig.height = 7, fig.width = 12,  warning = FALSE, echo=FALSE}
+us_academic_counts <- academic_counts_sorted %>% filter(country == "United States")
+
+ggplot(us_academic_counts[(.N-20):.N, ]) +
+  geom_point(aes(x = organization, y = n), size = 4) +
+  geom_segment(data = us_academic_counts[(.N-20):.N, ], mapping = aes(x = organization, xend = organization, y = 0, yend = n), size = 1) +
+  labs(x = "Academic Institution", y = "Number of Users", title = "Top-20 Universities in the United States") +
+  #scale_y_reverse() +
+  coord_flip() +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.35))
+```
+
+
 
 
 ```{r, message = FALSE, results = FALSE, warning = FALSE, echo=FALSE}
