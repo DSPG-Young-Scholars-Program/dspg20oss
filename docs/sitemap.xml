@@ -35,18 +35,15 @@
   </url>
   
   <url>
-    <loc>/methods/</loc>
-    <priority>0</priority>
+    <loc>/omitted-content/methods/</loc>
   </url>
   
   <url>
-    <loc>/overview/</loc>
-    <priority>0</priority>
+    <loc>/omitted-content/overview/</loc>
   </url>
   
   <url>
-    <loc>/team/</loc>
-    <priority>0</priority>
+    <loc>/omitted-content/team-alt/</loc>
   </url>
   
   <url>
@@ -87,6 +84,18 @@
   
   <url>
     <loc>/omitted-content/</loc>
+  </url>
+  
+  <url>
+    <loc>/methods/</loc>
+  </url>
+  
+  <url>
+    <loc>/overview/</loc>
+  </url>
+  
+  <url>
+    <loc>/team/</loc>
   </url>
   
   <url>
