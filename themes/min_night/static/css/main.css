@@ -61,7 +61,7 @@ a:link, a:visited {
 
 #bigfooter a:hover {
     text-decoration: underline;
-    color: #FFFFFF;
+    color: #FFF;
 }
 
 
@@ -87,7 +87,7 @@ a:link, a:visited {
 }
 
 .item-tag {
-    background-color: #E57200;
+    background-color: #60999A;
     margin:1px;
 }
 
@@ -109,7 +109,7 @@ a:link, a:visited {
     border-top: var(--border-width) solid var(--accent);
     background-color: var(--accent);
     font-size: 120%;
-    color: #FFF !important;
+    color: #FFFFFF !important;
 }
 .navbar-default .navbar-nav li a {
     color: #FFFFFF;
@@ -130,9 +130,9 @@ a:link, a:visited {
 /* custome footer */
 footer {
     background-color: var(--accent);
-    border-top: #e7e7e7 solid;
+    border-top: #FFFFFF solid;
     border-top-width: 1px;
-    color: #fff;
+    color: #FFFFFF;
     /* border-bottom: var(--border-width) solid #f8f8f8; */
 }
 footer a {
