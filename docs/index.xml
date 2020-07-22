@@ -6,27 +6,36 @@
     <description>Recent content on UVA Biocomplexity Institute</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 28 Sep 2014 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
-      <title>Geographical Analyses of GitHub Users</title>
-      <link>/analyses/geographic/</link>
+      <title>General Overview of the Project</title>
+      <link>/omitted-content/general-overview/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>/analyses/geographic/</guid>
+      <guid>/omitted-content/general-overview/</guid>
+      <description>While this page is optional, it probably makes sense to have one weighted at the top (see the front matter at the top of this Rmd file) that gives a general overview of the project. This could be something like the final poster while the other pages highlight more in-depth observations. Here is a general schema of what should be covered throughout your website:
+Main Findings [Here you will describe the results and include important visualizations from your project.</description>
+    </item>
+    
+    <item>
+      <title>Geographical Analyses of GitHub Users</title>
+      <link>/findings/geographic/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/findings/geographic/</guid>
       <description>We conducted analysis on GitHub users&#39; geographic location, which was scraped from their public user profile. While 77.23% geographic information (country and city name) were missing, we were still able to map 488104 GitHub users in our final analyses.
 Top Continents Where GitHub Users are Located North America is the continent with the highest number of GitHub users - followed by Europe and Asia.</description>
     </item>
     
     <item>
       <title>Geographical Analyses of GitHub Users</title>
-      <link>/analyses/government/</link>
+      <link>/findings/government/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>/analyses/government/</guid>
+      <guid>/findings/government/</guid>
       <description> Test Tabs By Product (tab content)
  By Region (tab content)
  By Third Category (tab content)
@@ -35,83 +44,78 @@ Top Continents Where GitHub Users are Located North America is the continent wit
     
     <item>
       <title>OSS in the Academic Sector</title>
-      <link>/analyses/academic/</link>
+      <link>/findings/academic/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>/analyses/academic/</guid>
-      <description>Our analyses are underway&amp;hellip; and coming soon.</description>
+      <guid>/findings/academic/</guid>
+      <description>One of the main goals of our summer project is to understand who is producting open-source software (OSS) and important characteristics about them, including which sectors they are embedded within. This page focuses on the approach we took to classifying GitHub users into the academic sector as well as the prodcedures that we took to finding out which institutions they are affiliated.
+First, cleaning hipolabs data before comparing it with github users.</description>
+    </item>
+    
+    <item>
+      <title>Results Section One</title>
+      <link>/omitted-content/results-section-one/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/omitted-content/results-section-one/</guid>
+      <description>/* this chunnk of code centers all of the headings */ h1, h2, h3 { text-align: center; }  Examples Page If you want to add in an image on an Rmd file, use this link here. It ends up being a little tricky, but as long as you have created a folder to insert your images, you can just use some markdown code or html to insert images in the format you want.</description>
+    </item>
+    
+    <item>
+      <title>Results Section Two</title>
+      <link>/omitted-content/results-section-two/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/omitted-content/results-section-two/</guid>
+      <description>[Here you will describe the data discoversy process, the data used, and the methods employed for this single page. Since you already have a Project Overview and Data &amp;amp; Methods tabs, you probably want to keep this first paragraph fairly short and use the rest of the document to walk your readers through your analyses.]
+Main Findings [Here you will describe the results and include important visualizations from your project.</description>
     </item>
     
     <item>
       <title>OSS in the Household/Business Sectors</title>
-      <link>/analyses/business/</link>
+      <link>/findings/business/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>/analyses/business/</guid>
+      <guid>/findings/business/</guid>
       <description>Our analyses are underway&amp;hellip;</description>
     </item>
     
     <item>
-      <title>Creating a New Theme</title>
-      <link>/antiquated/creating-a-new-theme/</link>
-      <pubDate>Sun, 28 Sep 2014 00:00:00 +0000</pubDate>
+      <title>Results Section Three</title>
+      <link>/omitted-content/results-section-three/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>/antiquated/creating-a-new-theme/</guid>
-      <description>Introduction This tutorial will show you how to create a simple theme in Hugo. I assume that you are familiar with HTML, the bash command line, and that you are comfortable using Markdown to format content. I&amp;rsquo;ll explain how Hugo uses templates and how you can organize your templates to create a theme. I won&amp;rsquo;t cover using CSS to style your theme.
-We&amp;rsquo;ll start with creating a new site with a very basic template.</description>
-    </item>
-    
-    <item>
-      <title>(Hu)go Template Primer</title>
-      <link>/antiquated/goisforlovers/</link>
-      <pubDate>Wed, 02 Apr 2014 00:00:00 +0000</pubDate>
-      
-      <guid>/antiquated/goisforlovers/</guid>
-      <description>Hugo uses the excellent go html/template library for its template engine. It is an extremely lightweight engine that provides a very small amount of logic. In our experience that it is just the right amount of logic to be able to create a good static website. If you have used other template systems from different languages or frameworks you will find a lot of similarities in go templates.
-This document is a brief primer on using go templates.</description>
-    </item>
-    
-    <item>
-      <title>Getting Started with Hugo</title>
-      <link>/antiquated/hugoisforlovers/</link>
-      <pubDate>Wed, 02 Apr 2014 00:00:00 +0000</pubDate>
-      
-      <guid>/antiquated/hugoisforlovers/</guid>
-      <description>Step 1. Install Hugo Goto hugo releases and download the appropriate version for your os and architecture.
-Save it somewhere specific as we will be using it in the next step.
-More complete instructions are available at installing hugo
-Step 2. Build the Docs Hugo has its own example site which happens to also be the documentation site you are reading right now.
-Follow the following steps:
- Clone the hugo repository Go into the repo Run hugo in server mode and build the docs Open your browser to http://localhost:1313  Corresponding pseudo commands:</description>
-    </item>
-    
-    <item>
-      <title>Migrate from Jekyll</title>
-      <link>/antiquated/migrate-from-jekyll/</link>
-      <pubDate>Mon, 10 Mar 2014 00:00:00 +0000</pubDate>
-      
-      <guid>/antiquated/migrate-from-jekyll/</guid>
-      <description>Move static content to static Jekyll has a rule that any directory not starting with _ will be copied as-is to the _site output. Hugo keeps all static content under static. You should therefore move it all there. With Jekyll, something that looked like
-▾ &amp;lt;root&amp;gt;/ ▾ images/ logo.png  should become
-▾ &amp;lt;root&amp;gt;/ ▾ static/ ▾ images/ logo.png  Additionally, you&amp;rsquo;ll want any files that should reside at the root (such as CNAME) to be moved to static.</description>
+      <guid>/omitted-content/results-section-three/</guid>
+      <description>[Here you will describe the data discoversy process, the data used, and the methods employed for this single page. Since you already have a Project Overview and Data &amp;amp; Methods tabs, you probably want to keep this first paragraph fairly short and use the rest of the document to walk your readers through your analyses.]
+Main Findings [Here you will describe the results and include important visualizations from your project.</description>
     </item>
     
     <item>
       <title></title>
-      <link>/dspg/</link>
+      <link>/methods/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>/dspg/</guid>
-      <description>University of Virginia Biocomplexity Institute Data Science for the Public Good Program  The Data Science for the Public Good (DSPG) Young Scholars program is a summer immersive program held at the Biocomplexity Institute’s Social and Decision Analytics division (SDAD). Entering its seventh year, the program engages students from across the country to work together on projects that address state, federal, and local government challenges around critical social issues relevant in the world today.</description>
+      <guid>/methods/</guid>
+      <description>Open Source Software 2020 Summer Project Data and Methodology Example text: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam in varius purus. Nullam ut sodales ante. Fusee justo nisi, suscipit a lacus et, posuere sagittis ex. Nulla convallis ante elit, at consequat ipsum ultricies ut. Aliquam erat volutpat. nderline. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam in variu convallis ante elit, at consequat ipsum ultricies ut.
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.</description>
     </item>
     
     <item>
       <title></title>
-      <link>/oss/</link>
+      <link>/overview/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>/oss/</guid>
-      <description>Open Source Software Project (2020)  SDAD: Gizem Korkmaz, Brandon Kramer, José Bayoán Santiago Calderón, Aaron Schroeder, and Sallie Keller NCSES: Carol Robbins and Ledia Guci DSPG: Daniel Bullock, Morgan Klutzke, and Crystal Zang  Current economic indicators and indicators developed by the National Center for Science &amp;amp; Engineering Statistics (NCSES) do not measure the value of goods and services that fall outside of market transactions. Although NCSES does track some types of software development, it is challenging to account for Open Source Software (OSS) given that these products are largely being advanced outside of traditional business contexts.</description>
+      <guid>/overview/</guid>
+      <description>Open Source Software 2020 Summer Project Project Overview Current economic indicators and indicators developed by the National Center for Science &amp;amp; Engineering Statistics (NCSES) do not measure the value of goods and services that fall outside of market transactions. Although NCSES does track some types of software development, it is challenging to account for open source software (OSS) outputs because these products are largely being advanced outside of traditional business contexts.</description>
+    </item>
+    
+    <item>
+      <title></title>
+      <link>/team/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/team/</guid>
+      <description>UVA Data Science for the Public Good Program The Data Science for the Public Good (DSPG) Young Scholars program is a summer immersive program held at the Biocomplexity Institute’s Social and Decision Analytics division (SDAD). In its seventh year, the program engages students from across the country to work together on projects that address state, federal, and local government challenges around critical social issues relevant in the world today. DSPG young scholars conduct research at the intersection of statistics, computation, and the social sciences to determine how information generated within every community can be leveraged to improve quality of life and inform public policy.</description>
     </item>
     
   </channel>

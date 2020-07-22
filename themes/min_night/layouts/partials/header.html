@@ -21,14 +21,14 @@
         {{ end }}
 
     <!-- Favicons - https://realfavicongenerator.net/ -->
-    <link rel="apple-touch-icon" sizes="180x180" href="/img/favicon/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon/favicon-16x16.png">
-    <link rel="manifest" href="/img/favicon/site.webmanifest">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
     <link rel="mask-icon" href="/img/favicon/safari-pinned-tab.svg" color="#000000">
     <link rel="shortcut icon" href="/img/favicon/favicon.ico">
     <meta name="msapplication-TileColor" content="#2b5797">
-    <meta name="msapplication-config" content="/img/favicon/browserconfig.xml">
+    <meta name="msapplication-TileColor" content="#da532c">
     <meta name="theme-color" content="#ffffff">
     
     <!-- Twitter Cards - https://xvrdm.github.io/2017/10/23/socialize-your-blogdown/ -->
@@ -67,14 +67,14 @@
     <body id = "bigbody">
         <nav class="navbar navbar-default navbar-fixed-top">
             <div class="container">
-                <!--<div class="navbar-header">
+                <div class="navbar-header">
                     <a class="navbar-brand visible-xs" href="#">{{ .Title }}</a>
                     <button class="navbar-toggle" data-target=".navbar-collapse" data-toggle="collapse">
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                     </button>
-                </div>-->
+                </div>
                 <div class="collapse navbar-collapse">
                     {{ if .Site.Menus.main }}
                         <ul class="nav navbar-nav">

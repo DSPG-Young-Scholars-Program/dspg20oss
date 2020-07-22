@@ -3,63 +3,54 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
-    <loc>/analyses/geographic/</loc>
+    <loc>/omitted-content/general-overview/</loc>
   </url>
   
   <url>
-    <loc>/analyses/government/</loc>
+    <loc>/findings/geographic/</loc>
   </url>
   
   <url>
-    <loc>/analyses/academic/</loc>
+    <loc>/findings/government/</loc>
   </url>
   
   <url>
-    <loc>/analyses/business/</loc>
+    <loc>/findings/academic/</loc>
   </url>
   
   <url>
-    <loc>/antiquated/</loc>
-    <lastmod>2014-09-28T00:00:00+00:00</lastmod>
+    <loc>/omitted-content/results-section-one/</loc>
   </url>
   
   <url>
-    <loc>/antiquated/creating-a-new-theme/</loc>
-    <lastmod>2014-09-28T00:00:00+00:00</lastmod>
+    <loc>/omitted-content/results-section-two/</loc>
   </url>
   
   <url>
-    <loc>/</loc>
-    <lastmod>2014-09-28T00:00:00+00:00</lastmod>
+    <loc>/findings/business/</loc>
   </url>
   
   <url>
-    <loc>/antiquated/goisforlovers/</loc>
-    <lastmod>2014-04-02T00:00:00+00:00</lastmod>
+    <loc>/omitted-content/results-section-three/</loc>
   </url>
   
   <url>
-    <loc>/antiquated/hugoisforlovers/</loc>
-    <lastmod>2014-04-02T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>/antiquated/migrate-from-jekyll/</loc>
-    <lastmod>2014-03-10T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>/dspg/</loc>
+    <loc>/methods/</loc>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>/oss/</loc>
+    <loc>/overview/</loc>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>/analyses/</loc>
+    <loc>/team/</loc>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/tags/app/</loc>
   </url>
   
   <url>
@@ -71,11 +62,31 @@
   </url>
   
   <url>
+    <loc>/tags/collapsibletree/</loc>
+  </url>
+  
+  <url>
+    <loc>/findings/</loc>
+  </url>
+  
+  <url>
+    <loc>/tags/geospatial/</loc>
+  </url>
+  
+  <url>
     <loc>/tags/interactive-map/</loc>
   </url>
   
   <url>
+    <loc>/tags/networks/</loc>
+  </url>
+  
+  <url>
     <loc>/tags/nlp/</loc>
+  </url>
+  
+  <url>
+    <loc>/omitted-content/</loc>
   </url>
   
   <url>
@@ -92,6 +103,10 @@
   
   <url>
     <loc>/tags/</loc>
+  </url>
+  
+  <url>
+    <loc>/</loc>
   </url>
   
 </urlset>
