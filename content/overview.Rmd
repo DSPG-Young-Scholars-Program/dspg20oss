@@ -10,7 +10,7 @@ h1, h2, h3 {
 }
 ```
 
-### Project Overview
+### Project Overview 
 
 Current economic indicators and indicators developed by the [National Center for Science & Engineering Statistics (NCSES)](https://www.nsf.gov/statistics/) do not measure the value of goods and services that fall outside of market transactions. Although NCSES does track some types of software development, it is challenging to account for open source software (OSS) outputs because these products are largely being advanced outside of traditional business contexts. Moreover, while current measures of innovation tend to rely on survey data, patent issues, trademarks approvals, intangible asset data, or estimates of total factor productivity growth, these measures are either incomplete or fail to capture innovation that is freely available to the public.
 
