@@ -1,3 +1,0 @@
-"0","final_table <- orgs_clean %>%"
-"0","  semi_join(institutions_hipolabs, by = c(""organization"" = ""institution"")) %>%"
-"0","  transmute(login = login, company_raw = company, company_cleaned = organization, is_academic = 1)"

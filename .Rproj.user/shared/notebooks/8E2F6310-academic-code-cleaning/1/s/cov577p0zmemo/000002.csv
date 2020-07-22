@@ -1,7 +1,0 @@
-"0","us_academic_counts <- academic_counts_sorted %>% filter(country == ""United States"")"
-"0","ggplot(us_academic_counts[(.N-20):.N, ]) +"
-"0","  geom_point(aes(x = organization, y = n)) +"
-"0","  geom_segment(data = us_academic_counts[(.N-20):.N, ], mapping = aes(x = organization, xend = organization, y = 0, yend = n)) +"
-"0","  labs(x = ""Academic Institution"", y = ""Number of Users"", title = ""Top 20 universities in the United States"") +"
-"0","  theme_classic() +"
-"0","  coord_flip()"
