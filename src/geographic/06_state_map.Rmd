@@ -1,0 +1,207 @@
+---
+title: "06 State Map"
+description: "This page focuses on mapping GitHub users around the world."
+output: 
+  rmarkdown::html_document:
+    toc: true
+    toc_float: true
+    highlight: tango
+editor_options: 
+  chunk_output_type: console
+tags: ["R","nlp","regex","big data","interactive map"]
+weight: 1
+draft: false
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r loading data, message=FALSE, warning=FALSE, include=FALSE}
+rm(list = ls())
+
+# load packages
+for (pkg in c("tidyverse", "data.table", "R.utils", "RPostgreSQL", "cowplot", "maditr", "stringr", "stringi",  "dplyr", "leaflet", "leaflet.extras", "sp", "maps", "maptools", "statebins", "tools", "statebins", "viridis")) {library(pkg, character.only = TRUE)}
+
+
+# connect to postgresql to get our data
+conn <- dbConnect(drv = PostgreSQL(), 
+                  dbname = "sdad", 
+                  host = "10.250.124.195", 
+                  port = 5432, 
+                  user = Sys.getenv("db_userid"), 
+                  password = Sys.getenv("db_pwd"))
+
+# query the city code data
+city_clean_final <- dbGetQuery(conn, "SELECT *
+                              FROM gh.sna_ctr_city_codes")
+
+
+# disconnect from postgresql database 
+dbDisconnect(conn)
+
+#https://coolors.co/232d4b-2c4f6b-0e879c-60999a-d1e0bf-d9e12b-e6ce3a-e6a01d-e57200-fdfdfd
+uva_color_palette <- 
+c("#232D4B", #space cadet
+  "#2C4F6B", #indigo dye
+  "#0E879C", #blue munsell
+  "#60999A", #cadet blue
+  "#D1E0BF", #tea green
+  "#D9E12B", #pear
+  "#E6CE3A", #citrine
+  "#E6A01D", #marigold
+  "#E57200" #princeton orange
+)
+
+CapStr <- function(y) {
+  c <- strsplit(y, " ")[[1]]
+  paste(toupper(substring(c, 1,1)), substring(c, 2),
+        sep="", collapse=" ")
+}
+
+library(sp)
+library(maps)
+library(maptools)
+
+```
+
+```{r}
+lonlat_to_state_sp <- function(pointsDF) {
+    # Prepare SpatialPolygons object with one SpatialPolygon
+    # per state (plus DC, minus HI & AK)
+    states <- map('state', fill=TRUE, col="transparent", plot=FALSE)
+    IDs <- sapply(strsplit(states$names, ":"), function(x) x[1])
+    states_sp <- map2SpatialPolygons(states, IDs=IDs,
+                     proj4string=CRS("+proj=longlat +datum=WGS84"))
+
+    # Convert pointsDF to a SpatialPoints object 
+    pointsSP <- SpatialPoints(pointsDF, 
+                    proj4string=CRS("+proj=longlat +datum=WGS84"))
+
+    # Use 'over' to get _indices_ of the Polygons object containing each point 
+        indices <- over(pointsSP, states_sp)
+
+    # Return the state names of the Polygons object containing each point
+    stateNames <- sapply(states_sp@polygons, function(x) x@ID)
+    stateNames[indices]
+}
+
+# Test the function using points in Wisconsin and Oregon.
+testPoints <- data.frame(x = c(-90, -120), y = c(44, 44)) #x: long, y:lat
+testPoints
+lonlat_to_state_sp(testPoints)
+
+```
+
+
+```{r}
+us_city <- city_clean_final%>%
+  filter(raw_country_code == "us")
+us_city_unique <- us_city[!duplicated(us_city$c_city_code), ]
+
+
+city_code_split <- strsplit(us_city_unique$c_city_code, '_')
+geocode <- as.data.frame(unlist(lapply(city_code_split, '[[', 3)))
+colnames(geocode) <- "c_geocode"
+
+
+geocode_split <- strsplit(geocode$c_geocode, '.', fixed = TRUE)
+lat <- as.data.frame(unlist(lapply(geocode_split, '[[', 1)))
+colnames(lat) <- "y"
+long <- as.data.frame(unlist(lapply(geocode_split, '[[', 2)))
+colnames(long) <- "x"
+
+city_geo_state <- cbind(us_city_unique,long, lat)
+city_geo_state <- city_geo_state%>%
+  select(c_city_code, x, y)
+ # city_geo_state <- city_geo_state%>%
+ #   select(y, x, c_city_code)
+ 
+city_geo <- city_geo_state%>%
+   select(x, y)
+ 
+city_geo$x <- as.numeric(city_geo$x)   
+city_geo$y <- as.numeric(city_geo$y)   
+
+state <- lonlat_to_state_sp(city_geo)
+
+city_geo_state <- cbind(city_geo_state, state)
+table(is.na(city_geo_state$state))
+
+city_geo_state <- city_geo_state%>%
+  filter(!is.na(state))
+```
+
+```{r}
+ctrs_state <- left_join(us_city, city_geo_state, by = "c_city_code")
+
+state_ttl_user <- ctrs_state%>%
+  group_by(state)%>%
+  summarize(ttl_users = n())%>%
+  filter(!is.na(state))%>%
+  mutate(state = toTitleCase(state))
+
+quantile <- quantile(state_ttl_user$ttl_users, probs = seq(0, 1, 0.2), na.rm = FALSE, names = TRUE, type = 7)
+
+
+quintile <- quintile(state_ttl_user$ttl_users, probs = seq(0, 1, 0.2), na.rm = FALSE, names = TRUE, type = 7)
+
+
+state_ttl_user <- state_ttl_user%>%
+  mutate(ttl_users_quantile = if_else(ttl_users < quantile[2], "[56, 399)",
+                              if_else(ttl_users < quantile[3], "[399, 728)",
+                              if_else(ttl_users < quantile[4], "[728, 1961)",
+                              if_else(ttl_users < quantile[5], "[1961, 3885)", "[3885, 40379)")))))
+
+table(state_ttl_user$ttl_users_quantile)
+
+View(state_ttl_user)
+state_ttl_user$ttl_users_quantile <- factor(state_ttl_user$ttl_users_quantile, levels = c("[56, 399)", "[399, 728)","[728, 1961)","[1961, 3885)", "[3885, 40379)" ))
+
+statebins(state_ttl_user, 
+          state_col = "state", 
+          value_col = "ttl_users_quantile",
+          name = "total number of users", 
+          ggplot2_scale_function =scale_fill_brewer )+
+  theme_statebins(legend_position = "right")
+```
+
+
+```{r}
+
+city_unique <- city_clean_final[!duplicated(city_clean_final$c_city_code), ]
+
+city_code_split <- strsplit(city_unique$c_city_code, '_')
+geocode <- as.data.frame(unlist(lapply(city_code_split, '[[', 3)))
+colnames(geocode) <- "c_geocode"
+
+
+geocode_split <- strsplit(geocode$c_geocode, '.', fixed = TRUE)
+lat <- as.data.frame(unlist(lapply(geocode_split, '[[', 1)))
+colnames(lat) <- "y"
+long <- as.data.frame(unlist(lapply(geocode_split, '[[', 2)))
+colnames(long) <- "x"
+
+city_geo_state <- cbind(city_unique, long, lat)
+city_geo_state <- city_geo_state%>%
+  select(c_city_code, x, y, c_country_name)
+
+city_geo <- city_geo_state%>%
+   select(x, y)
+ 
+city_geo$x <- as.numeric(city_geo$x)   
+city_geo$y <- as.numeric(city_geo$y)   
+
+state <- lonlat_to_state_sp(city_geo)
+
+city_geo_state <- cbind(city_geo_state, state)
+check <- city_geo_state%>%
+  filter(!is.na(state))%>%
+  filter(c_country_name != "US")
+  
+table(is.na(city_geo_state$state))
+
+city_geo_state <- city_geo_state%>%
+  filter(!is.na(state))
+```
+

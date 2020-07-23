@@ -22,7 +22,7 @@ conn <- dbConnect(drv = PostgreSQL(),
 
 city_edgelist<- dbGetQuery(conn, "SELECT * FROM gh.sna_city_northamerica_edgelist_0819")
 
-
+write.csv(city_edgelist, file = "sna_city_northamerica_edgelist_0819.csv")
 # disconnect from postgresql
 dbDisconnect(conn)
 ```
@@ -33,9 +33,13 @@ city_network <- simplify(graph.data.frame(city_edgelist, directed = FALSE),
                          edge.attr.comb = igraph_opt("edge.attr.comb"))
 is_weighted(city_network)  #weighted by number of commits
 is_directed(city_network)  #not directed
+is_connected(city_network) #weakly connected
+count_components(city_network)
+components <- components(city_network)
+groups(components)
 ```
 
-
+# Network statistics
 ```{r global network stats}
 # loading the network (if the instance crashes while doing network_stats)
 net_stats_start <- data.frame(event="net_stats_start", time=now("EST"))
@@ -104,7 +108,9 @@ network_stats$transitivity <- transitivity(city_network, weights = TRUE, type = 
 net_globals <- data.frame(event="net_globals", time=now("EST"))
 time_log <- rbind(time_log, net_globals); rm(net_globals)
 
+####################################
 # community detection (using louvain method)
+#Finding community structure by multi-level optimization of modularity
 louvain <- cluster_louvain(city_network)
 network_stats$louvain <- modularity(louvain)
 network_stats$louvain_scaled <- modularity(louvain) / gorder(city_network)
@@ -117,9 +123,15 @@ network_stats$fstgrdy_scaled <- modularity(fstgrdy) / gorder(city_network)
 network_stats$fstgrdy_logged <- modularity(fstgrdy) / log(gorder(city_network))
 
 # added later 
+#Centralize a graph according to the degrees of vertices
+#graph level centrality index
 network_stats$centr_deg <- round(centr_degree(city_network)$centralization, 3)
+
+#graph level centrality index according to the closeness of vertices
 network_stats$centr_clo <- round(centr_clo(city_network, mode = "all")$centralization, 3)
+#graph level centrality index according to the betweenness of vertices
 network_stats$centr_btw <- round(centr_betw(city_network, directed = FALSE)$centralization, 3)
+#graph level centrality index according to the  eigenvector centrality of vertices
 network_stats$centr_eigen <- round(centr_eigen(city_network, directed = FALSE)$centralization, 3)
 network_stats$centr_scores <- cbind(year, centr_deg, centr_clo, centr_btw, centr_eigen)
 
@@ -129,17 +141,30 @@ decomposition_stats <- table(sapply(decompose.graph(city_network), vcount))
 net_comm_det <- data.frame(event="net_comm_det", time=now("EST"))
 time_log <- rbind(time_log, net_comm_det); rm(net_comm_det)
 
-# now, we need to construct a nodelist 
+
+```
+
+# Construct a nodelist 
+```{r}
 nodelist <- data.frame(id = c(1:(igraph::vcount(city_network))), login = igraph::V(city_network)$name)
 
 # degree, weighted degree, k core and modularity 
 node_stats_start <- data.frame(event="node_stats_start", time=now("EST"))
 time_log <- rbind(time_log, node_stats_start); rm(node_stats_start)
 nodelist$deg_cent <- igraph::degree(city_network, mode = "all")
+
+#strength: summing up the edge weights of the adjacent edges for each vertex
 nodelist$wtd_deg_cent <- strength(city_network)
+
+#betweenness centrality
 nodelist$btw_cent <- round(sna::betweenness(intergraph::asNetwork(city_network), cmode="undirected"), 4)
+
+#closeness centrality
 nodelist$close_cent <- closeness(city_network, mode = "all") 
+
+#eigen value centrality
 nodelist$eigen_cent <- eigen_centrality(city_network)$vector
+
 nodelist$alpha_cent <- alpha_centrality(city_network)
 nodelist$power_cent <- power_centrality(city_network)
 nodelist$load_cent <- sna::loadcent(get.adjacency(city_network,sparse=F))
@@ -182,11 +207,29 @@ nodelist$topocoefficient <- 1/centiserve::topocoefficient(city_network)
 node_stats_end <- data.frame(event="node_stats_end", time=now("EST"))
 time_log <- rbind(time_log, node_stats_end); rm(node_stats_end, louvain, components)
 
-setwd("~/oss-data/intl-ctry-nets-cum")
+setwd("/sfs/qumulo/qhome/zz3hs/git/dspg20oss/src/geographic/data")
+
 saveRDS(network_stats, str_c("global_netstats_",analysis_year,".rds"))  
+
 saveRDS(decomposition_stats, str_c("decomposition_stats_",analysis_year,".rds")) 
 saveRDS(nodelist, str_c("nodelist_",analysis_year,".rds"))  
 saveRDS(time_log, str_c("timelog_",analysis_year,".rds"))
+```
+
+```{r}
+nodelist_z <- nodelist%>%
+  mutate(deg_cent_z = scale(deg_cent, center = TRUE, scale = TRUE),
+         wtd_deg_cent_z = scale(wtd_deg_cent, center = TRUE, scale = TRUE),
+         btw_cent_z = scale(btw_cent, center = TRUE, scale = TRUE),
+        close_cent_z = scale(close_cent, center = TRUE, scale = TRUE),
+         eigen_cent_z = scale(eigen_cent, center = TRUE, scale = TRUE)
+)%>%
+  rename(city = login)%>%
+  select(city, deg_cent_z,wtd_deg_cent_z, ,btw_cent_z, close_cent_z, eigen_cent_z)
+
+
+nodelist_z_gather <- nodelist_z%>%
+  gather("centrality_measure", "centrality_score_z", -city)
 ```
 
 

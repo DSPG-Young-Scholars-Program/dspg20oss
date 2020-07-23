@@ -42,7 +42,7 @@ OSS <- data.frame(
       "2020 US Business Database",
       
     #gov  
-        "github","github", "System for Award Management (SAM)", "System for Award Management (SAM)","System for Award Management (SAM)","us gov","us gov","us gov","us gov","us gov","us gov", "code gov", "crowdsourced",
+        "github","github", "SAM", "SAM","SAM","us gov","us gov","us gov","us gov","us gov","us gov", "code gov", "crowdsourced",
      
      #international
        "github","github", "mindmap"
@@ -52,7 +52,7 @@ OSS <- data.frame(
         "contributor","contributor","contributor","contributor","commits", 
         "orcid", 
         "hipolabs", "hipolabs","hipolabs",
-        "Survey of Federal Science and Engineering Support 2018", "Survey of Federal Science and Engineering Support 2018", "Survey of Federal Science and Engineering Support 2018", "Survey of Federal Science and Engineering Support 2018", "Higher Education Research and Development Survey 2018", "Higher Education Research and Development Survey 2018", "Higher Education Research and Development Survey 2018", "Higher Education Research and Development Survey 2018", "Higher Education Research and Development Survey 2018", "Higher Education Research and Development Survey 2018", 
+        "FSS", "FSS", "FSS", "FSS", "HERD", "HERD", "HERD", "HERD", "HERD", "HERD", 
         
       #business
         "contributor", "commits", 
@@ -64,7 +64,7 @@ OSS <- data.frame(
         
       #gov
         "contributor", "commits", 
-        "System for Award Management (SAM)","System for Award Management (SAM)","System for Award Management (SAM)","Federally Funded R&D Centers", "Federally Funded R&D Centers", 
+        "SAM","SAM","SAM","Federally Funded R&D Centers", "Federally Funded R&D Centers", 
         "A-Z Index","A-Z Index", "A-Z Index","A-Z Index",
         "code gov", "crowdsourced", 
     
