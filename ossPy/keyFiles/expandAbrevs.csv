@@ -7,6 +7,7 @@
 '(?i)u\. of', university of
 '(?i)awslabs', Amazon Web Services 
 '(?i)\baws\b', Amazon Web Services
+'(?i)\bamzn\b', Amazon
 '(?i)redhat', Red Hat
 '(?i)HewlettPackard', Hewlett Packard
 '(?i)Hewlett Packard Enterprise', Hewlett Packard
