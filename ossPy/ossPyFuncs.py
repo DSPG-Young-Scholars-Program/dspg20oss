@@ -327,7 +327,8 @@ def spaceSymbolRemap(inputColumn):
             #get the lowercase form of it
             #currentLower=currentEntry.lower()
             #extract current string from company vector
-            currentNoSpaceOrSymbol=re.sub('\\W','',currentEntry)
+            #DID YOU KNOW that underscore counts as a letter character with \W ?
+            currentNoSpaceOrSymbol=re.sub('[^a-zA-Z0-9]','',currentEntry)
             #extract what may be a list of guesses
             noSpaceSymbolMatches=uniqueNoSpaceSymbol[inputColumnName[0]].str.contains('(?i)\\b'+currentNoSpaceOrSymbol+'\\b')
             #find the counts of the entires that match up with this, use the wisdom of the crowds
@@ -352,7 +353,7 @@ def spaceSymbolRemap(inputColumn):
     replacementSubtable=tableUniqueFullNameCounts.loc[remapPresent]
 
     #use the replacement function to replace the relevant items
-    fixedList,fixedReport=ossPyFuncs.expandFromColumn(inputColumn,pd.DataFrame(replacementSubtable['company','remapping']))
+    fixedList,fixedReport=ossPyFuncs.expandFromColumn(inputColumn[inputColumnName[0]],pd.DataFrame(replacementSubtable[[inputColumnName[0],'remapping']]))
 
     print('remapping complete')
     return fixedList, fixedReport
