@@ -649,9 +649,10 @@ country_users_sorted <- country_frequency_users %>%
   arrange(n) %>%
   dt_mutate(country = factor(country, levels = country))
 
-ggplot(country_users_sorted[(.N-20):.N, ]) +
+ggplot(country_users_sorted[(.N-20):.N, ]) + #, aes(color = country)
   geom_point(aes(x = country, y = n), size = 4) +
   geom_segment(data = country_users_sorted[(.N-20):.N, ], mapping = aes(x = country, xend = country, y = 0, yend = n), size = 1) +
+  #scale_color_manual(values = c()) +
   theme_minimal() +
   labs(x = "Country", y = "Number of Users", title = "Top-20 Countries by Users in Academic Sector") +
   theme(plot.title = element_text(hjust = 0.5)) +
@@ -665,14 +666,45 @@ datatable(country_user_percentages)
 ```{r, us_universities, fig.height = 7, fig.width = 12,  warning = FALSE, echo=FALSE}
 us_academic_counts <- academic_counts_sorted %>% filter(country == "United States")
 
-ggplot(us_academic_counts[(.N-20):.N, ]) +
+type <- c("university of california, berkeley" = "public",
+          "massachusetts institute of technology" = "private",
+          "stanford university" = "private",
+          "university of southern california" = "private",
+          "cornell university" = "private",
+          "university of washington" = "public",
+          "carnegie mellon university" = "private",
+          "new york university" = "private",
+          "university of michigan - ann arbor" = "public",
+          "university of illinois at urbana-champaign" = "public",
+          "columbia university" = "private",
+          "university of texas at austin" = "public",
+          "georgia institute of technology" = "public",
+          "duke university" = "private",
+          "university of california, san diego" = "public",
+          "harvard university" = "private",
+          "university of pennsylvania" = "private",
+          "university of wisconsin - madison" = "public",
+          "purdue university" = "public",
+          "university of california, los angeles" = "public",
+          "arizona state university" = "public")
+
+ggplot(us_academic_counts[(.N-20):.N, ], aes(color = type)) +
   geom_point(aes(x = organization, y = n), size = 4) +
   geom_segment(data = us_academic_counts[(.N-20):.N, ], mapping = aes(x = organization, xend = organization, y = 0, yend = n), size = 1) +
   labs(x = "Academic Institution", y = "Number of Users", title = "Top-20 Universities in the United States") +
+  scale_color_manual(values = c("public" = "#12B2CE", "private" = "#E57200")) +
   #scale_y_reverse() +
   coord_flip() +
   theme_minimal() +
-  theme(plot.title = element_text(hjust = 0.35))
+  theme(plot.title = element_text(hjust = 0.35),
+        axis.text.y = element_text(size = 10),
+        legend.position = c(.9, .1),
+        legend.justification = c("right", "bottom"),
+        legend.box.just = "right",
+        legend.margin = margin(6, 6, 6, 6),
+        legend.background = element_rect(fill="white",
+                                  size=0.5, linetype="solid", 
+                                  colour ="black"))
 ```
 
 
