@@ -22,10 +22,32 @@ conn <- dbConnect(drv = PostgreSQL(),
 
 city_edgelist<- dbGetQuery(conn, "SELECT * FROM gh.sna_city_northamerica_edgelist_0819")
 
-write.csv(city_edgelist, file = "sna_city_northamerica_edgelist_0819.csv")
+#write.csv(city_edgelist, file = "sna_city_northamerica_edgelist_0819.csv", row.names=F)
 # disconnect from postgresql
 dbDisconnect(conn)
 ```
+
+```{r}
+city_edgelist_us <- city_edgelist%>%
+  mutate(target_is_us = if_else(str_detect(target, "us"), T, F))%>%
+  mutate(source_is_us = if_else( str_detect(source, "us"), T, F))%>%
+  filter(target_is_us | source_is_us)
+#write.csv(city_edgelist_us, file = "sna_city_us_edgelist_0819.csv", row.names = F)
+
+
+#construct nodelist for viz on gephi
+city_nodelist_us <- c(city_edgelist_us$source, city_edgelist_us$target)
+city_nodelist_us <- unique(city_nodelist_us)
+
+city_nodelist_us <-  city_nodelist_us%>%
+  as.data.frame()%>%
+  rename(city_code = ".")%>%
+  mutate(country = substr(city_code, start = 1, stop = 2) )
+#write.csv(city_nodelist_us, file = "sna_city_us_nodelist_0819.csv", row.names = F)
+
+
+```
+
 
 ```{r}
 city_network <- simplify(graph.data.frame(city_edgelist, directed = FALSE), 
