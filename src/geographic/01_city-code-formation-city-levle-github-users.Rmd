@@ -14,10 +14,7 @@ knitr::opts_chunk$set(echo = TRUE)
 rm(list = ls())
 
 # load packages 
-# for (pkg in c("tidyverse", "igraph", "visNetwork", "data.table", "R.utils", "RPostgreSQL", "cowplot", "maditr", "stringr", "stringi", "mosaic", "sf", "raster", "dplyr", "spData", "spDataLarge", "tmap", "leaflet", "mapview", "ggplot2", "shiny", "maps", "plotly")) {
-#   library(pkg, character.only = TRUE)
-# }
-for (pkg in c("tidyverse", "data.table", "R.utils", "RPostgreSQL", "cowplot", "maditr", "stringr", "stringi",  "dplyr", "leaflet", "leaflet.extras")) {library(pkg, character.only = TRUE)}
+for (pkg in c("tidyverse", "data.table", "R.utils", "RPostgreSQL", "cowplot", "maditr", "stringr", "stringi",  "dplyr", "leaflet", "leaflet.extras", "sp", "maps", "maptools", "statebins", "tools", "statebins","sp", "maps", "maptools")) {library(pkg, character.only = TRUE)}
 
 
 # connect to postgresql to get our data
@@ -50,6 +47,7 @@ ls_cleancity <- cleancity(ctrs_extra, country_code_dict)
 
 city_clean_final <- ls_cleancity$cleaned_df
 table(is.na(city_clean_final$c_city_code)) #limit to ppl who have city code
+colnames(city_clean_final)#check the variables
 
 # reconnecting to the database 
 conn <- dbConnect(drv = PostgreSQL(), 
@@ -62,6 +60,9 @@ conn <- dbConnect(drv = PostgreSQL(),
 dbWriteTable(conn, c("gh", "sna_ctr_city_codes"), city_clean_final, row.names=F)
 # disconnect from postgresql database  
 dbDisconnect(conn)
+
+#grant access on pgAdmin
+#GRANT SELECT ON TABLE gh.___ TO ncses_oss;  
 ```
 
 

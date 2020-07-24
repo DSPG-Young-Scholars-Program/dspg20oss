@@ -21,8 +21,7 @@ knitr::opts_chunk$set(echo = TRUE)
 rm(list = ls())
 
 # load packages
-for (pkg in c("tidyverse", "data.table", "R.utils", "RPostgreSQL", "cowplot", "maditr", "stringr", "stringi",  "dplyr", "leaflet", "leaflet.extras", "sp", "maps", "maptools", "statebins", "tools", "statebins", "viridis")) {library(pkg, character.only = TRUE)}
-
+for (pkg in c("tidyverse", "data.table", "R.utils", "RPostgreSQL", "cowplot", "maditr", "stringr", "stringi",  "dplyr", "leaflet", "leaflet.extras", "sp", "maps", "maptools", "statebins", "tools", "statebins","sp", "maps", "maptools")) {library(pkg, character.only = TRUE)}
 
 # connect to postgresql to get our data
 conn <- dbConnect(drv = PostgreSQL(), 
@@ -58,11 +57,6 @@ CapStr <- function(y) {
   paste(toupper(substring(c, 1,1)), substring(c, 2),
         sep="", collapse=" ")
 }
-
-library(sp)
-library(maps)
-library(maptools)
-
 ```
 
 ```{r}
@@ -143,10 +137,6 @@ state_ttl_user <- ctrs_state%>%
 
 quantile <- quantile(state_ttl_user$ttl_users, probs = seq(0, 1, 0.2), na.rm = FALSE, names = TRUE, type = 7)
 
-
-quintile <- quintile(state_ttl_user$ttl_users, probs = seq(0, 1, 0.2), na.rm = FALSE, names = TRUE, type = 7)
-
-
 state_ttl_user <- state_ttl_user%>%
   mutate(ttl_users_quantile = if_else(ttl_users < quantile[2], "[56, 399)",
                               if_else(ttl_users < quantile[3], "[399, 728)",
@@ -155,7 +145,7 @@ state_ttl_user <- state_ttl_user%>%
 
 table(state_ttl_user$ttl_users_quantile)
 
-View(state_ttl_user)
+
 state_ttl_user$ttl_users_quantile <- factor(state_ttl_user$ttl_users_quantile, levels = c("[56, 399)", "[399, 728)","[728, 1961)","[1961, 3885)", "[3885, 40379)" ))
 
 statebins(state_ttl_user, 
@@ -166,42 +156,4 @@ statebins(state_ttl_user,
   theme_statebins(legend_position = "right")
 ```
 
-
-```{r}
-
-city_unique <- city_clean_final[!duplicated(city_clean_final$c_city_code), ]
-
-city_code_split <- strsplit(city_unique$c_city_code, '_')
-geocode <- as.data.frame(unlist(lapply(city_code_split, '[[', 3)))
-colnames(geocode) <- "c_geocode"
-
-
-geocode_split <- strsplit(geocode$c_geocode, '.', fixed = TRUE)
-lat <- as.data.frame(unlist(lapply(geocode_split, '[[', 1)))
-colnames(lat) <- "y"
-long <- as.data.frame(unlist(lapply(geocode_split, '[[', 2)))
-colnames(long) <- "x"
-
-city_geo_state <- cbind(city_unique, long, lat)
-city_geo_state <- city_geo_state%>%
-  select(c_city_code, x, y, c_country_name)
-
-city_geo <- city_geo_state%>%
-   select(x, y)
- 
-city_geo$x <- as.numeric(city_geo$x)   
-city_geo$y <- as.numeric(city_geo$y)   
-
-state <- lonlat_to_state_sp(city_geo)
-
-city_geo_state <- cbind(city_geo_state, state)
-check <- city_geo_state%>%
-  filter(!is.na(state))%>%
-  filter(c_country_name != "US")
-  
-table(is.na(city_geo_state$state))
-
-city_geo_state <- city_geo_state%>%
-  filter(!is.na(state))
-```
 

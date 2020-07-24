@@ -4,6 +4,27 @@ CapStr <- function(y) {
         sep="", collapse=" ")
 }
 
+#map geocode to U.S. state
+lonlat_to_state_sp <- function(pointsDF) {
+  # Prepare SpatialPolygons object with one SpatialPolygon
+  # per state (plus DC, minus HI & AK)
+  states <- map('state', fill=TRUE, col="transparent", plot=FALSE)
+  IDs <- sapply(strsplit(states$names, ":"), function(x) x[1])
+  states_sp <- map2SpatialPolygons(states, IDs=IDs,
+                                   proj4string=CRS("+proj=longlat +datum=WGS84"))
+  
+  # Convert pointsDF to a SpatialPoints object 
+  pointsSP <- SpatialPoints(pointsDF, 
+                            proj4string=CRS("+proj=longlat +datum=WGS84"))
+  
+  # Use 'over' to get _indices_ of the Polygons object containing each point 
+  indices <- over(pointsSP, states_sp)
+  
+  # Return the state names of the Polygons object containing each point
+  stateNames <- sapply(states_sp@polygons, function(x) x@ID)
+  stateNames[indices]
+}
+
 
 #function: cleancity
 #param: df, default to ctrs_extra in gh schema; country_code_dict, data hosted on pgAdmin
@@ -208,6 +229,47 @@ cleancity <- function(df = ctrs_extra, country_code_dict = country_code_dict){
                               if_else(raw_country_code == "asia", "Asia",
                               if_else(raw_country_code %in% c("europe", "xk"), "Europe", c_continent_name)))))%>%
     mutate(raw_country_code = if_else(raw_country_code == "xk", "Kosovo", raw_country_code))
+  
+  
+  #for U.S. cities, map from geocode to state
+  us_city <- df_cleaned%>%
+    filter(raw_country_code == "us")
+  us_city_unique <- us_city[!duplicated(us_city$c_city_code), ]
+  
+  
+  city_code_split <- strsplit(us_city_unique$c_city_code, '_')
+  geocode <- as.data.frame(unlist(lapply(city_code_split, '[[', 3)))
+  colnames(geocode) <- "c_geocode"
+  
+  
+  geocode_split <- strsplit(geocode$c_geocode, '.', fixed = TRUE)
+  lat <- as.data.frame(unlist(lapply(geocode_split, '[[', 1)))
+  colnames(lat) <- "y"
+  long <- as.data.frame(unlist(lapply(geocode_split, '[[', 2)))
+  colnames(long) <- "x"
+  
+  city_geo_state <- cbind(us_city_unique,long, lat)
+  city_geo_state <- city_geo_state%>%
+    select(c_city_code, x, y)
+
+  city_geo <- city_geo_state%>%
+    select(x, y)
+  
+  city_geo$x <- as.numeric(city_geo$x)   
+  city_geo$y <- as.numeric(city_geo$y)   
+  
+  state <- lonlat_to_state_sp(city_geo)
+  
+  city_geo_state <- cbind(city_geo_state, state)
+
+  city_geo_state <- city_geo_state%>%
+    filter(!is.na(state))%>%
+    select(-x, -y)%>%
+    rename(c_us_state = state)
+  
+  #add state to the original data
+  df_cleaned <- df_cleaned%>%
+    left_join(city_geo_state, by = "c_city_code")
   
   
   ls_citycode  <- list()
