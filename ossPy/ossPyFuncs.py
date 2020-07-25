@@ -319,41 +319,65 @@ def spaceSymbolRemap(inputColumn):
     
     uniqueNoSpaceSymbol=pd.DataFrame(tableUniqueFullNameCounts[inputColumnName[0]].str.replace('[^a-zA-Z0-9]',''))
     
+    allNoSpaceSymbol=pd.DataFrame(inputColumn[inputColumnName[0]].str.replace('[^a-zA-Z0-9]',''))
+    
     tableUniqueFullNameCounts['remapping']=''
-#iterate across entries with guesses
+    
+    #get the remaping to users
+    sortedInputColumn, sortedTableUniqueFullNameCounts=ossPyFuncs.uniquePandasIndexMapping(inputColumn)
+    
+    
+    #iterate across entries with guesses
     for index, row in tableUniqueFullNameCounts.iterrows():
+            #because our entries are sorted by frequency we can safely assume
+            #that the fist time we encounter a nospacesymbol variant of a substring
+            #we are also encountering its most frequent form.  As such, it is safe
+            #for us to use this most frequent version to replace less frequent versions.
+            #Further more, we can remove less frequent substring variants from consideration.
+            #This ideally speeds up our computations as there are less entries to check against
+        
             #set current entry number
             currentEntry=tableUniqueFullNameCounts[inputColumnName[0]].loc[index]
+            
             #get the lowercase form of it
             #currentLower=currentEntry.lower()
             #extract current string from company vector
             #DID YOU KNOW that underscore counts as a letter character with \W ?
             currentNoSpaceOrSymbol=re.sub('[^a-zA-Z0-9]','',currentEntry)
-            #extract what may be a list of guesses
-            noSpaceSymbolMatches=uniqueNoSpaceSymbol[inputColumnName[0]].str.contains('(?i)\\b'+currentNoSpaceOrSymbol+'\\b')
-            #find the counts of the entires that match up with this, use the wisdom of the crowds
-            currentCounts=tableUniqueFullNameCounts['count'].loc[noSpaceSymbolMatches]
-            #find the listing of the label with the max frequency
-            #make an array of it
-            indexFrame=currentCounts.reset_index()
-            #find the index
-            currentIndex=indexFrame.loc[(indexFrame['count']==np.max(currentCounts))]
-            if (not index==currentIndex['index'].iloc[0]) and len(currentNoSpaceOrSymbol)>0:
-                #extract the name that is to be remapped to
-                mappedName=tableUniqueFullNameCounts[inputColumnName[0]].loc[currentIndex['index'].iloc[0]]
-                #place it in the table
-                tableUniqueFullNameCounts.at[index,'remapping']=mappedName
-            
-    print('Remaping identification complete')
+            #if that's not empty
+            if len(currentNoSpaceOrSymbol)>0:
+                #remove leading white space, just in case this is an entry that has been deleted from
+                currentEntry=re.sub('^[ \\t]+','',currentEntry)
+                currentEntry=re.compile(currentEntry)
+                #make replacement to the noSpaceSymbol vector
+                allNoSpaceSymbol=pd.DataFrame(allNoSpaceSymbol[inputColumnName[0]].str.replace('(?i)\\b'+currentNoSpaceOrSymbol+'(?i)\\b',currentEntry))
+                #find the unique name indexes these correspond to
+                noSpaceSymbolMatches=uniqueNoSpaceSymbol[inputColumnName[0]].str.contains('(?i)\\b'+currentNoSpaceOrSymbol+'\\b')
+                #get the names this corresponds to
+                toRemoveEntries=pd.DataFrame(tableUniqueFullNameCounts[inputColumnName[0]].loc[noSpaceSymbolMatches])
+                #iteratively remove it from the unique list
+                for index, row in toRemoveEntries.iterrows():
+                    #some of the to remove terms have regex features.  We need to compile them to prevent this from causing problems
+                    currentToRemove=re.compile(toRemoveEntries[inputColumnName[0]].loc[index])
+                    #perform the deletion
+                    tableUniqueFullNameCounts=pd.DataFrame(tableUniqueFullNameCounts[inputColumnName[0]].str.replace('\\b'+currentToRemove+'(?i)\\b',''))
+    
+    #create an unchanged noSpaceSymbol frame   
+    #I guess we dont need this?             
+    #noSpaceSymbolCheckFrame=pd.DataFrame(tableUniqueFullNameCounts[inputColumnName[0]].str.replace('[^a-zA-Z0-9]',''))
+    #check and see if the entry has been changed from this form.  In such cases
+    #we can assume that its origional form was not equivalent to its No Space Form
+    #I guess we dont need this?
+    #NoSpaceUnchanged=allNoSpaceSymbol.eq(noSpaceSymbolCheckFrame)
+    #check and see if the entry has been changed from its origional input
+    #In such cases that it has changed, we can assume the new form is the correct one,
+    #or that the origional form was the correct one.
+    inputUnchanged=allNoSpaceSymbol.eq(inputColumn)
+    #also identify Empty listings
+    emptyListings=allNoSpaceSymbol[inputColumnName[0]].str.len().fillna(value=0)==0
+    #now we alter the input colum to reflect these new values
+    inputColumn[inputColumnName[0]].loc[inputColumn]=allNoSpaceSymbol.loc[inputColumn]
 
-    #find where you need to perform regex replacements
-    remapPresent=tableUniqueFullNameCounts['remapping'].str.len()>0
-
-    #create subtable for things to replace
-    replacementSubtable=tableUniqueFullNameCounts.loc[remapPresent]
-
-    #use the replacement function to replace the relevant items
-    fixedList,fixedReport=ossPyFuncs.expandFromColumn(inputColumn[inputColumnName[0]],pd.DataFrame(replacementSubtable[[inputColumnName[0],'remapping']]))
-
-    print('remapping complete')
-    return fixedList, fixedReport
+    #we have to use sum, because empty is not zero, and is thus non zero, and so np.count_nonzero won't work
+    print(str(np.sum(np.logical_and(~inputUnchanged[inputColumnName[0]],  ~emptyListings)))+' entries changed')       
+    return inputColumn
