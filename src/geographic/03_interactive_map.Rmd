@@ -107,7 +107,7 @@ city_clean_final_aggregate <- city_clean_final_aggregate%>%
 
 North America is the continent with the highest number of GitHub users - followed by Europe and Asia.
 
-```{r fig.width=8, fig.height=6, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+```{r fig.width=9.5, fig.height=6, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 gh_continent<- city_clean_final_aggregate_continent%>%
   arrange(desc(ttl_users))
 
@@ -130,7 +130,7 @@ ggplot(gh_continent, aes(x = Continent_Name, y = ttl_users, fill = ttl_users))+
 
 United States has the highest number of GitHub users with nearly four times as much as China, United Kingdom, or India.
 
-```{r fig.width=9, fig.height=6, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+```{r fig.width=9.5, fig.height=6, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 gh_country <- city_clean_final_aggregate_country%>%
   arrange(desc(ttl_users))%>%
   top_n(10, ttl_users)
