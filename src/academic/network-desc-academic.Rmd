@@ -23,7 +23,7 @@ conn <- dbConnect(drv = PostgreSQL(),
 
 # query the bipartite edgelist data from github data  
 academic_edgelist <- dbGetQuery(conn, "SELECT institution1, institution2, repo_wts
-                                   FROM gh.sna_academic_ctry_edgelist_08")
+                                   FROM gh.sna_academic_institution_edgelist_08")
 
 analysis_year <- "2008"
 ```
@@ -188,7 +188,7 @@ dbDisconnect(conn)
 # rename columns and merge data for gephi files 
 nodelist_merged <- nodelist %>% 
   select(-id) %>%  
-  rename(country = login) %>% 
+  rename(institution = login) %>% 
   #inner_join(intl_stats, by = "country") %>% 
   rename(id = country)
 ctry_edgelist <- ctry_edgelist %>% 

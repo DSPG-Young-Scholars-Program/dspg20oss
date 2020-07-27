@@ -108,8 +108,8 @@ conn <- dbConnect(drv = PostgreSQL(),
                   password = Sys.getenv("db_pwd"))
 
 # write the edgelist to the database
-dbWriteTable(conn, name = c(schema = "gh" , name = "sna_academic_ctr_edgelist_0819"), 
-             value = sna_academic_ctr_edgelist, row.names = FALSE, temporary = TRUE)
+dbWriteTable(conn, name = c(schema = "gh" , name = "sna_academic_institution_edgelist_0819"), 
+             value = sna_academic_institution_edgelist, row.names = FALSE, temporary = TRUE)
 
 # disconnect from postgresql
 dbDisconnect(conn)
