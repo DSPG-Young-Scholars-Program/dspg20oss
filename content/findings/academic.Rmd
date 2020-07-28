@@ -9,9 +9,13 @@ output: html_document
 
 One of the main goals of our summer project is to understand who is producting open-source software (OSS) and important characteristics about them, including which sectors they are embedded within. This page focuses on the approach we took to classifying GitHub users into the academic sector as well as the prodcedures that we took to finding out which institutions they are affiliated. 
 
-First, we looked for a data source for organizations in the academic sector. We ended up using [this dataset](https://github.com/Hipo/university-domains-list/) from Hipo Labs, which has the names, countries, and domain names for most universities in the world. (how many?) With this, we could identify which users are in the academic sector by looking at what self-reported company they have on their profile, and looking for a match in our university dataset. 
+First, we looked for a data source for institutions in the academic sector. We ended up using [this dataset](https://github.com/Hipo/university-domains-list/) from Hipo Labs, which has the names, countries, and domain names for nearly 9,800 universities across the world. With this, we were able to identify which users are in the academic sector by looking at what self-reported organizational affiliation they have on their profile, and looking for a match in our university dataset. 
 
-However, only around 20% of our GitHub users have any company information on their profile, and those who did had staggering amounts of variation in how they reported their company. (examples?) 
+However, only around 20% of our GitHub users listed any organizational affiliation on their profile, and since the input is an unvalidated, free form text field, those who did had a staggering amount of variation in how they reported it. We accounted for this in the academic sector by using regular expressions to match common abbreviations and aliases for specific academic institutions. For example, anyone whose self-reported affiliation includes the phrase "UC San Diego" is put in the same group as those including "University of California, San Diego", or "UCSD", etc. Since we were unable to find an international dataset for common university aliases, much of this had to be hard-coded. Outside of specific universities, we also included a category in the academic sector for any GitHub users who entered "Student" (or variations) as their organizational affiliation. 
+
+Besides the self-reported organizational affiliations, we also investigated email addresses as a source of information about users' affiliations. Since the university dataset from Hipo Labs includes domain names, we were able to impute the institutions for over 11,000 GitHub users based on the domain of the email address associated with their profile.
+
+In total, we identified 40,894 users in the academic sector. Of these, 39,330 are matched to a specific institution, while 1,564 are categorized as miscellaneous students (removed from further analysis). We found that the United States is predominant: about a third of the institutions represented in our data are in the U.S., and users from those institutions make up around 54 percent of total users in the academic sector. Below we've included some figures and searchable tables exploring our data broken down by university and by country, as well as universities in the U.S. specifically.
 
 
 
@@ -40,7 +44,7 @@ institutions_hipolabs <- dbGetQuery(conn, "SELECT institution, country, domains 
 dbDisconnect(conn)
 ```
 
-First, cleaning hipolabs data before comparing it with github users.
+
 
 ```{r clean_hipolabs, message = FALSE, results = FALSE, warning = FALSE, echo=FALSE}
 institutions_hipolabs <- institutions_hipolabs %>% 
@@ -65,7 +69,7 @@ institutions_hipolabs <- institutions_hipolabs %>%
   dt_mutate(institution = if_else(institution == "xi'an university of electronic science and technology", "xidian university", institution))
 ```
 
-Looking at the total numbers before any recoding.
+
 
 ```{r initial_counts, message = FALSE, results = FALSE, warning = FALSE, echo=FALSE}
 length(users_gh$company) 
@@ -90,7 +94,7 @@ sum(initial_overlap[,"n"])
 # 17,128 identified users from academic institutions
 ```
 
-Recoding the companies in users_gh, using string matching to catch name variations.
+
 
 ```{r regex_recode, message = FALSE, results = FALSE, warning = FALSE, echo=FALSE}
 orgs_clean <- users_gh %>%
@@ -484,9 +488,7 @@ filter(overlap, organization == "misc. student")$n
 leftover <- anti_join(org_counts, overlap)
 ```
 
-At this point, we have 29,134 users in the academic sector: 27,570 matched to academic institutions and 1,564 identified as misc. students.
 
-We can boost this number by looking at the users' email domains.
 
 ```{r domains_recode, message = FALSE, results = FALSE, warning = FALSE, echo=FALSE}
 # get just the domains from the emails
@@ -502,7 +504,7 @@ imputed_institutions <- email_domains %>%
   dt_mutate(organization = institution)
 
 nrow(imputed_institutions)
-# 11,760 imputed
+# 11,919 imputed
 
 # join with other recoded data to update academic counts
 orgs_clean <- full_join(orgs_clean, imputed_institutions[,c("login","email","organization")])
@@ -511,9 +513,7 @@ overlap <- semi_join(org_counts, institutions_hipolabs, by = c("organization" = 
 sum(overlap[,"n"])
 ```
 
-New total is 40,894 users in the academic sector.
 
-At this point, we can make a table of users in the academic sector to push to our database.
 
 ```{r final_table, message = FALSE, results = FALSE, warning = FALSE, echo=FALSE}
 final_table <- orgs_clean %>%
@@ -521,7 +521,7 @@ final_table <- orgs_clean %>%
   transmute(login = login, company_raw = company, company_cleaned = organization, is_academic = 1)
 ```
 
-Now that we have the counts for GitHub users at academic institutions, we'd like to recombine this with the Hipo Labs data to get the country locations for these institutions.
+
 
 ```{r get_countries, message = FALSE, results = FALSE, warning = FALSE, echo=FALSE}
 # rejoin with hipo labs data
@@ -530,7 +530,7 @@ academic_counts <- overlap %>%
   filter(!(organization == "misc. student")) # remove misc. students for future analyses
 
 sum(academic_counts[,"n"]) 
-# now there are 43,587 users?
+# now there are 44,918 users?
 # larger than before because it's double-counting the institutions that are in multiple countries or have multiple domains
 
 # group together different country and domain values for the same institution
@@ -578,7 +578,7 @@ academic_counts <- academic_counts %>%
   dt_mutate(n = as.numeric(n)) # for some reason n got changed to chr type
 ```
 
-Now let's look at some statistics.
+
 
 ```{r stats, message = FALSE, results=FALSE, warning = FALSE, echo=FALSE}
 length(filter(academic_counts, country == "United States")$organization) / length(academic_counts$organization)
@@ -649,13 +649,43 @@ country_users_sorted <- country_frequency_users %>%
   arrange(n) %>%
   dt_mutate(country = factor(country, levels = country))
 
-ggplot(country_users_sorted[(.N-20):.N, ]) + #, aes(color = country)
+continent <- c("united states" = "north america",
+               "china" = "asia",
+               "united kingdom" = "europe",
+               "canada" = "north america",
+               "switzerland" = "europe",
+               "germany" = "europe",
+               "india" = "asia",
+               "japan" = "asia",
+               "france" = "europe",
+               "south korea" = "asia",
+               "australia" = "australia",
+               "brazil" = "south america",
+               "netherlands" = "europe",
+               "sweden" = "europe",
+               "colombia" = "south america",
+               "spain" = "europe",
+               "russia" = "europe",
+               "singapore" = "asia",
+               "hong kong" = "asia",
+               "italy" = "europe",
+               "finland" = "europe") %>% rev()
+
+ggplot(country_users_sorted[(.N-20):.N, ], aes(color = continent)) +
   geom_point(aes(x = country, y = n), size = 4) +
   geom_segment(data = country_users_sorted[(.N-20):.N, ], mapping = aes(x = country, xend = country, y = 0, yend = n), size = 1) +
-  #scale_color_manual(values = c()) +
+  #scale_color_manual(values = c("asia" = "#E57200", "australia" = "#375758", "europe" = "#485C99", "north america" = "#12B2CE", "south america" = "#D7E029")) +
   theme_minimal() +
   labs(x = "Country", y = "Number of Users", title = "Top-20 Countries by Users in Academic Sector") +
-  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(plot.title = element_text(hjust = 0.5),
+        axis.text.y = element_text(size = 10),
+        legend.position = c(.9, .1),
+        legend.justification = c("right", "bottom"),
+        legend.box.just = "right",
+        legend.margin = margin(6, 6, 6, 6),
+        legend.background = element_rect(fill="white",
+                                  size=0.5, linetype="solid", 
+                                  colour ="black")) +
   scale_y_log10() +
   coord_flip() 
 ```
@@ -686,7 +716,7 @@ type <- c("university of california, berkeley" = "public",
           "university of wisconsin - madison" = "public",
           "purdue university" = "public",
           "university of california, los angeles" = "public",
-          "arizona state university" = "public")
+          "arizona state university" = "public") %>% rev()
 
 ggplot(us_academic_counts[(.N-20):.N, ], aes(color = type)) +
   geom_point(aes(x = organization, y = n), size = 4) +
@@ -707,6 +737,16 @@ ggplot(us_academic_counts[(.N-20):.N, ], aes(color = type)) +
                                   colour ="black"))
 ```
 
+```{r}
+# attempt to make choropleth with leaflet
+library(rgdal)
+
+world_spdf <- readOGR(
+  dsn = paste0(getwd(), "/src/academic/"),
+  layer = "TM_WORLD_BORDERS_SIMPL-0.3",
+  verbose = FALSE
+)
+```
 
 
 
