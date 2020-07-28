@@ -737,17 +737,6 @@ ggplot(us_academic_counts[(.N-20):.N, ], aes(color = type)) +
                                   colour ="black"))
 ```
 
-```{r, echo=FALSE, include=FALSE}
-# attempt to make choropleth with leaflet
-#library(rgdal)
-
-#world_spdf <- readOGR(
-  #dsn = paste0(getwd(), "/src/academic/"),
-  #layer = "TM_WORLD_BORDERS_SIMPL-0.3",
-  #verbose = FALSE
-#)
-```
-
 
 
 ```{r, message = FALSE, results = FALSE, warning = FALSE, echo=FALSE}
