@@ -9,8 +9,7 @@ rm(list = ls())
 # load packages 
 for (pkg in c("tidyverse", "igraph", "data.table", "R.utils", "RPostgreSQL", "countrycode",
               "cowplot", "maditr", "lubridate", "igraph")) {library(pkg, character.only = TRUE)}
-```
-```{r}
+
 # connect to postgresql to get data (in rivanna)
 conn <- dbConnect(drv = PostgreSQL(), 
                   dbname = "sdad", 
@@ -23,9 +22,8 @@ conn <- dbConnect(drv = PostgreSQL(),
 ctr_nodelist <- dbGetQuery(conn, "SELECT * FROM gh.sna_ctr_academic")
 
 # query the bipartite edgelist data from github data  
-ctr_edgelist <- dbGetQuery(conn, "SELECT * FROM gh.sna_ctr_edgelist_08")
-```
-```{r}
+ctr_edgelist <- dbGetQuery(conn, "SELECT * FROM gh.sna_ctr_edgelist_0819")
+
 # disconnect from postgresql
 dbDisconnect(conn)
 
@@ -108,6 +106,8 @@ conn <- dbConnect(drv = PostgreSQL(),
                   password = Sys.getenv("db_pwd"))
 
 # write the edgelist to the database
+dbWriteTable(conn, name = c(schema = "gh" , name = "sna_academic_ctr_edgelist_0819"), 
+             value = sna_academic_ctr_edgelist, row.names = FALSE, temporary = TRUE)
 dbWriteTable(conn, name = c(schema = "gh" , name = "sna_academic_institution_edgelist_0819"), 
              value = sna_academic_institution_edgelist, row.names = FALSE, temporary = TRUE)
 

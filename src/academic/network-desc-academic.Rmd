@@ -11,8 +11,7 @@ rm(list = ls())
 for (pkg in c("tidyverse", "data.table", "R.utils", "RPostgreSQL", 
               "igraph", "netrankr", "centiserve", "expm", "intergraph",
               "cowplot", "maditr", "lubridate", "countrycode")) {library(pkg, character.only = TRUE)}
-```
-```{r}
+
 # connect to postgresql to get data (in rivanna)
 conn <- dbConnect(drv = PostgreSQL(), 
                   dbname = "sdad", 
@@ -23,16 +22,17 @@ conn <- dbConnect(drv = PostgreSQL(),
 
 # query the bipartite edgelist data from github data  
 academic_edgelist <- dbGetQuery(conn, "SELECT institution1, institution2, repo_wts
-                                   FROM gh.sna_academic_institution_edgelist_08")
+                                       FROM gh.sna_academic_institution_edgelist_0819")
 
-analysis_year <- "2008"
-```
-```{r}
+
+analysis_year <- "2008-19"
 # disconnect from postgresql
 dbDisconnect(conn)
+```
 
+```{r}
 # convert edgelist to network 
-academic_edgelist <- sna_academic_institution_edgelist %>% 
+academic_edgelist <- academic_edgelist %>% 
   #select(country1, country2, repo_wts) %>% 
   rename(from = institution1, to = institution2, weight = repo_wts) %>% 
   group_by(from, to) %>% 

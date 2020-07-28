@@ -59,12 +59,12 @@ institutions_hipolabs <- institutions_hipolabs %>%
   add_row(institution = "university of tokyo", country = "Japan", domains = "u-tokyo.ac.jp") %>%
   add_row(institution = "aalto university", country = "Finland", domains = "aalto.fi") %>%
   add_row(institution = "international institute of information technology, hyderabad", country = "India", domains = "iiit.ac.in") %>%
-  add_row(institution = "broad institute", country = "United States", domains = "broadinstitute.org") %>%
-  add_row(institution = "cern", country = "Switzerland", domains = "cern.ch") %>%
-  add_row(institution = "inria", country = "France", domains = "inria.fr") %>%
-  add_row(institution = "cnrs", country = "France", domains = "cnrs.fr") %>%
+  #add_row(institution = "broad institute", country = "United States", domains = "broadinstitute.org") %>%
+  #add_row(institution = "cern", country = "Switzerland", domains = "cern.ch") %>%
+  #add_row(institution = "inria", country = "France", domains = "inria.fr") %>%
+  #add_row(institution = "cnrs", country = "France", domains = "cnrs.fr") %>%
   add_row(institution = "space telescope science institute", country = "United States", domains = "stsci.edu") %>%
-  add_row(institution = "wellcome trust sanger institute", country = "United Kingdom", domains = "sanger.ac.uk") %>%
+  #add_row(institution = "wellcome trust sanger institute", country = "United Kingdom", domains = "sanger.ac.uk") %>%
   add_row(institution = "hasso plattner institute", country = "Germany", domains = "hpi.de") %>%
   dt_mutate(institution = if_else(institution == "xi'an university of electronic science and technology", "xidian university", institution))
 ```
