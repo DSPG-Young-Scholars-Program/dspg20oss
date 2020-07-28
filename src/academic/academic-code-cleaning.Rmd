@@ -79,7 +79,7 @@ orgs_initial <- users_gh %>%
 # compare with hipo labs dataset
 initial_overlap <- semi_join(orgs_initial, institutions_hipolabs, by = c("organization" = "institution"))
 sum(initial_overlap[,"n"])
-# 17,128 identified users from academic institutions
+# 16,677 identified users from academic institutions
 ```
 
 Recoding the companies in users_gh, using string matching to catch name variations.
@@ -476,7 +476,7 @@ filter(overlap, organization == "misc. student")$n
 leftover <- anti_join(org_counts, overlap)
 ```
 
-At this point, we have 29,134 users in the academic sector: 27,570 matched to academic institutions and 1,564 identified as misc. students.
+At this point, we have 28,641 users in the academic sector: 27,077 matched to academic institutions and 1,564 identified as misc. students.
 
 We can boost this number by looking at the users' email domains.
 
@@ -494,7 +494,7 @@ imputed_institutions <- email_domains %>%
   dt_mutate(organization = institution)
 
 nrow(imputed_institutions)
-# 11,760 imputed
+# 11,632 imputed
 
 # join with other recoded data to update academic counts
 orgs_clean <- full_join(orgs_clean, imputed_institutions[,c("login","email","organization")])
@@ -503,7 +503,7 @@ overlap <- semi_join(org_counts, institutions_hipolabs, by = c("organization" = 
 sum(overlap[,"n"])
 ```
 
-New total is 40,894 users in the academic sector.
+New total is 40,273 users in the academic sector.
 
 At this point, we can make a table of users in the academic sector to push to our database.
 
@@ -522,7 +522,7 @@ academic_counts <- overlap %>%
   filter(!(organization == "misc. student")) # remove misc. students for future analyses
 
 sum(academic_counts[,"n"]) 
-# now there are 43,587 users?
+# now there are 42,966 users?
 # larger than before because it's double-counting the institutions that are in multiple countries or have multiple domains
 
 # group together different country and domain values for the same institution
@@ -576,7 +576,7 @@ Now let's look at some statistics.
 length(filter(academic_counts, country == "United States")$organization) / length(academic_counts$organization)
 # 33% of academic institutions represented are in the U.S.
 sum(filter(academic_counts, country == "United States")[, "n"]) / sum(academic_counts[, "n"])
-# 54.3% of users in the academic sector are at U.S. institutions
+# 55% of users in the academic sector are at U.S. institutions
 sum(academic_counts[,"n"]) / 2435698
 # 1.6% of all users have been matched to an academic institution
 

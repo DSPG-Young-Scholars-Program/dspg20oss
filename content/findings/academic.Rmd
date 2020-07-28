@@ -15,7 +15,7 @@ However, only around 20% of our GitHub users listed any organizational affiliati
 
 Besides the self-reported organizational affiliations, we also investigated email addresses as a source of information about users' affiliations. Since the university dataset from Hipo Labs includes domain names, we were able to impute the institutions for over 11,000 GitHub users based on the domain of the email address associated with their profile.
 
-In total, we identified 40,894 users in the academic sector. Of these, 39,330 are matched to a specific institution, while 1,564 are categorized as miscellaneous students (removed from further analysis). We found that the United States is predominant: about a third of the institutions represented in our data are in the U.S., and users from those institutions make up around 54 percent of total users in the academic sector. Below we've included some figures and searchable tables exploring our data broken down by university and by country, as well as universities in the U.S. specifically.
+In total, we identified 40,273 users in the academic sector. Of these, 38,709 are matched to a specific institution, while 1,564 are categorized as miscellaneous students (removed from further analysis). We found that the United States is predominant: about a third of the institutions represented in our data are in the U.S., and users from those institutions make up around 55 percent of total users in the academic sector. Below we've included some figures and searchable tables exploring our data broken down by university and by country, as well as universities in the U.S. specifically.
 
 
 
@@ -91,7 +91,7 @@ orgs_initial <- users_gh %>%
 # compare with hipo labs dataset
 initial_overlap <- semi_join(orgs_initial, institutions_hipolabs, by = c("organization" = "institution"))
 sum(initial_overlap[,"n"])
-# 17,128 identified users from academic institutions
+# 16,677 identified users from academic institutions
 ```
 
 
@@ -504,7 +504,7 @@ imputed_institutions <- email_domains %>%
   dt_mutate(organization = institution)
 
 nrow(imputed_institutions)
-# 11,919 imputed
+# 11,632 imputed
 
 # join with other recoded data to update academic counts
 orgs_clean <- full_join(orgs_clean, imputed_institutions[,c("login","email","organization")])
@@ -530,7 +530,7 @@ academic_counts <- overlap %>%
   filter(!(organization == "misc. student")) # remove misc. students for future analyses
 
 sum(academic_counts[,"n"]) 
-# now there are 44,918 users?
+# now there are 42,966 users?
 # larger than before because it's double-counting the institutions that are in multiple countries or have multiple domains
 
 # group together different country and domain values for the same institution
@@ -584,7 +584,7 @@ academic_counts <- academic_counts %>%
 length(filter(academic_counts, country == "United States")$organization) / length(academic_counts$organization)
 # 33% of academic institutions represented are in the U.S.
 sum(filter(academic_counts, country == "United States")[, "n"]) / sum(academic_counts[, "n"])
-# 54.3% of users in the academic sector are at U.S. institutions
+# 55% of users in the academic sector are at U.S. institutions
 sum(academic_counts[,"n"]) / 2435698
 # 1.6% of all users have been matched to an academic institution
 
@@ -653,16 +653,16 @@ continent <- c("united states" = "north america",
                "china" = "asia",
                "united kingdom" = "europe",
                "canada" = "north america",
-               "switzerland" = "europe",
                "germany" = "europe",
                "india" = "asia",
                "japan" = "asia",
-               "france" = "europe",
+               "switzerland" = "europe",
                "south korea" = "asia",
                "australia" = "australia",
                "brazil" = "south america",
                "netherlands" = "europe",
                "sweden" = "europe",
+               "france" = "europe",
                "colombia" = "south america",
                "spain" = "europe",
                "russia" = "europe",
@@ -737,15 +737,15 @@ ggplot(us_academic_counts[(.N-20):.N, ], aes(color = type)) +
                                   colour ="black"))
 ```
 
-```{r}
+```{r, echo=FALSE, include=FALSE}
 # attempt to make choropleth with leaflet
-library(rgdal)
+#library(rgdal)
 
-world_spdf <- readOGR(
-  dsn = paste0(getwd(), "/src/academic/"),
-  layer = "TM_WORLD_BORDERS_SIMPL-0.3",
-  verbose = FALSE
-)
+#world_spdf <- readOGR(
+  #dsn = paste0(getwd(), "/src/academic/"),
+  #layer = "TM_WORLD_BORDERS_SIMPL-0.3",
+  #verbose = FALSE
+#)
 ```
 
 
