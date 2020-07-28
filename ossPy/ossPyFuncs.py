@@ -348,7 +348,6 @@ def spaceSymbolRemap(inputColumn):
             if len(currentNoSpaceOrSymbol)>0:
                 #remove leading white space, just in case this is an entry that has been deleted from
                 currentEntry=re.sub('^[ \\t]+','',currentEntry)
-                currentEntry=re.compile(currentEntry)
                 #make replacement to the noSpaceSymbol vector
                 allNoSpaceSymbol=pd.DataFrame(allNoSpaceSymbol[inputColumnName[0]].str.replace('(?i)\\b'+currentNoSpaceOrSymbol+'(?i)\\b',currentEntry))
                 #find the unique name indexes these correspond to
@@ -358,9 +357,9 @@ def spaceSymbolRemap(inputColumn):
                 #iteratively remove it from the unique list
                 for index, row in toRemoveEntries.iterrows():
                     #some of the to remove terms have regex features.  We need to compile them to prevent this from causing problems
-                    currentToRemove=re.compile(toRemoveEntries[inputColumnName[0]].loc[index])
+                    currentToRemove=re.compile('(?i)\\b'+re.escape(toRemoveEntries[inputColumnName[0]].loc[index])+'\\b')
                     #perform the deletion
-                    tableUniqueFullNameCounts=pd.DataFrame(tableUniqueFullNameCounts[inputColumnName[0]].str.replace('\\b'+currentToRemove+'(?i)\\b',''))
+                    tableUniqueFullNameCounts=pd.DataFrame(tableUniqueFullNameCounts[inputColumnName[0]].str.replace(currentToRemove,''))
     
     #create an unchanged noSpaceSymbol frame   
     #I guess we dont need this?             
