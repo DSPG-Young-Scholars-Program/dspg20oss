@@ -44,6 +44,9 @@ govadmins_vector <- paste(c("\\b(?i)(zcx", na.omit(tolower(nonprofit_govadmins$n
                                            na.omit(tolower(nonprofit_govadmins$alt_names)),
                                            na.omit(tolower(nonprofit_govadmins$associated_centers)), "zxz)\\b"), collapse = "|")
 
+
+former_academic_list <- "\\b(?i)(broad institute|cern|European Organization for Nuclear Research|wellcome trust sanger institute|wellcome trust|wellcome|)\\b"
+
 nonprofits <- users_gh %>% 
   as.data.table() %>% 
   dt_mutate(company = str_to_lower(company)) %>%
@@ -54,6 +57,8 @@ nonprofits <- users_gh %>%
             pattern = ngo_vector), yes = "ngos", no = dataset)) %>%
   dt_mutate(dataset = ifelse(test = str_detect(string = company, 
            pattern = govadmins_vector), yes = "admins", no = dataset)) %>%
+  dt_mutate(dataset = ifelse(test = str_detect(string = company, 
+           pattern = former_academic_list), yes = "custom", no = dataset)) %>%
   drop_na(dataset) %>% 
   select(login, company, dataset) %>% 
   mutate(is_nonprofit = TRUE)
