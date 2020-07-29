@@ -1,5 +1,5 @@
 ---
-title: "Open Source Software 2020 Summer Project"
+#title: "Open Source Software 2020 Summer Project"
 output: html_document
 ---
 
@@ -16,28 +16,31 @@ h1, h2, h3 {
 
 ### Open Source Software 2020 DSPG Team Members 
 
-##### [Photos go about here.] {style=text-align:center}
+<center>
+![](/daniel.jpg) ![](/morgan.jpg) ![](/crystal.jpeg) 
+</center>
 
-##### [Daniel Bullock (Indiana University, Computational Neuroanatomy)](https://github.com/DanNBullock), [Morgan Klutzke (Indiana University, Psychology and Cognitive Science)](https://github.com/mklutzke), and [Crystal Zang (University of Pittsburgh, Biostatistics)](https://github.com/czang97) {style=text-align:center}
+##### [Daniel Bullock](https://github.com/DanNBullock) (Indiana University, Computational Neuroanatomy), [Morgan Klutzke](https://github.com/mklutzke) (Indiana University, Psychology and Cognitive Science), and [Crystal Zang](https://github.com/czang97) (University of Pittsburgh, Biostatistics) {style=text-align:center}
 ###
 
 ### UVA SDAD Team Members 
 
 <center>
-
 ![](/gizem.jpg) ![](/brandon.jpg) ![](/bayoan.jpg)
 
 ![](/aaron.jpg) ![](/sallie.jpg) 
-
 </center>
 
-##### [Gizem Korkmaz (Research Associate Professor)](https://biocomplexity.virginia.edu/gizem-korkmaz), [Brandon Kramer (Postdoctoral Research Associate)](https://biocomplexity.virginia.edu/brandon-kramer), [José Bayoán Santiago Calderón (Postdoctoral Research Associate)](https://biocomplexity.virginia.edu/j-bayoan-santiago-calderon), [Aaron Schroeder (Research Associate Professor)](https://biocomplexity.virginia.edu/aaron-schroeder), and [Sallie Keller (Division Director and Distinguished Professor)](https://biocomplexity.virginia.edu/sallie-keller) {style=text-align:center}
+##### [Gizem Korkmaz](https://biocomplexity.virginia.edu/gizem-korkmaz) (Research Associate Professor), [Brandon Kramer](https://biocomplexity.virginia.edu/brandon-kramer) (Postdoctoral Research Associate), [José Bayoán Santiago Calderón](https://biocomplexity.virginia.edu/j-bayoan-santiago-calderon) (Postdoctoral Research Associate), [Aaron Schroeder](https://biocomplexity.virginia.edu/aaron-schroeder) (Research Associate Professor), and [Sallie Keller](https://biocomplexity.virginia.edu/sallie-keller) (Division Director and Distinguished Professor) {style=text-align:center}
 
 ### Project Sponsors/Stakeholders 
 
-##### [Photos go about here.] {style=text-align:center}
+<center>
+![](/carol.png) ![](/ncses.png) ![](/ledia.png)
+</center>
 
-##### [Carol Robbins (NCSES, Senior Analyst)](https://www.nsf.gov/staff/staff_bio.jsp?lan=crobbins&from_org=) and [Ledia Guci (NCSES, Science Resource Analyst)](https://www.nsf.gov/staff/staff_bio.jsp?lan=lguci&from_org=) {style=text-align:center}
+##### [Carol Robbins](https://www.nsf.gov/staff/staff_bio.jsp?lan=crobbins&from_org=) (NCSES, Senior Analyst) and [Ledia Guci](https://www.nsf.gov/staff/staff_bio.jsp?lan=lguci&from_org=) (NCSES, Science Resource Analyst) {style=text-align:center}
+##### [National Science Foundation's National Center for Science and Engineering Statistics](https://www.nsf.gov/statistics/) {style=text-align:center}
 
 ### Acknowledgements  
 

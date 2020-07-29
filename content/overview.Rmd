@@ -1,5 +1,5 @@
 ---
-title: "Open Source Software 2020 Summer Project"
+#title: "Open Source Software 2020 Summer Project"
 output: html_document
 ---
 
@@ -16,8 +16,8 @@ Current economic indicators and indicators developed by the [National Center for
 
 ### Project Goals 
 
-In order to address these gaps, our project aims to measure how much OSS is in use (stock), how much is created (flow), who is developing these tools, and how OSS tools are being shared across these different sectors, institutions, and organizations. Building on research conducted over the past three years, we plan to examine the production, diffusion, and impact of open-source software in specific sectors, institutions, and geographic areas using data that we scraped from [GitHub](https://github.com/) – the world’s largest remote hosting platform. More specifically, we are interested in understanding how GitHub users from different economic sectors, academic institutions, and private organizations share resources within the context of OSS and the potential impact that this has on global innovation. 
+In order to address these gaps, our project aims to measure how much OSS is in use (stock), how much is created (flow), who is developing these tools, and how OSS tools are being shared across these different sectors, institutions, and organizations. Building on research conducted over the past three years, we examined the production, diffusion, and impact of open-source software in specific sectors, institutions, and geographic areas using data that we scraped from [GitHub](https://github.com/) – the world’s largest remote hosting platform. More specifically, we are interested in understanding how GitHub users from different economic sectors, academic institutions, and private organizations share resources within the context of OSS and the potential impact that this has on global innovation. 
 
 ### Our Approach 
 
-Over the course of the 2020 Data Science for the Public Good Program, we worked to classify OSS contributors into these sectors, count which institutions users are affiliated within each sector, and researched how users collaborate within and across these various sectors. In our project, we implemented various methods, including web scraping (to collect the data), natural language processing (to match and recode user affilations), and social network analysis (to examine collaboration tendencies).
+Over the course of the 2020 Data Science for the Public Good Program, we worked to classify OSS contributors into these sectors, count which institutions users are affiliated within each sector, and researched how users collaborate within and across these various sectors. In our project, we implemented various methods, including web scraping (to collect the data), computational text analysis (to match and recode user affilations), and social network analysis (to examine collaboration tendencies).

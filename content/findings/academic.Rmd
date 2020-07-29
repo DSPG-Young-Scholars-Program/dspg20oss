@@ -1,23 +1,30 @@
 ---
 title: "OSS in the Academic Sector"
 description: "This page focuses on classifying GitHub users into academic institutions."
-tags: ["R","nlp","regex","big data"]
+tags: ["R","text analysis/regex","matching"]
 weight: 2
 draft: false
 output: html_document
 ---
 
-One of the main goals of our summer project is to understand who is producting open-source software (OSS) and important characteristics about them, including which sectors they are embedded within. This page focuses on the approach we took to classifying GitHub users into the academic sector as well as the prodcedures that we took to finding out which institutions they are affiliated. 
+```{css, echo=FALSE}
+/* this chunk of code centers all of the headings */
+h1, h2, h3 {
+  text-align: center;
+}
+```
 
-First, we looked for a data source for institutions in the academic sector. We ended up using [this dataset](https://github.com/Hipo/university-domains-list/) from Hipo Labs, which has the names, countries, and domain names for nearly 9,800 universities across the world. With this, we were able to identify which users are in the academic sector by looking at what self-reported organizational affiliation they have on their profile, and looking for a match in our university dataset. 
+### Data & Methods 
 
-However, only around 20% of our GitHub users listed any organizational affiliation on their profile, and since the input is an unvalidated, free form text field, those who did had a staggering amount of variation in how they reported it. We accounted for this in the academic sector by using regular expressions to match common abbreviations and aliases for specific academic institutions. For example, anyone whose self-reported affiliation includes the phrase "UC San Diego" is put in the same group as those including "University of California, San Diego", or "UCSD", etc. Since we were unable to find an international dataset for common university aliases, much of this had to be hard-coded. Outside of specific universities, we also included a category in the academic sector for any GitHub users who entered "Student" (or variations) as their organizational affiliation. 
+One of the main goals of our summer project is to understand who is producting open-source software (OSS) and important characteristics about them, including which sectors they are embedded within. To classify contributors into the academic sector, we matched GitHub users' email and self-reported affiliation columns to information about universities and colleges from around the world using the [Hipo Labs' university domain list](https://raw.githubusercontent.com/Hipo/university-domains-list/master/world_universities_and_domains.json) - a dataset that has names, countries, and domain names for nearly 9,800 universities across the world. We relied on regular expressions to account for common abbreviations in the self-reported affiliations as well as aliases for specific academic institutions. Having the domain names for academic institutions in the Hipo Labs dataset also helped us match GitHub users to specific universities based on the email address associated with their account. Lastly, we added an additional “Misc. Student" category for GitHub users that reported being students without specific academic institutions. After classifying users into this sector, we used the GitHub commits data to construct networks where nodes represent GitHub users and edges correspond to the number of shared repositories that users can contributed. This page documents this approach and details some of our major findings. 
 
-Besides the self-reported organizational affiliations, we also investigated email addresses as a source of information about users' affiliations. Since the university dataset from Hipo Labs includes domain names, we were able to impute the institutions for over 11,000 GitHub users based on the domain of the email address associated with their profile.
+### Sectoring Results
 
-In total, we identified 40,273 users in the academic sector. Of these, 38,709 are matched to a specific institution, while 1,564 are categorized as miscellaneous students (removed from further analysis). We found that the United States is predominant: about a third of the institutions represented in our data are in the U.S., and users from those institutions make up around 55 percent of total users in the academic sector. Below we've included some figures and searchable tables exploring our data broken down by university and by country, as well as universities in the U.S. specifically.
+While the [GHTorrrent](https://ghtorrent.org/) data includes about ~2.1 million GitHub users, only around 20% of those listed provided any organizational affiliation on their profile, leaving us with only around 420,000 individuals to classify total. To start, we just used the Hipo Labs data to classify GitHub users based on their self-reported affiliation information, allocating around __16,000__ users to the academic sector with just this raw string data.  
 
+However, since the input is an free form text field, those who did include affilations had a staggering amount of variation in how they reported that information. We accounted for this in the academic sector by using regular expressions to match common abbreviations and aliases for over 120 academic institutions. For example, anyone whose original self-reported affiliation info was written as "UC San Diego" or "UCSD" was re-categorized into the same group as those included in "University of California, San Diego." This approach boosted our total count to over __27,000__. 
 
+Besides the self-reported affiliation information, we also investigated email addresses as a source of information about users' affiliations. Since the university dataset from Hipo Labs includes domain names, we were able to impute the institutions for an additional __11,000__ users based on their email domain. __In total, we identified 40,273 users in the academic sector.__ Of these, 38,709 are matched to a specific institution while 1,564 are categorized as miscellaneous students. 
 
 ```{r packages, message = FALSE, results = FALSE, warning = FALSE, echo=FALSE}
 rm(list = ls())
@@ -488,8 +495,6 @@ filter(overlap, organization == "misc. student")$n
 leftover <- anti_join(org_counts, overlap)
 ```
 
-
-
 ```{r domains_recode, message = FALSE, results = FALSE, warning = FALSE, echo=FALSE}
 # get just the domains from the emails
 email_domains <- users_gh %>% drop_na(email) %>%
@@ -513,15 +518,11 @@ overlap <- semi_join(org_counts, institutions_hipolabs, by = c("organization" = 
 sum(overlap[,"n"])
 ```
 
-
-
 ```{r final_table, message = FALSE, results = FALSE, warning = FALSE, echo=FALSE}
 final_table <- orgs_clean %>%
   semi_join(institutions_hipolabs, by = c("organization" = "institution")) %>%
   transmute(login = login, company_raw = company, company_cleaned = organization, is_academic = 1)
 ```
-
-
 
 ```{r get_countries, message = FALSE, results = FALSE, warning = FALSE, echo=FALSE}
 # rejoin with hipo labs data
@@ -578,8 +579,6 @@ academic_counts <- academic_counts %>%
   dt_mutate(n = as.numeric(n)) # for some reason n got changed to chr type
 ```
 
-
-
 ```{r stats, message = FALSE, results=FALSE, warning = FALSE, echo=FALSE}
 length(filter(academic_counts, country == "United States")$organization) / length(academic_counts$organization)
 # 33% of academic institutions represented are in the U.S.
@@ -613,30 +612,11 @@ ggplot(data = academic_counts_sorted[(.N-10):.N,]) +
 
 ```
 
-```{r, by_country, fig.height = 7, fig.width=12, warning = FALSE,  echo=FALSE}
-ggplot(academic_counts_sorted[(.N-20):.N, ], aes(color = country)) +
-  geom_point(aes(x = organization, y = n), size = 4) +
-  geom_segment(data = academic_counts_sorted[(.N-20):.N, ], mapping = aes(x = organization, xend = organization, y = 0, yend = n), size = 1) +
-  scale_color_manual(values = c("United States" = "#485C99", "China" = "#E57200", "Canada" = "#12B2CE")) +
-  labs(x = "Academic Institution", y = "Number of Users", color = "Country", title = "Top-20 Universities by Number of Users") +
-  #theme_classic() +
-  coord_flip() +
-  theme_minimal() +
-  theme(plot.title = element_text(hjust = 0.3),
-        axis.text.y = element_text(size = 10),
-        legend.position = c(.9, .1),
-        legend.justification = c("right", "bottom"),
-        legend.box.just = "right",
-        legend.margin = margin(6, 6, 6, 6),
-        legend.background = element_rect(fill="white",
-                                  size=0.5, linetype="solid", 
-                                  colour ="black")) 
-```
-```{r institutions_table, message = FALSE,  warning = FALSE, echo=FALSE}
-datatable(transmute(academic_counts, organization = organization, n = n, country = country))
-```
+### Top OSS Countries in the Academic Sector 
 
-```{r, countries_users, fig.height = 7, fig.width = 12, warning = FALSE, echo=FALSE}
+Generally, we found that users based in the United States are most prominently represented. Roughly one-third of the institutions represented in our data are from the US and users from those institutions make up around 55 percent of total users in the academic sector. In this figure, you can see that...  
+
+```{r, countries_users, fig.height = 9, fig.width = 12, warning = FALSE, echo=FALSE}
 #country_frequency_institutions <- academic_counts %>% group_by(country) %>% count(wt = n(), sort = TRUE)
 
 country_frequency_users <- academic_counts %>% 
@@ -677,8 +657,12 @@ ggplot(country_users_sorted[(.N-20):.N, ], aes(color = continent)) +
   #scale_color_manual(values = c("asia" = "#E57200", "australia" = "#375758", "europe" = "#485C99", "north america" = "#12B2CE", "south america" = "#D7E029")) +
   theme_minimal() +
   labs(x = "Country", y = "Number of Users", title = "Top-20 Countries by Users in Academic Sector") +
-  theme(plot.title = element_text(hjust = 0.5),
-        axis.text.y = element_text(size = 10),
+  theme(plot.title = element_text(size=23, hjust = 0.5),
+        axis.title =element_text(size=20),
+        axis.title.y =element_blank(),
+        axis.text = element_text(size = 20),
+        legend.title=element_text(size=20, hjust = 0.5, face="bold"),
+        legend.text=element_text(size=20),
         legend.position = c(.9, .1),
         legend.justification = c("right", "bottom"),
         legend.box.just = "right",
@@ -687,11 +671,42 @@ ggplot(country_users_sorted[(.N-20):.N, ], aes(color = continent)) +
                                   size=0.5, linetype="solid", 
                                   colour ="black")) +
   scale_y_log10() +
-  coord_flip() 
+  coord_flip() +
+  scale_color_manual(labels=c("asia",  "australia", "europe", "north america","south america"),
+                     values=c("#232D4B", "#99BDAD",  "#E57200", "#0E879C", "#D9E12B")) 
 ```
 ```{r country_percentage_table, message = FALSE,  warning = FALSE, echo=FALSE}
 datatable(country_user_percentages)
 ```
+
+### Top OSS Universities
+
+
+
+```{r, by_country, fig.height = 7, fig.width=12, warning = FALSE,  echo=FALSE}
+ggplot(academic_counts_sorted[(.N-20):.N, ], aes(color = country)) +
+  geom_point(aes(x = organization, y = n), size = 4) +
+  geom_segment(data = academic_counts_sorted[(.N-20):.N, ], mapping = aes(x = organization, xend = organization, y = 0, yend = n), size = 1) +
+  scale_color_manual(values = c("United States" = "#485C99", "China" = "#E57200", "Canada" = "#12B2CE")) +
+  labs(x = "Academic Institution", y = "Number of Users", color = "Country", title = "Top-20 Universities by Number of Users") +
+  #theme_classic() +
+  coord_flip() +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.3),
+        axis.text.y = element_text(size = 10),
+        legend.position = c(.9, .1),
+        legend.justification = c("right", "bottom"),
+        legend.box.just = "right",
+        legend.margin = margin(6, 6, 6, 6),
+        legend.background = element_rect(fill="white",
+                                  size=0.5, linetype="solid", 
+                                  colour ="black")) 
+```
+```{r institutions_table, message = FALSE,  warning = FALSE, echo=FALSE}
+datatable(transmute(academic_counts, organization = organization, n = n, country = country))
+```
+
+As we can see in the first figure, 
 
 ```{r, us_universities, fig.height = 7, fig.width = 12,  warning = FALSE, echo=FALSE}
 us_academic_counts <- academic_counts_sorted %>% filter(country == "United States")
@@ -734,7 +749,7 @@ ggplot(us_academic_counts[(.N-20):.N, ], aes(color = type)) +
         legend.margin = margin(6, 6, 6, 6),
         legend.background = element_rect(fill="white",
                                   size=0.5, linetype="solid", 
-                                  colour ="black"))
+                                  colour ="black")) 
 ```
 
 
