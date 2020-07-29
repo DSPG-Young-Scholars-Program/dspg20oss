@@ -58,17 +58,16 @@ organization_counts <- users_gh %>%
   mutate(organization = ifelse(test = str_detect(string = organization, 
                               pattern = "\\b(?i)(freelancer|freelance|freelancing|freelancers|freelances|self|personal|home|private|individual|myself|me|independent|independent contractor|contractor|private|household|house|home|my house|jobless|looking for a job|looking for job|seeking employment|seeking|actively seeking employment|seeking opportunities|seeking internship|seeking work)\\b"), 
                               yes = "household", no = organization)) %>%
-  mutate(organization = ifelse(test = str_detect(string = organization, 
-                              pattern = "\\b(?i)(n/a|none|null|no|na)\\b"),      
-                              yes = "none/null", no = organization)) %>% 
   group_by(organization) %>% count() %>% arrange(-n) 
 
 organization_counts 
 
 ```
 
+See also 
 
-
+https://github.com/DSPG-Young-Scholars-Program/dspg20oss/blob/danBranch/ossPy/keyFiles/individualKeys.csv
+https://github.com/DSPG-Young-Scholars-Program/dspg20oss/blob/danBranch/ossPy/keyFiles/nullKeys.csv
 
 
 
