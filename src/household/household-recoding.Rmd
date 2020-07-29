@@ -56,7 +56,7 @@ organization_counts <- users_gh %>%
   mutate(organization = str_to_lower(company)) %>% 
   mutate(organization = str_trim(organization)) %>% 
   mutate(organization = ifelse(test = str_detect(string = organization, 
-                              pattern = "\\b(?i)(freelancer|freelance|freelancing|freelancers|freelances|self|personal|home|private|individual|myself|me|independent|independent contractor|contractor|private|household|house|home|my house|jobless|looking for a job|looking for job|seeking employment|seeking|actively seeking employment|seeking opportunities|seeking internship|seeking work)\\b"), 
+                              pattern = "\\b(?i)((?i)^self$|^personal$|^home$|^private$|^individual$|^myself$|^me$|^house$|^independent$|independent contractor|^consultant$|freelancer|freelance|freelancing|self employed|my home|me, myself|me myself|household|my house|jobless|looking for a job|looking for job|seeking employment|^seeking|seeking opportunities|seeking internship|seeking work|web developer|independent consultant|software developer|independent developer)\\b"), 
                               yes = "household", no = organization)) %>%
   group_by(organization) %>% count() %>% arrange(-n) 
 
@@ -70,6 +70,38 @@ https://github.com/DSPG-Young-Scholars-Program/dspg20oss/blob/danBranch/ossPy/ke
 https://github.com/DSPG-Young-Scholars-Program/dspg20oss/blob/danBranch/ossPy/keyFiles/nullKeys.csv
 
 
+'(?i)^self$'
+'(?i)^personal$'
+'(?i)^home$'
+'(?i)^private$'
+'(?i)^individual$'
+'(?i)^myself$'
+'(?i)^me$'
+'(?i)^house$'
+'(?i)^independent$'
+'(?i)independent contractor'
+'(?i)^consultant$'
+'(?i)freelancer'
+'(?i)freelance'
+'(?i)freelancing'
+'(?i)self employed'
+'(?i)my home'
+'(?i)me, myself'
+'(?i)me myself'
+'(?i)household'
+'(?i)my house'
+'(?i)jobless'
+'(?i)looking for a job'
+'(?i)looking for job'
+'(?i)seeking employment'
+'(?i)^seeking$'
+'(?i)seeking opportunities'
+'(?i)seeking internship'
+'(?i)seeking work'
+'(?i)web developer'
+'(?i)independent consultant'
+'(?i)software developer'
+'(?i)independent developer'
 
 
 
