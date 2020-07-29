@@ -614,7 +614,7 @@ ggplot(data = academic_counts_sorted[(.N-10):.N,]) +
 
 ### Top OSS Countries in the Academic Sector 
 
-Generally, we found that users based in the United States are most prominently represented. Roughly one-third of the institutions represented in our data are from the US and users from those institutions make up around 55 percent of total users in the academic sector. In this figure, you can see that...  
+Generally, we found that users based in the United States are most prominently represented. Roughly one-third of the institutions represented in our data are from the US and users from those institutions make up around 55 percent of total users in the academic sector. In this figure, you can see that [Please explain the figure in more detail here.] 
 
 ```{r, countries_users, fig.height = 9, fig.width = 12, warning = FALSE, echo=FALSE}
 #country_frequency_institutions <- academic_counts %>% group_by(country) %>% count(wt = n(), sort = TRUE)
@@ -658,11 +658,11 @@ ggplot(country_users_sorted[(.N-20):.N, ], aes(color = continent)) +
   theme_minimal() +
   labs(x = "Country", y = "Number of Users", title = "Top-20 Countries by Users in Academic Sector") +
   theme(plot.title = element_text(size=23, hjust = 0.5),
-        axis.title =element_text(size=20),
+        axis.title =element_text(size=18),
         axis.title.y =element_blank(),
-        axis.text = element_text(size = 20),
-        legend.title=element_text(size=20, hjust = 0.5, face="bold"),
-        legend.text=element_text(size=20),
+        axis.text = element_text(size = 18),
+        legend.title=element_text(size=18, hjust = 0.5, face="bold"),
+        legend.text=element_text(size=18),
         legend.position = c(.9, .1),
         legend.justification = c("right", "bottom"),
         legend.box.just = "right",
@@ -679,15 +679,15 @@ ggplot(country_users_sorted[(.N-20):.N, ], aes(color = continent)) +
 datatable(country_user_percentages)
 ```
 
-### Top OSS Universities
+### Top OSS Universities Around the World
 
-
+[Please explain the figure in more detail here.]
 
 ```{r, by_country, fig.height = 7, fig.width=12, warning = FALSE,  echo=FALSE}
 ggplot(academic_counts_sorted[(.N-20):.N, ], aes(color = country)) +
   geom_point(aes(x = organization, y = n), size = 4) +
   geom_segment(data = academic_counts_sorted[(.N-20):.N, ], mapping = aes(x = organization, xend = organization, y = 0, yend = n), size = 1) +
-  scale_color_manual(values = c("United States" = "#485C99", "China" = "#E57200", "Canada" = "#12B2CE")) +
+  scale_color_manual(values = c("United States" = "#0E879C", "China" = "#E57200", "Canada" = "#232D4B")) +
   labs(x = "Academic Institution", y = "Number of Users", color = "Country", title = "Top-20 Universities by Number of Users") +
   #theme_classic() +
   coord_flip() +
@@ -706,7 +706,9 @@ ggplot(academic_counts_sorted[(.N-20):.N, ], aes(color = country)) +
 datatable(transmute(academic_counts, organization = organization, n = n, country = country))
 ```
 
-As we can see in the first figure, 
+### Top Universities in the United States 
+
+As we can see in the first figure, [Please explain the figure in more detail here.]
 
 ```{r, us_universities, fig.height = 7, fig.width = 12,  warning = FALSE, echo=FALSE}
 us_academic_counts <- academic_counts_sorted %>% filter(country == "United States")
@@ -737,7 +739,7 @@ ggplot(us_academic_counts[(.N-20):.N, ], aes(color = type)) +
   geom_point(aes(x = organization, y = n), size = 4) +
   geom_segment(data = us_academic_counts[(.N-20):.N, ], mapping = aes(x = organization, xend = organization, y = 0, yend = n), size = 1) +
   labs(x = "Academic Institution", y = "Number of Users", title = "Top-20 Universities in the United States") +
-  scale_color_manual(values = c("public" = "#12B2CE", "private" = "#E57200")) +
+  scale_color_manual(values = c("public" = "#0E879C", "private" = "#E57200")) +
   #scale_y_reverse() +
   coord_flip() +
   theme_minimal() +
@@ -752,7 +754,9 @@ ggplot(us_academic_counts[(.N-20):.N, ], aes(color = type)) +
                                   colour ="black")) 
 ```
 
+### Limitations 
 
+[Please explain the limitations of your approach. For example, using a US-based dataset likely means you more accurately counted these instiutions.]
 
 ```{r, message = FALSE, results = FALSE, warning = FALSE, echo=FALSE}
 # connect to postgresql to get data (in rivanna)
