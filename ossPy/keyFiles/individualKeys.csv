@@ -5,13 +5,14 @@
 '(?i)^individual$'
 '(?i)^myself$'
 '(?i)^me$'
+'(?i)^house$'
 '(?i)^independent$'
 '(?i)independent contractor'
 '(?i)^consultant$'
 '(?i)freelancer'
 '(?i)freelance'
 '(?i)freelancing'
-'(?i)self-employed'
+'(?i)self employed'
 '(?i)my home'
 '(?i)me, myself'
 '(?i)me myself'
@@ -25,6 +26,9 @@
 '(?i)seeking opportunities'
 '(?i)seeking internship'
 '(?i)seeking work'
-
+'(?i)web developer'
+'(?i)independent consultant'
+'(?i)software developer'
+'(?i)independent developer'
 
 
