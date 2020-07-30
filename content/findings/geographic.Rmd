@@ -1,5 +1,5 @@
 ---
-title: "Geographic Analyses of GitHub Users"
+title: "Geographical Analyses of GitHub Users"
 description: "This page focuses on mapping GitHub users around the world."
 output: 
   rmarkdown::html_document:
@@ -12,6 +12,13 @@ tags: ["R","text analysis/regex","matching","interactive map"]
 weight: 1
 draft: false
 ---
+
+```{css, echo=FALSE}
+/* this chunk of code centers all of the headings */
+h1, h2, h3 {
+  text-align: center;
+}
+```
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -60,12 +67,9 @@ CapStr <- function(y) {
 }
 ```
 
-We conducted analysis on GitHub users' geographic location, which was scraped from their public user profile. In our analysis we are focusing on the GitHub users who has contributed in a licensed R package. While 77.23% geographic information (country and city name) were missing, we were still able to map `r sum(!duplicated(city_clean_final$raw_login))` GitHub users in our final analyses.
+### Approach
 
-### Forming city code
-The goal of forming city code is to understand the city-levl network. This will enable us to answer questions like what's the most influential city? Is this city more likely to form domestic collaborations or international collaborations? Our city code is a combination of country name, city name and geocode (latitude and longitude). Geocode is critical to differentiate two city within the same country.You will be surprised to see how many [Greenvilles are there in the U.S.](https://en.wikipedia.org/wiki/Greenville) Meanwhile, the original geocode is accurate to the sixth digit, users located in the same city might have slightly different gocode. We propose a geocode cleaning and aggreating process:    
-**Cleaning**: round the geocode (latitude+longitude) to a whole number.    
-**Aggregating**: group the cities with geocode that are within 2 degree difference together.   
+To analyze GitHub users by different geographical units, we used regular expressions to recode all self-reported location data available in the [GHTorrrent](https://ghtorrent.org/) data, finding ~770,000 users with valid country codes. In addition to this self-reported location data, GHTorrent also provides latitude and longitude information for GitHub users (assigned using the [Open Street Maps API]()). Drawing on these geocoded data, we aggregated all latitude and longitude information that were within a 2-degree difference. Although this data reduction approach is somewhat crude, the main purpose of this assignment is to cluster users with a common "city code" so that we can examine how users collaborate between more specific geographic units. In turn, we used these city codes to construct networks where nodes represent GitHub users and edges correspond to the number of shared repositories that users can contributed. While 77.23% of the geographic information were originally missing, we were still able to map `r sum(!duplicated(city_clean_final$raw_login))` GitHub users in our final analyses of GitHub users by city.
 
 ```{r clean citycode, message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
 #aggregate by continent
@@ -104,9 +108,9 @@ city_clean_final_aggregate <- city_clean_final_aggregate%>%
 ```
 
 
-### Top Continents Where GitHub Users are Located 
+### GitHub Users by Continent
 
-North America is the continent with the highest number of GitHub users - followed by Europe and Asia. Later, we breakdown our network into six networks for each continent and investigate collaborations within network and across networks.
+North America is the continent with the highest number of GitHub users - followed by Europe and Asia. This effectively means that almost all OSS is produced within the context of these three continents with South America, Oceania and Africa lagging far behind. In a sense, these results may speak to other measures of global inequities across the world, which may prevent developers in poorer countries for developing OSS. To better understand global patterns of collaboration within the OSS community, we will later reduce our data into six continental networks and investigate collaborations within and across these networks.
 
 ```{r fig.width=9.5, fig.height=5, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 gh_continent<- city_clean_final_aggregate_continent%>%
@@ -127,9 +131,9 @@ ggplot(gh_continent, aes(x = Continent_Name, y = ttl_users, fill = ttl_users))+
   theme( legend.spacing.y = unit(1,"cm"))
 ```
 
-### Top Countries Where GitHub Users are Located 
+### GitHub Users by Country
 
-United States has the highest number of GitHub users (N=166,140) with nearly four times as much as China (N=38,391). The differences are much smaller among United Kingdom, India, Russia, and the rest of the countries in the following figure.
+The United States has the highest number of GitHub users (N=166,140) with nearly four times as much as China (N=38,391). This discrepency may be because GitHub started in the US and that other web hosting platforms are used in other parts of the world. On the other hand, these results may also indicate that the US is a global power house in terms of producing OSS software. Of course, as we look further down the graph, we see the difference in overall users are much smaller between the United Kingdom, India, Russia, and the rest of the countries in the top-10. Our team is currently developing a paper that examines historical patterns of international collaboration on GitHub, which will elucidate these preliminary findings in more detail.  
 
 ```{r fig.width=9.5, fig.height=6, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 gh_country <- city_clean_final_aggregate_country%>%
@@ -163,9 +167,9 @@ ggplot(gh_country, aes(x = c_country_name, y = ttl_users, fill = ttl_users)) +
   theme(legend.spacing.y = unit(1,"cm"))
 ```
 
-### Where Are GitHub Users Scattered in the U.S?
+### GitHub Users in the United States 
 
-The U.S. has the largest number of GitHub users. They are mostly located in the west and east coast, having California, New Jersey, Washington, Texas, and Massachusetts being the top five states. Sectoring analysis would provide more insights on the reasons GitHub users are located in these states. This also ties to the technical industry being heavily centered in these areas. 
+As we mentioned above, the US has the largest number of GitHub users. To get a better understanding of where they are located, we used the [statebins package](https://github.com/hrbrmstr/statebins) to map users by state. As we see here, GitHub users are mostly located on the West and East coasts with California, New Jersey, Washington, Texas, and Massachusetts being the top-five ranked states. In our future work, we will be looking more into how users across different sectors account for this variation between states. Of course, these maps also point to influence that that major tech hubs, like Silicon Valley in California and Silicon Hills in Texas, have had on the development on OSS. 
 
 ```{r fig.width=9.5, fig.height=6, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 state_ttl_user <- city_clean_final%>%
@@ -190,7 +194,9 @@ statebins(state_ttl_user,
           state_col = "c_us_state",
           value_col = "ttl_users_quantile",
           name = "Total Number of Users \n by Quantile Groups",
-          ggplot2_scale_function = scale_fill_brewer )+
+          ggplot2_scale_function = scale_fill_manual,
+          values = c("[56, 399)" = "#f9f9f9" , "[399, 728)" = "#60999A","[728, 1961)" = "#0E879C","[1961, 3885)" = "#1D6B84", "[3885, 40379)" = "#232D4B")
+          )+
   theme_statebins(legend_position = "right")
 
 # statebins(state_ttl_user, 
@@ -202,9 +208,9 @@ statebins(state_ttl_user,
 ```
 
 
-### Top Cities Where GitHub Users are Located 
+### GitHub Users by City
 
-San Francisco (US) is the city that has the highest number of GitHub users - followed by London (UK), New York (US), Moscow (Russia), and Beijing (China).
+When we looked deeper into where GitHub users are located at the city level, we found that San Francisco (US) is the city with the highest number of GitHub users - followed by London (UK), New York (US), Moscow (Russia), and Beijing (China). Again, these results speak to the importance of the tech industry in shaping OSS development, as San Francisco's prominence in tech has clearly spilled over into publicly available innovation tools. In our future research, we plan to delve deeper into collaboration networks between these cities. Knowing, for example, how often developers share resources between cities not only tells us where OSS users live but where collaborative ventures might be most successful. 
 
 ```{r fig.width=11, fig.height=6, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 gh_city <- city_clean_final_aggregate%>%
@@ -239,9 +245,9 @@ ggplot(gh_city, aes(x = city_country, y = ttl_users, fill = ttl_users))+
   theme(legend.spacing.y = unit(1,"cm"))
 ```
 
-### City-Level Interactive Map of GitHub Users
+### Interactive Map of GitHub Users by City 
 
-In this map, the size of the circle indicates how many GitHub users reported living or working in each city. You can zoom in and hover over the circle to see how many users are in that city. You can also type in the city that you are interested in the search .
+In this interactive map, the size of the circle indicates how many GitHub users reported living or working in each city. While the majority of the cities are plotted in blue, we have highlighted the top-10 cities seen above in orange. You can zoom in and hover over the circle to see how many users are in that city or you can also type in a city of interest in the top-right corner. Overall, this map shows clearly that we need to continue looking closer into smaller geographical units when analyzing OSS production. 
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 #In this map, the color of the circle indicates the number of github users in each city, still under development.
@@ -272,3 +278,6 @@ city_clean_final_aggregate%>%
   addLegend(pal = pal, values = c( "not topcity", "topcity"))
 ```
 
+### Limitations and Future Steps 
+
+[Please explain the limitations of your approach. For example, using a US-based dataset likely means you more accurately counted these instiutions. You could also explain what the next steps to your work would be.]

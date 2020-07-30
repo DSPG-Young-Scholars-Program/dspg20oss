@@ -14,7 +14,7 @@ h1, h2, h3 {
 }
 ```
 
-### Data & Methods 
+### Approach 
 
 One of the main goals of our summer project is to understand who is producting open-source software (OSS) and important characteristics about them, including which sectors they are embedded within. To classify contributors into the academic sector, we matched GitHub users' email and self-reported affiliation columns to information about universities and colleges from around the world using the [Hipo Labs' university domain list](https://raw.githubusercontent.com/Hipo/university-domains-list/master/world_universities_and_domains.json) - a dataset that has names, countries, and domain names for nearly 9,800 universities across the world. We relied on regular expressions to account for common abbreviations in the self-reported affiliations as well as aliases for specific academic institutions. Having the domain names for academic institutions in the Hipo Labs dataset also helped us match GitHub users to specific universities based on the email address associated with their account. Lastly, we added an additional “Misc. Student" category for GitHub users that reported being students without specific academic institutions. After classifying users into this sector, we used the GitHub commits data to construct networks where nodes represent GitHub users and edges correspond to the number of shared repositories that users can contributed. This page documents this approach and details some of our major findings. 
 
@@ -754,9 +754,9 @@ ggplot(us_academic_counts[(.N-20):.N, ], aes(color = type)) +
                                   colour ="black")) 
 ```
 
-### Limitations 
+### Limitations and Future Steps 
 
-[Please explain the limitations of your approach. For example, using a US-based dataset likely means you more accurately counted these instiutions.]
+[Please explain the limitations of your approach. For example, using a US-based dataset likely means you more accurately counted these instiutions. You could also explain what the next steps to your work would be.]
 
 ```{r, message = FALSE, results = FALSE, warning = FALSE, echo=FALSE}
 # connect to postgresql to get data (in rivanna)

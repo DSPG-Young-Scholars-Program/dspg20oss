@@ -11,13 +11,12 @@
     
     
     <item>
-      <title>Geographic Analyses of GitHub Users</title>
+      <title>Geographical Analyses of GitHub Users</title>
       <link>/findings/geographic/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>/findings/geographic/</guid>
-      <description>We conducted analysis on GitHub users&#39; geographic location, which was scraped from their public user profile. While 77.23% geographic information (country and city name) were missing, we were still able to map 488104 GitHub users in our final analyses.
-Top Continents Where GitHub Users are Located North America is the continent with the highest number of GitHub users - followed by Europe and Asia.</description>
+      <description>/* this chunk of code centers all of the headings */ h1, h2, h3 { text-align: center; }  Approach To analyze GitHub users by different geographical units, we used regular expressions to recode all self-reported location data available in the GHTorrrent data, finding ~770,000 users with valid country codes. In addition to this self-reported location data, GHTorrent also provides latitude and longitude information for GitHub users (assigned using the Open Street Maps API).</description>
     </item>
     
     <item>
