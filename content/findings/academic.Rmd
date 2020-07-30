@@ -593,7 +593,7 @@ country_user_percentages <- academic_counts %>%
   group_by(country) %>% 
   select(country, n) %>% 
   summarise(n = sum(n), percentage = sum(n) / sum(academic_counts[, "n"])) %>% 
-  mutate(percentage = round(percentage, 5)) %>% 
+  mutate(percentage = paste0(100 * round(percentage, 5), "%")) %>% 
   arrange(-n)
 ```
 
@@ -614,7 +614,7 @@ ggplot(data = academic_counts_sorted[(.N-10):.N,]) +
 
 ### Top OSS Countries in the Academic Sector 
 
-Generally, we found that users based in the United States are most prominently represented. Roughly one-third of the institutions represented in our data are from the US and users from those institutions make up around 55 percent of total users in the academic sector. In this figure, you can see that [Please explain the figure in more detail here.] 
+Generally, we found that users based in the United States are most prominently represented. Roughly one-third of the institutions represented in our data are from the US, and users from those institutions make up around 55 percent of total users in the academic sector. In this figure, you can see the locations with the greatest number of GitHub users in the academic sector (plotted on a logarithmic scale). Below the figure is a searchable table of countries, which includes the raw number of users at academic institutions in that country (n) as well as the percentage of users at academic institutions in that country compared to the rest of the world.
 
 ```{r, countries_users, fig.height = 9, fig.width = 12, warning = FALSE, echo=FALSE}
 #country_frequency_institutions <- academic_counts %>% group_by(country) %>% count(wt = n(), sort = TRUE)
@@ -681,19 +681,25 @@ datatable(country_user_percentages)
 
 ### Top OSS Universities Around the World
 
-[Please explain the figure in more detail here.]
+This figure shows which specific academic institutions had the greatest number of GitHub users contributing to OSS. The top 10 are all located in the US, though both China and Canada also have universities with a high number of contributors. Below the figure is another searchable table, this time of academic institutions.
 
-```{r, by_country, fig.height = 7, fig.width=12, warning = FALSE,  echo=FALSE}
+```{r, by_country, fig.height = 9, fig.width=12, warning = FALSE,  echo=FALSE}
 ggplot(academic_counts_sorted[(.N-20):.N, ], aes(color = country)) +
   geom_point(aes(x = organization, y = n), size = 4) +
   geom_segment(data = academic_counts_sorted[(.N-20):.N, ], mapping = aes(x = organization, xend = organization, y = 0, yend = n), size = 1) +
-  scale_color_manual(values = c("United States" = "#0E879C", "China" = "#E57200", "Canada" = "#232D4B")) +
-  labs(x = "Academic Institution", y = "Number of Users", color = "Country", title = "Top-20 Universities by Number of Users") +
+  scale_color_manual(labels = c("canada", "china", "united states"), 
+                     values = c("#0E879C", "#E57200", "#232D4B")) +
+  labs(x = "University", y = "Number of Users", color = "Country", title = "Top-20 Universities by Number of Users") +
   #theme_classic() +
   coord_flip() +
   theme_minimal() +
-  theme(plot.title = element_text(hjust = 0.3),
-        axis.text.y = element_text(size = 10),
+  theme(plot.title = element_text(size=23, hjust = 0.5),
+        axis.title =element_text(size=18),
+        axis.title.y =element_blank(),
+        axis.text.x = element_text(size = 18),
+        axis.text.y = element_text(size = 12),
+        legend.title=element_text(size=18, hjust = 0.5, face="bold"),
+        legend.text=element_text(size=18),
         legend.position = c(.9, .1),
         legend.justification = c("right", "bottom"),
         legend.box.just = "right",
@@ -708,9 +714,9 @@ datatable(transmute(academic_counts, organization = organization, n = n, country
 
 ### Top Universities in the United States 
 
-As we can see in the first figure, [Please explain the figure in more detail here.]
+Here we focus specifically on the US. The figure below details which US universities have the greatest number of contibutors to OSS, with the color indicating if the school is public or private. 
 
-```{r, us_universities, fig.height = 7, fig.width = 12,  warning = FALSE, echo=FALSE}
+```{r, us_universities, fig.height = 9, fig.width = 12,  warning = FALSE, echo=FALSE}
 us_academic_counts <- academic_counts_sorted %>% filter(country == "United States")
 
 type <- c("university of california, berkeley" = "public",
@@ -743,8 +749,13 @@ ggplot(us_academic_counts[(.N-20):.N, ], aes(color = type)) +
   #scale_y_reverse() +
   coord_flip() +
   theme_minimal() +
-  theme(plot.title = element_text(hjust = 0.35),
-        axis.text.y = element_text(size = 10),
+  theme(plot.title = element_text(size=23, hjust = 0.5),
+        axis.title =element_text(size=18),
+        axis.title.y =element_blank(),
+        axis.text.x = element_text(size = 18),
+        axis.text.y = element_text(size = 12),
+        legend.title=element_text(size=18, hjust = 0.5, face="bold"),
+        legend.text=element_text(size=18),
         legend.position = c(.9, .1),
         legend.justification = c("right", "bottom"),
         legend.box.just = "right",
@@ -756,7 +767,12 @@ ggplot(us_academic_counts[(.N-20):.N, ], aes(color = type)) +
 
 ### Limitations and Future Steps 
 
-[Please explain the limitations of your approach. For example, using a US-based dataset likely means you more accurately counted these instiutions. You could also explain what the next steps to your work would be.]
+There are limitations to the methods we used to categorize users into the academic sector. For one, we relied heavily on the university dataset from Hipo Labs, which is not without its own flaws, including consistency and coverage. Also, both we, the researchers, and Hipo Labs are based in North America, which likely means that we more accurately accounted for the academic institutions located here than those in the rest of the world. This is compounded with the fact the GitHub is also a US-based company and is a common software hosting platform here, but there may be other popular options in different parts of the world that we are not accounting for. 
+
+Additionally, some compromises had to be made concerning university systems, or universities with multiple campuses. In general, for simplicity, we only categorized users into the flapship institution/campus for that system. For example, any user whose self-reported affiliation includes "University of Michigan" was grouped into "University of Michigan - Ann Arbor", even if they were actually affiliated with the Flint campus of the university. However, there are a few exceptions: the campuses of the University of California system and the University of Illinois system were treated as separate, as were the member institutions of the University of London.
+
+Other concerns include users reporting affiliations with more than one institution and users reporting their affiliations in different languages. 
+
 
 ```{r, message = FALSE, results = FALSE, warning = FALSE, echo=FALSE}
 # connect to postgresql to get data (in rivanna)

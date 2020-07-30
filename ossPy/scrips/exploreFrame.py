@@ -49,7 +49,7 @@ tableUniqueCounts=columnUniqueCounts.reset_index()
 tableUniqueCounts.rename(columns={0:"count","index":"token"},inplace=True)
 
 #now for unique full names
-tableUniqueFullNameCounts=semiCleanedOutput.iloc[:,0].value_counts()
+tableUniqueFullNameCounts=inputRaw.iloc[:,0].value_counts()
 #convert that output to a proper table
 tableUniqueFullNameCounts=tableUniqueFullNameCounts.reset_index()
 
@@ -59,11 +59,11 @@ tableUniqueFullNameCounts=tableUniqueFullNameCounts[~tableUniqueFullNameCounts['
 
 [^a-zA-Z\d\s:]
 #perform a regex search
-dataTest1=tableUniqueCounts[tableUniqueCounts['token'].str.contains("[^a-zA-Z\-@\.\,\\d\\s:]")]
+dataTest1=tableUniqueCounts[tableUniqueCounts['com'].str.contains("[^a-zA-Z\-@\.\,\\d\\s:]")]
 dataTest1=tableUniqueCounts[tableUniqueCounts['token'].str.contains("href")]
 dataTest2=tableUniqueCounts2[tableUniqueCounts2['token'].str.contains("\.")]
 
-dataTest3=tableUniqueFullNameCounts[tableUniqueFullNameCounts['guesses'].str.contains("Microsoft")]
+dataTest3=tableUniqueFullNameCounts[tableUniqueFullNameCounts['company'].str.contains("Argonne")]
 
 dataTest3=tableUniqueCounts[tableUniqueCounts['token'].str.contains("^\\W+?$")]
 

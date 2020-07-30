@@ -327,6 +327,8 @@
 '(?i) cyf\.\b'
 '(?i) EIRELI\b'
 '(?i) C\.I\.C\.\b'
+'(?i)pvt\.'
+'(?i)pvt'
 '(?i) co\.\b'
 '(?i) co\b'
 
