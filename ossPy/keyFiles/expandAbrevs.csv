@@ -5,7 +5,9 @@
 '\b(?i)st\.', Saint
 '(?i)inst\.',institute
 '(?i)u\. of', university of
-'(?i)awslabs|\baws\b', Amazon Web Services
-'(?i)redhat',Red Hat
-'HewlettPackard|Hewlett Packard Enterprise', Hewlett Packard
-
+'(?i)awslabs', Amazon Web Services 
+'(?i)\baws\b', Amazon Web Services
+'(?i)\bamzn\b', Amazon
+'(?i)redhat', Red Hat
+'(?i)HewlettPackard', Hewlett Packard
+'(?i)Hewlett Packard Enterprise', Hewlett Packard

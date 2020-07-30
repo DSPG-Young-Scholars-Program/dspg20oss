@@ -42,3 +42,34 @@ dataTest2=tableUniqueFullNameCounts[tableUniqueFullNameCounts['company'].str.con
 
 freelanceSum=np.sum(dataTest2['count'])
 allSum=np.sum(tableUniqueFullNameCounts['count'])
+
+def addBooleanColumnFromCriteria(inputDataToAssess,assessItems,newColumnName):
+    """iteratively determine if input column contains member of other column
+    
+    Keyword arguments:
+    inputDataToAssess -- a column from a pandas dataframe, this will be the set of
+    target words/entries that deletions will be made from
+    assessItems -- a seriers or dataframe containing strings
+    (regex expressions) which will be searched for (as substrings)
+    in the inputDataToAssess.  This will be done in an iterative fashion, and
+    a bolean vector will be created and appended to the output, indicating
+    which entries in inputDataToAssess contained a substring from assessItems.
+    newColumnName -- name of the new column (i.e. 'government', 'academic', etc.)
+    """
+    
+   import pandas as pd
+   import re
+   
+   inputDataToAssess[newColumnName]=False
+   
+   #necessary, due to escape nonsense
+   inputColumn=inputColumn.replace(regex=True, to_replace='\\\\',value='/')
+     
+   for index, row in newColumnName.iterrows():
+       
+       curReplaceVal=row[0]
+       currentRegexExpression=re.compile(curReplaceVal)
+       CurrentBoolVec=inputColumn.str.contains(currentRegexExpression,na=False)
+       inputDataToAssess[newColumnName].loc[CurrentBoolVec]=True
+
+   return inputDataToAssess;
