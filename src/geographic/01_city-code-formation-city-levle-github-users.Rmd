@@ -14,9 +14,7 @@ knitr::opts_chunk$set(echo = TRUE)
 rm(list = ls())
 
 # load packages 
-for (pkg in c("tidyverse", "igraph", "visNetwork", "data.table", "R.utils", "RPostgreSQL", "cowplot", "maditr", "stringr", "stringi", "mosaic", "sf", "raster", "dplyr", "spData", "spDataLarge", "tmap", "leaflet", "mapview", "ggplot2", "shiny", "maps", "plotly")) {
-  library(pkg, character.only = TRUE)
-}
+for (pkg in c("tidyverse", "data.table", "R.utils", "RPostgreSQL", "cowplot", "maditr", "stringr", "stringi",  "dplyr", "leaflet", "leaflet.extras", "sp", "maps", "maptools", "statebins", "tools", "statebins","sp", "maps", "maptools")) {library(pkg, character.only = TRUE)}
 
 
 # connect to postgresql to get our data
@@ -31,13 +29,44 @@ conn <- dbConnect(drv = PostgreSQL(),
 users_gh <- dbGetQuery(conn, "SELECT login, created_at, city, state, country_code, location, long, lat
                               FROM gh.ctrs_raw")
 
+ctrs_extra <- dbGetQuery(conn, "SELECT login, created_at, city, state, country_code, location, long, lat, cc_multiple, cc_viz
+                              FROM gh.ctrs_extra")
+
+country_code_dict <- dbGetQuery(conn, "SELECT *
+                                FROM datahub.country_codes")
 # disconnect from postgresql database 
 dbDisconnect(conn)
 
 source("~/git/dspg20oss/src/geographic/00_functions.R", echo = T, prompt.echo = "", spaced = F)
 ```
 
+# Finished product
+## Write the updated citycode to pgAdmin
+```{r}
+ls_cleancity <- cleancity(ctrs_extra, country_code_dict)
 
+city_clean_final <- ls_cleancity$cleaned_df
+table(is.na(city_clean_final$c_city_code)) #limit to ppl who have city code
+colnames(city_clean_final)#check the variables
+
+# reconnecting to the database 
+conn <- dbConnect(drv = PostgreSQL(), 
+                  dbname = "sdad", 
+                  host = "10.250.124.195", 
+                  port = 5432, 
+                  user = Sys.getenv("db_userid"), 
+                  password = Sys.getenv("db_pwd"))
+# writing the new city_clean_finall table to postgis_2
+dbWriteTable(conn, c("gh", "sna_ctr_city_codes"), city_clean_final, row.names=F)
+# disconnect from postgresql database  
+dbDisconnect(conn)
+
+#grant access on pgAdmin
+#GRANT SELECT ON TABLE gh.___ TO ncses_oss;  
+```
+
+
+# Process forming city code
 ```{r eda, message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
 
 user_us <- users_gh%>%
@@ -101,13 +130,6 @@ The final "city_code" is a concactinated form of:
   -city
   -latitude (round to a whole number)
   -longitude (round to a whole number)
-
-
-# Clean citycode
-```{r message=FALSE, warning=FALSE, paged.print=FALSE}
-ls_cleancity <- cleancity(users_gh)
-```
-
 
 # city code analysis
 ```{r city code and visualization, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}

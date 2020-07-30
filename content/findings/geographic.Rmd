@@ -21,7 +21,7 @@ knitr::opts_chunk$set(echo = TRUE)
 rm(list = ls())
 
 # load packages
-for (pkg in c("tidyverse", "data.table", "R.utils", "RPostgreSQL", "cowplot", "maditr", "stringr", "stringi",  "dplyr", "leaflet", "leaflet.extras")) {library(pkg, character.only = TRUE)}
+for (pkg in c("tidyverse", "data.table", "R.utils", "RPostgreSQL", "cowplot", "maditr", "stringr", "stringi",  "dplyr", "leaflet", "leaflet.extras", "tools", "statebins")) {library(pkg, character.only = TRUE)}
 
 
 # connect to postgresql to get our data
@@ -32,15 +32,13 @@ conn <- dbConnect(drv = PostgreSQL(),
                   user = Sys.getenv("db_userid"), 
                   password = Sys.getenv("db_pwd"))
 
-# query the ctrs_extra data from github data 
-ctrs_extra <- dbGetQuery(conn, "SELECT login, created_at, city, state, country_code, location, long, lat, cc_multiple, cc_viz
-                              FROM gh.ctrs_extra")
+# query the city code data
+city_clean_final <- dbGetQuery(conn, "SELECT *
+                              FROM gh.sna_ctr_city_codes")
+
 
 # disconnect from postgresql database 
 dbDisconnect(conn)
-
-#source functions 
-source("~/git/dspg20oss/src/geographic/00_functions.R", echo = T, prompt.echo = "", spaced = F)
 
 #https://coolors.co/232d4b-2c4f6b-0e879c-60999a-d1e0bf-d9e12b-e6ce3a-e6a01d-e57200-fdfdfd
 uva_color_palette <- 
@@ -54,20 +52,25 @@ c("#232D4B", #space cadet
   "#E6A01D", #marigold
   "#E57200" #princeton orange
 )
-new_sample <- ctrs_extra%>%
-  filter(is.na(country_code) & !is.na(cc_multiple))
 
-ls_cleancity <- cleancity(ctrs_extra)
-
-city_clean_final <- ls_cleancity$cleaned_df
-nrow(city_clean_final)
+CapStr <- function(y) {
+  c <- strsplit(y, " ")[[1]]
+  paste(toupper(substring(c, 1,1)), substring(c, 2),
+        sep="", collapse=" ")
+}
 ```
 
-We conducted analysis on GitHub users' geographic location, which was scraped from their public user profile. While `r round(sum(is.na(ctrs_extra$cc_multiple) | is.na(ctrs_extra$city))/nrow(ctrs_extra) * 100, digits = 2)`% geographic information (country and city name) were missing, we were still able to map `r sum(!is.na(ctrs_extra$cc_multiple) & !is.na(ctrs_extra$city))` GitHub users in our final analyses.
+We conducted analysis on GitHub users' geographic location, which was scraped from their public user profile. In our analysis we are focusing on the GitHub users who has contributed in a licensed R package. While 77.23% geographic information (country and city name) were missing, we were still able to map `r sum(!duplicated(city_clean_final$raw_login))` GitHub users in our final analyses.
+
+### Forming city code
+The goal of forming city code is to understand the city-levl network. This will enable us to answer questions like what's the most influential city? Is this city more likely to form domestic collaborations or international collaborations? Our city code is a combination of country name, city name and geocode (latitude and longitude). Geocode is critical to differentiate two city within the same country.You will be surprised to see how many [Greenvilles are there in the U.S.](https://en.wikipedia.org/wiki/Greenville) Meanwhile, the original geocode is accurate to the sixth digit, users located in the same city might have slightly different gocode. We propose a geocode cleaning and aggreating process:    
+**Cleaning**: round the geocode (latitude+longitude) to a whole number.    
+**Aggregating**: group the cities with geocode that are within 2 degree difference together.   
 
 ```{r clean citycode, message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
 #aggregate by continent
 city_clean_final_aggregate_continent<- city_clean_final%>%
+  filter(!is.na(c_continent_name))%>%
   group_by(c_continent_name)%>%
   summarize(ttl_users = n(), `percent (%)` = round(ttl_users/nrow(city_clean_final)*100, digits = 2))%>%
   arrange(desc(ttl_users))
@@ -103,9 +106,9 @@ city_clean_final_aggregate <- city_clean_final_aggregate%>%
 
 ### Top Continents Where GitHub Users are Located 
 
-North America is the continent with the highest number of GitHub users - followed by Europe and Asia.
+North America is the continent with the highest number of GitHub users - followed by Europe and Asia. Later, we breakdown our network into six networks for each continent and investigate collaborations within network and across networks.
 
-```{r fig.width=8, fig.height=6, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+```{r fig.width=9.5, fig.height=5, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 gh_continent<- city_clean_final_aggregate_continent%>%
   arrange(desc(ttl_users))
 
@@ -126,9 +129,9 @@ ggplot(gh_continent, aes(x = Continent_Name, y = ttl_users, fill = ttl_users))+
 
 ### Top Countries Where GitHub Users are Located 
 
-United States has the highest number of GitHub users with nearly four times as much as China, United Kingdom, or India.
+United States has the highest number of GitHub users (N=166,140) with nearly four times as much as China (N=38,391). The differences are much smaller among United Kingdom, India, Russia, and the rest of the countries in the following figure.
 
-```{r fig.width=9, fig.height=6, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+```{r fig.width=9.5, fig.height=6, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 gh_country <- city_clean_final_aggregate_country%>%
   arrange(desc(ttl_users))%>%
   top_n(10, ttl_users)
@@ -158,8 +161,44 @@ ggplot(gh_country, aes(x = c_country_name, y = ttl_users, fill = ttl_users)) +
        x = "Country", y = "Total Number of Users", fill = "Total Number \n    of Users") +
   theme_bw()+
   theme(legend.spacing.y = unit(1,"cm"))
+```
 
+### Where Are GitHub Users Scattered in the U.S?
 
+The U.S. has the largest number of GitHub users. They are mostly located in the west and east coast, having California, New Jersey, Washington, Texas, and Massachusetts being the top five states. Sectoring analysis would provide more insights on the reasons GitHub users are located in these states. This also ties to the technical industry being heavily centered in these areas. 
+
+```{r fig.width=9.5, fig.height=6, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+state_ttl_user <- city_clean_final%>%
+  filter(!is.na(c_us_state))%>%
+  group_by(c_us_state)%>%
+  summarize(ttl_users = n())%>%
+  mutate(c_us_state = tools::toTitleCase(c_us_state))
+
+quantile <- quantile(state_ttl_user$ttl_users, probs = seq(0, 1, 0.2), na.rm = FALSE, names = TRUE, type = 7)
+
+state_ttl_user <- state_ttl_user%>%
+  mutate(ttl_users_quantile = if_else(ttl_users < quantile[2], "[56, 399)",
+                              if_else(ttl_users < quantile[3], "[399, 728)",
+                              if_else(ttl_users < quantile[4], "[728, 1961)",
+                              if_else(ttl_users < quantile[5], "[1961, 3885)", "[3885, 40379)")))))
+
+#table(state_ttl_user$ttl_users_quantile)
+
+state_ttl_user$ttl_users_quantile <- factor(state_ttl_user$ttl_users_quantile, levels = c("[56, 399)", "[399, 728)","[728, 1961)","[1961, 3885)", "[3885, 40379)" ))
+
+statebins(state_ttl_user,
+          state_col = "c_us_state",
+          value_col = "ttl_users_quantile",
+          name = "Total Number of Users \n by Quantile Groups",
+          ggplot2_scale_function = scale_fill_brewer )+
+  theme_statebins(legend_position = "right")
+
+# statebins(state_ttl_user, 
+#           state_col = "c_us_state", 
+#           value_col = "ttl_users_quantile",
+#           name = "Total Number of Users \n by Quantile Groups", 
+#           brewer_pal =  c(uva_color_palette[1], uva_color_palette[2], uva_color_palette[3], uva_color_palette[4], uva_color_palette[5]))+
+#   theme_statebins(legend_position = "right")
 ```
 
 

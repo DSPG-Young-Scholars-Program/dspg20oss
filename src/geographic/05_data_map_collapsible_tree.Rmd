@@ -7,117 +7,132 @@ editor_options:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-
 library(collapsibleTree)
 library(dplyr)
 library(tidyr)
-library(gt)
 ```
 
 # Construct Dataframe
-```{r}
+```{r message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
 OSS <- data.frame(
     Sector = c(
-        "Academic", "Academic","Academic", "Academic", "Academic", "Academic","Academic","Academic","Academic","Academic","Academic","Academic","Academic","Academic","Academic","Academic","Academic","Academic","Academic",
+        "Academic", "Academic","Academic", "Academic", "Academic",    
+        "Academic","Academic","Academic","Academic","Academic",
+        "Academic","Academic","Academic","Academic","Academic", 
+        "Academic",
+      
         
-        "Business","Business","Business","Business","Business", "Business", "Business", "Business", "Business", "Business","Business","Business", "Business",
+        "Business","Business","Business","Business","Business", 
+        "Business", "Business", "Business", "Business", "Business",
+          "Business","Business","Business","Business","Business", 
+        "Business", "Business", "Business", "Business", "Business",
+          "Business","Business","Business","Business","Business", 
+        "Business", "Business", "Business", "Business", "Business",
+        "Business","Business",
+       
         
-        "Government", "Government","Government", "Government","Government","Government","Government", "Government", "Government","Government", "Government", "Government",
+        "Government", "Government","Government","Government","Government",
+        "Government","Government", "Government", "Government","Government",
+        "Government", "Government","Government", "Government","Government",
+        "Government","Government","Government","Government", "Government",
+        "Government","Government", "Government",  "Government",
         
-        "International","International","International"
+        "Nonprofit","Nonprofit","Nonprofit","Nonprofit","Nonprofit",
+         "Nonprofit","Nonprofit","Nonprofit","Nonprofit","Nonprofit",  
+        "Nonprofit","Nonprofit","Nonprofit","Nonprofit","Nonprofit",
+         "Nonprofit","Nonprofit","Nonprofit","Nonprofit","Nonprofit",
+        "Nonprofit",
+        
+        "Geographic","Geographic","Geographic",  "Geographic","Geographic",
+        "Geographic","Geographic","Geographic",  "Geographic","Geographic",
+        "Geographic","Geographic","Geographic",  "Geographic"
     ),
     DataSource = c(
-      #academic
-        "github","github", "github","github","github",
-        "orcid", 
-        "hipolabs", "hipolabs","hipolabs",
-        "NCSES","NCSES", "NCSES", "NCSES","NCSES", "NCSES", "NCSES","NCSES", "NCSES","NCSES",
+         #academic
+        "GHTorrent", "GHTorrent", "GHTorrent", "GHTorrent", "GHTorrent", "GHTorrent", "GHTorrent",
+        "GitHub","GitHub", "GitHub","GitHub","GitHub",
+        "Hipo Labs", "Hipo Labs","Hipo Labs","Hipo Labs",
         
       #business
-      "github","github", 
-      "Enterprise-Driven OSS", "Enterprise-Driven OSS",  
-      "forbes",  "forbes", "forbes", 
-      "Global Legal Entity Identifier Foundation (GLEIF)", 
-      "Data Hub", "Data Hub", "Data Hub", 
-      "2020 US Business Database",
+      "GHTorrent", "GHTorrent", "GHTorrent", "GHTorrent", "GHTorrent", "GHTorrent", "GHTorrent",
+      "GitHub","GitHub", "GitHub","GitHub","GitHub",
+
+      "Forbes 2018 Fortune-1000",  "Forbes 2018 Fortune-1000", "Forbes 2018 Fortune-1000", "Forbes 2018 Fortune-1000","Forbes 2018 Fortune-1000","Forbes 2018 Fortune-1000","Forbes 2018 Fortune-1000",
+      
+      "Forbes 2019 Fortune-1000",  "Forbes 2019 Fortune-1000", "Forbes 2019 Fortune-1000", "Forbes 2019 Fortune-1000","Forbes 2019 Fortune-1000","Forbes 2019 Fortune-1000","Forbes 2019 Fortune-1000",
+      
+      "Forbes 2020 Global-2000", "Forbes 2020 Global-2000", "Forbes 2020 Global-2000", "Forbes 2020 Global-2000", "Forbes 2020 Global-2000", "Forbes 2020 Global-2000",
+     
       
     #gov  
-        "github","github", "System for Award Management (SAM)", "System for Award Management (SAM)","System for Award Management (SAM)","us gov","us gov","us gov","us gov","us gov","us gov", "code gov", "crowdsourced",
-     
-     #international
-       "github","github", "mindmap"
-    ),
-    SubData = c(
-      #academic
-        "contributor","contributor","contributor","contributor","commits", 
-        "orcid", 
-        "hipolabs", "hipolabs","hipolabs",
-        "Survey of Federal Science and Engineering Support 2018", "Survey of Federal Science and Engineering Support 2018", "Survey of Federal Science and Engineering Support 2018", "Survey of Federal Science and Engineering Support 2018", "Higher Education Research and Development Survey 2018", "Higher Education Research and Development Survey 2018", "Higher Education Research and Development Survey 2018", "Higher Education Research and Development Survey 2018", "Higher Education Research and Development Survey 2018", "Higher Education Research and Development Survey 2018", 
-        
-      #business
-        "contributor", "commits", 
-      "cohort project details", "enterprise project",
-      "Fortune's Annual Ranking of Companies 2018 (US 1000)", "Fortune's Annual Ranking of Companies 2019 (US 1000)", "Fortune's Annual Ranking of Companies 2020 (Global 2000)", 
-      "GLEIF", 
-      "email domains",  "email domains", "email domains", 
-      "2020 US Business Database",
-        
-      #gov
-        "contributor", "commits", 
-        "System for Award Management (SAM)","System for Award Management (SAM)","System for Award Management (SAM)","Federally Funded R&D Centers", "Federally Funded R&D Centers", 
-        "A-Z Index","A-Z Index", "A-Z Index","A-Z Index",
-        "code gov", "crowdsourced", 
+      "GHTorrent", "GHTorrent", "GHTorrent", "GHTorrent", "GHTorrent", "GHTorrent", "GHTorrent",
+      "GitHub","GitHub", "GitHub","GitHub","GitHub",
+      "US Gov A-Z Index", "US Gov A-Z Index", "US Gov A-Z Index", "US Gov A-Z Index",
+      "US Gov FFRDCs", "US Gov FFRDCs", "US Gov FFRDCs", "US Gov FFRDCs", "US Gov FFRDCs", "US Gov FFRDCs",
+      "US Gov Manual", "US Gov Manual",
     
-      #international    
-        "contributor", "commits", "mindmap"
+    #non profit
+      "GHTorrent", "GHTorrent", "GHTorrent", "GHTorrent", "GHTorrent", "GHTorrent", "GHTorrent",
+      "GitHub","GitHub", "GitHub","GitHub","GitHub",
+   
+      "Forbes Top-100 Charities","Forbes Top-100 Charities","Forbes Top-100 Charities", "Forbes Top-100 Charities", "Forbes Top-100 Charities", 
+   
+      "United Nation NGOs", "United Nation NGOs", 
+      "US Gov FFRDCs", "US Gov FFRDCs",
+    
+     #international
+      "GHTorrent", "GHTorrent", "GHTorrent", "GHTorrent", "GHTorrent", "GHTorrent", "GHTorrent",
+      "GitHub","GitHub", "GitHub","GitHub","GitHub",
+      "DataHub" , "DataHub" 
     ),
     Variables = c(
-        "login", "email","organization","company","commits",
-        "orcid", 
-        "institution",
-        "country",
-        "domains",
-        "institution", "rank","all federal obligations" , "R&D", "institution", "rank", "R&D expenditure", "federal gov fund", "state local gov fund", "institution funds",
+       #academic
+        "login(rename, username)", "company (affiliation)", "city", "state","country code", "latitude",  "longitude",  #7
+        "username","commits", "additions", "deletions", "created at", #5
+        "institution name", "country code", "email domain", "website",  #4
         
-        "contributor", "commits", 
-        "cohort project details", "enterprise project", 
-        "Fortune's Annual Ranking of Companies 2018 (US 1000)", "Fortune's Annual Ranking of Companies 2019 (US 1000)", "Fortune's Annual Ranking of Companies 2020 (Global 2000)", 
-        "country", 
-        "domain", "type", "organization", "2020 US Business Database",
+        #business
+         "login(rename, username)","company (affiliation)","city","state","country code",  "latitude",  "longitude",  #7 
+        "username","commits", "additions", "deletions", "created at", #5
         
-        "contributor", "commits",  "parent","fhorgtype", "fhorgname", "ffrdc name", "agency", "agency", "gov branch", "parent agency", "parent agency parent", "code gov", "crowdsourced", 
+        "company", "industry", "location", "revenue", "profits", "assets", "market value",  #7
+         "company", "industry", "location", "revenue", "profits", "assets", "market value",  #7
+         "company", "country", "sales", "profits", "assets",  "market value", #6
         
-        "contributor", "commits", "mindmap"
+        #gov
+        "login(rename, username)","company (affiliation)","city","state","country code",  "latitude",  "longitude", 
+        "username","commits", "additions", "deletions", "created at",
+        "gov branch", "gov agency", "gov subagency", "website",
+        "ffrdc", "ffrdc admin", "ffrdc url", "ffrdc location", "gov agency", "gov subagency",
+        "gov branch", "gov agency",
+        
+         #nonprofit
+        "login(rename, username)","company (affiliation)","city","state","country code",  "latitude",  "longitude", 
+        "username","commits", "additions", "deletions", "created at",
+        
+        "organization","acronym", "private support", "total revenue", "donor dependency", 
+   
+      "organization", "acronym", 
+      "ffrdc", "ffrdc admin", 
+      
+        "login(rename, username)","company (affiliation)","city","state","country code",  "latitude",  "longitude", 
+        "username","commits", "additions", "deletions", "created at",
+        "continent name", "country code"
     )
 )
 
-OSS%>%
-  top_n(10)%>%
-  gt()
-
+#check whether the number of each sector-datasource are correct
+check <- OSS %>%
+  group_by(Sector, DataSource)%>%
+  summarize(N=n())
 ```
 
 # Collapsible Tree
-```{r}
-# OSS <- OSS%>%
-#   mutate(Color = if_else(Sector == "Academic", "#E57200",
-#                          if_else(Sector == "Business", "#232D4B",
-#                                  if_else(Sector == "Government", "#E57200", 
-#                                         "#232D4B"))))
-
-
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 collapsibleTree(OSS, 
-                c("Sector", "DataSource", "SubData", "Variables"), 
+                c("Sector", "DataSource", "Variables"), 
                 collapsed = T,
                 fill ="#E57200"
 )
-
-# length(Sector)
-# length(DataSource)
-# length(SubData)
-# length(Variables)
-
-
-
 ```
 

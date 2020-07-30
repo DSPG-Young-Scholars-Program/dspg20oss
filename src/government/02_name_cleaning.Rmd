@@ -10,12 +10,12 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r}
-for (pkg in c("tidyverse", "igraph", "data.table", "R.utils", "RPostgreSQL", "cowplot", "maditr", "gt")) {library(pkg, character.only = TRUE)}
+for (pkg in c("tidyverse", "igraph", "data.table", "R.utils", "RPostgreSQL", "cowplot", "maditr", "gt", "tidytext")) {library(pkg, character.only = TRUE)}
 
 # connect to postgresql to get our data
 conn <- dbConnect(drv = PostgreSQL(), 
                   dbname = "sdad", 
-                  host = "10.250.124.195", 
+                  host = "10.250.124.195",
                   port = 5432, 
                   user = Sys.getenv("db_userid"), 
                   password = Sys.getenv("db_pwd"))
@@ -79,46 +79,62 @@ email_domain_cc$email_domain <- str_replace_all(email_domain_cc$email_domain, fi
 dbDisconnect(conn)
 ```
 
+# A count of missingness
+```{r eval=FALSE, message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
+gh_extra_not_na_email <- gh_extra %>%
+ filter(!is.na(email))
+
+nrow(gh_extra_not_na_email) 
+nrow(gh_extra_not_na_email) /nrow(gh_extra) *100
+
+gh_extra_not_na_company <- gh_extra %>%
+ filter(!is.na(company))
+
+nrow(gh_extra_not_na_company) 
+nrow(gh_extra_not_na_company) /nrow(gh_extra) *100
+
+
+gh_extra_not_na <- gh_extra %>%
+ filter(!is.na(email) | !is.na(company))
+nrow(gh_extra_not_na) 
+nrow(gh_extra_not_na) /nrow(gh_extra) *100
+```
+
 # Split github user data into users with email and users with no email
 ```{r}
-#gh_extra_not_na <- gh_extra %>%
-#  filter(!is.na(email) | !is.na(company))
 #match email adress domain
 gh_extra <- gh_extra%>%
-  as.data.table() #convert to data table
+  as.data.table()%>%#convert to data table
+  mutate(email_domain_full =  str_extract(email, "(?<=@).*")) #all strings after @
 
-gh_extra_email <- gh_extra%>%
-  filter(!is.na(email))
+gh_extra_email <- gh_extra%>%  
+  filter(!is.na(email_domain_full))
 
 nrow(gh_extra_email)
 nrow(gh_extra_email)/nrow(gh_extra) #27% of github users had email address
 
 ##github users don't have emails
 gh_extra_no_email <- gh_extra%>%
-  filter(is.na(email))%>%
+  filter(is.na(email_domain_full))%>%
   select(login, email, company, cc_multiple) %>% #prepare for a join
   mutate(is.gov = NA)
 
 nrow(gh_extra_no_email)
 ```
 
-
+# Matching
 ## Email domain matching
 Match email address country domain, gov|fed.us|.mi matching
 ```{r}
 #construct a list of country email domain
 email_domain_country_vector <- unlist(email_domain_cc$email_domain)
-email_domain_country_pattern <- email_domain_country_vector[1]
-for (i in 2:length(email_domain_country_vector)){
-  email_domain_country_i<- email_domain_country_vector[i]
-  email_domain_country_pattern <- paste(email_domain_country_pattern, email_domain_country_i, sep = "$|")
-}
+email_domain_country_pattern <- paste(email_domain_country_vector, collapse="$|")
+
 #format into regex search pattern
 email_domain_country_pattern <- paste("\\b(?i)(", email_domain_country_pattern, "$)\\b", sep="")
 
 gh_extra_email <- gh_extra_email %>%
-  select(login, email, company, cc_multiple)%>% #might add cc_multiple later
-  mutate(email_domain_full =  str_extract(email, "(?<=@).*"))%>% #all strings after @
+  select(login, email, company, cc_multiple, email_domain_full)%>% #might add cc_multiple later
   mutate(email_domain_first = str_extract(email_domain_full, ".*(?=[.])"))%>% #first part of the full domain
   #match goverment email domain (gov, fed.us, mil)
   mutate(is_gov_email_domain = if_else(str_detect(email_domain_full, "\\b(?i)(gov|fed.us|.mil)\\b") == T, T, F)) %>% #note that we are matching any string that contains gov 
@@ -196,11 +212,7 @@ gh_extra_email_final <- gh_extra_email%>%
 ## Full-string matching on identified company names from users previously identified in government sector using email domain
 ```{r}
 gh_extra_company <- rbind(gh_extra_no_email, gh_extra_email_final)
-
-# string <- " us geology"
-# str_replace_all(string, "\\b(?i)(u.s.| us|^us)\\b", "united states")   
-#  str_replace_all(string, fixed("u.s."), "united states") 
-
+nrow(gh_extra_company)
 #company cleaning
 gh_extra_company <- gh_extra_company%>%
     mutate(company = tolower(company))
@@ -210,32 +222,30 @@ gh_extra_company$company <- str_replace_all(gh_extra_company$company, "\\b(?i)( 
 
 #remove all non-alphanumeric characters in the company string
 gh_extra_company$company <- str_replace_all(gh_extra_company$company,"[^[:alnum:]]", " ") 
+
+gh_extra_company$c_company <- str_replace_all(gh_extra_company$company, "\\b(?i)(of|and|the|de|for|at|with|from|to|in|on|by|about|as)\\b", "")  
+
 #remove leading space induced by the previous step
-gh_extra_company$company <- trimws(gh_extra_company$company) 
+gh_extra_company$c_company <- trimws(gh_extra_company$c_company) 
 
 company_confirm_gov <- gh_extra_company%>%
   filter(is.gov)%>%
-  group_by(company)%>%
+  group_by(c_company)%>%
   summarize(N=n())%>%
-  filter(company != "")%>%
-  filter(!is.na(company))%>%
+  filter(c_company != "")%>%
+  filter(!is.na(c_company))%>%
   arrange(desc(N))%>%
   filter(N > 1) #cutoff threshold: 1
 
 #full string matching
-company_confirm_gov_vector <- unlist(company_confirm_gov$company)
+company_confirm_gov_vector <- unlist(company_confirm_gov$c_company)
 
-
-company_confirm_gov_pattern <- company_confirm_gov_vector[1]
-for (i in 2:length(company_confirm_gov_vector)){
-  company_confirm_gov_i<- company_confirm_gov_vector[i]
-  company_confirm_gov_pattern <- paste(company_confirm_gov_pattern, company_confirm_gov_i, sep = "|")
-}
+company_confirm_gov_pattern<-paste(company_confirm_gov_vector, collapse="|")
 
 company_confirm_gov_pattern <- paste("\\b(?i)(", company_confirm_gov_pattern, ")\\b", sep="")
 
 gh_extra_company <- gh_extra_company%>%
-  mutate(company_match_gov = if_else(str_detect(company, company_confirm_gov_pattern) == T, T, F))%>%
+  mutate(company_match_gov = if_else(str_detect(c_company, company_confirm_gov_pattern) == T, T, F))%>%
   mutate(company_match_gov= replace_na(company_match_gov, FALSE))
 
 table(filter(gh_extra_company, !is.gov)$company_match_gov)
@@ -252,30 +262,53 @@ table(gh_extra_company$is.gov)
 #companies names listed by previously identified users in government sector
 company_list <- gh_extra_company%>%
   filter(is.gov)%>%
-  select(company)%>%
-  filter(!is.na(company))
+  select(c_company)%>%
+  filter(!is.na(c_company))
 
 #bigrams
+company_list_bigrams <- company_list %>%
+  unnest_tokens(bigram, c_company, token = "ngrams", n = 2)%>%
+  count(bigram, sort=T) %>%
+  filter(n > 1)
+company_list_bigrams_vector <- unlist(company_list_bigrams$bigram)
 
+#trigrams
+company_list_trigrams <- company_list %>%
+  unnest_tokens(trigram, c_company, token = "ngrams", n = 3)%>%
+  count(trigram, sort=T)
+
+#quatrigrams
+company_list_quatrigrams <- company_list %>%
+  unnest_tokens(quatrigram, c_company, token = "ngrams", n = 4)%>%
+  count(quatrigram, sort=T)
+
+
+
+
+false_positives <- c("united states", "research center", "home office", "state university", "university chicago", "columbia university", "university manchester", "university washington", "university brookhaven") #note that we don't want to exclude strings that include university since there are useful ones, which induces false negatives. hereby we manually write out false positive ones. 
+company_list_bigrams_vector <- setdiff(company_list_bigrams_vector, false_positives)
+
+
+company_list_bigrams_vector_pattern<-paste(company_list_bigrams_vector, collapse="|")
+
+company_list_bigrams_vector_pattern <- paste("\\b(?i)(", company_list_bigrams_vector_pattern, ")\\b", sep="")
+
+gh_extra_company <- gh_extra_company%>%
+  mutate(bigram_match_company = if_else(str_detect(c_company, company_list_bigrams_vector_pattern) == T, T, F))%>%
+  mutate(bigram_match_company= replace_na(bigram_match_company, FALSE))
+#table(gh_extra_company$bigram_match_company)
+table(filter(gh_extra_company, !is.gov)$bigram_match_company)
+gh_extra_company <- gh_extra_company%>%
+  mutate(is.gov = if_else(bigram_match_company==T, T, is.gov))
+
+table(gh_extra_company$is.gov)
 
 #singletons
-bag_of_words <- as.data.frame(unlist(strsplit(company_list$company, "\\ ")))
+bag_of_words <- as.data.frame(unlist(strsplit(company_list$c_company, "\\ ")))
 colnames(bag_of_words) <- "company"
 bag_of_words <- bag_of_words%>%
   group_by(company)%>%
   summarize(N=n())
-
-gh_extra_company <- gh_extra_company%>%
-  mutate(bagofword_match_gov = if_else(str_detect(company, "\\b(?i)(national|laboratory|argonne|geological|nasa|survey|alamos|nist|province)\\b") == T, T, F))%>%
-  mutate(bagofword_match_gov= replace_na(bagofword_match_gov, FALSE))
-
-table(filter(gh_extra_company, !is.gov)$bagofword_match_gov)
-
-
-gh_extra_company <- gh_extra_company%>%
-  mutate(is.gov = if_else(bagofword_match_gov==T, T, is.gov))
-
-table(gh_extra_company$is.gov)
 ```
 
 ## U.S. Government Department/Agency name matching
@@ -318,7 +351,7 @@ ffrdc_list_agency <- us_gov_ffrdcs%>%
   rename(institution = agency_name)%>%
   mutate(dataset = "ffrdc_agency")
 
-##II.2 sub agency
+##II.3 sub agency
 ffrdc_list_sub_agency <- us_gov_ffrdcs%>%
   select(FFRDC_Name, Sub_Agency, Sub_Agency2, Sub_Agency3)%>%
   gather("agency_type", "agency_name")%>%
@@ -327,57 +360,151 @@ ffrdc_list_sub_agency <- us_gov_ffrdcs%>%
   rename(institution = agency_name)%>%
   mutate(dataset = "ffrdc_sub_agency" )
 
+##II.4. 
+ffrdc_list_admin <- us_gov_ffrdcs%>%
+  select(Admin_Name)%>%
+  filter(!is.na(Admin_Name))
+
+ffrdc_list_admin$Admin_Name <- str_replace_all(ffrdc_list_admin$Admin_Name, fixed("Corp."), "Corporation") 
+
+`%notin%` <- Negate(`%in%`)
+
+ffrdc_list_admin <- ffrdc_list_admin %>%
+  distinct(Admin_Name) %>% 
+  rename(institution = Admin_Name)%>%
+  mutate(dataset = "ffrdc_admin")%>%
+  filter(institution %notin% c("University of California", "Stanford University", "Princeton University", "Massachusetts Institute of Technology", "Iowa State University", "Carnegie Mellon University", "California Institute of Technology"))
+
+  
 #III.usman
 usman_list <- us_gov_manual%>%
   distinct( AgencyName)  %>% 
   rename(institution = AgencyName)%>%
   mutate(dataset = "usman")
 
-all_lists <- rbind(az_list_agency, az_list_gov_agency, az_list_gov_branch, az_list_child_agency, ffrdc_list_agency, ffrdc_list_sub_agency, usman_list)
-all_lists <- distinct(all_lists, institution, .keep_all = TRUE)
 
-all_lists_clean <- all_lists %>% 
-  arrange(institution)%>% 
-   filter(!is.na(institution))%>%
-   mutate(institution = tolower(institution))%>%
-   mutate(institution2 = str_replace_all(institution , fixed("u.s."), "united states"))%>%
-   gather("institution_type",  "institution_name", -dataset)%>%
-   select(-institution_type)%>%
-   distinct(institution_name, .keep_all=T)%>%
-   rename(institution = institution_name)
+# bind all lists
+all_lists <- rbind(az_list_agency, az_list_gov_agency, az_list_gov_branch, az_list_child_agency, ffrdc_list_agency, ffrdc_list_sub_agency, ffrdc_list_admin, usman_list)
+#all_lists <- distinct(all_lists, institution, .keep_all = TRUE) #exclude duplicates
 
 
-all_lists_clean <- as.data.frame(unlist(strsplit(all_lists_clean$institution, "\\(")))
-names(all_lists_clean) <- "institution"
-all_lists_clean$institution <- str_replace_all(all_lists_clean$institution , fixed(")"), "") 
+abb_ls <- str_extract_all(all_lists$institution, "\\(.+?\\)")
+abb_ls[abb_ls=="character(0)"] <- NA
+institution_abb <- unlist(abb_ls)
+
+#extract abbreviation
+all_lists_clean <- cbind(all_lists, institution_abb)
+
+all_lists_clean$institution <- sub(" *\\(.*", "", all_lists_clean$institution)
+
+all_lists_clean$institution_abb <- str_replace_all(all_lists_clean$institution_abb , fixed("("), "") 
+all_lists_clean$institution_abb <- str_replace_all(all_lists_clean$institution_abb , fixed(")"), "") 
+# table(duplicated(all_lists_clean$institution))
+# check <- all_lists_clean %>%
+#   group_by(institution)%>%
+#   summarize(N=n())
+
+abb <- all_lists_clean%>%
+  filter(!is.na(institution_abb))%>%
+  select(institution, institution_abb)
+
+all_lists_clean_final <- all_lists_clean%>%
+  left_join(abb, by = "institution")%>%
+  select(-institution_abb.x)%>%
+  rename(institution_abb = institution_abb.y)
+
+#write.csv(all_lists_clean_final, file = "us_gov_name_list.csv")
+
+#deduplicate
+all_lists_clean <- distinct(all_lists_clean, institution, .keep_all = TRUE) #exclude duplicates
+
+#institution cleaning, the same as gh company name cleaning
+all_lists_clean <- all_lists_clean%>%
+    mutate(institution = tolower(institution))%>% 
+   filter(!is.na(institution))
+
+all_lists_clean$institution <- str_replace_all(all_lists_clean$institution, fixed("u.s."), "united states") 
+
+all_lists_clean$institution <- str_replace_all(all_lists_clean$institution, "\\b(?i)( us|^us)\\b", "united states")  #note here we have "space us" to avoid catch .us email domain in the company  name. Also note that u.s. pattern can't be identified
+
+#remove all non-alphanumeric characters in the company string
+all_lists_clean$institution <- str_replace_all(all_lists_clean$institution,"[^[:alnum:]]", " ") 
+
+all_lists_clean$c_institution <- str_replace_all(all_lists_clean$institution, "\\b(?i)(of|and|the|de|for|at|with|from|to|in|on|by|about|as)\\b", "")  
+
+#remove leading space induced by the previous step
+all_lists_clean$c_institution <- trimws(all_lists_clean$c_institution) 
 
 all_lists_clean <- all_lists_clean%>%
-  mutate(num_alp = str_length(institution))%>%
-  filter(num_alp >2)
+  mutate(num_alp = str_length(c_institution))%>%
+  filter(num_alp >2)   #fix duplicates
+
+all_lists_clean <- distinct(all_lists_clean, c_institution, .keep_all = TRUE) #exclude duplicates
+
+
+gov_name <- all_lists_clean$c_institution
+false_positives <- "mint"
+
+gov_name_vector <- setdiff(gov_name, false_positives)
 
 ###Unlist
-gov_name_vector <- unlist(all_lists_clean$institution)
-
-gov_name_pattern <- gov_name_vector[1]
-for (i in 2:length(gov_name_vector)){
-  gov_name_i<- gov_name_vector[i]
-  gov_name_pattern <- paste(gov_name_pattern, gov_name_i, sep = "|")
-}
-
+gov_name_vector <- unlist(all_lists_clean$c_institution)
+gov_name_pattern <- paste(gov_name_vector,collapse="|" )
 gov_name_pattern <- paste("\\b(?i)(", gov_name_pattern, ")\\b", sep="")
 
 gh_extra_company <- gh_extra_company%>%
-  mutate(gov_name_match_company = if_else(str_detect(company, gov_name_pattern) == T, T, F))%>%
+  mutate(gov_name_match_company = if_else(str_detect(c_company, gov_name_pattern) == T, T, F))%>%
   mutate(gov_name_match_company= replace_na(gov_name_match_company, FALSE))
-
 
 nrow(filter(gh_extra_company, !is.gov, gov_name_match_company == T))
 
-check <- filter(gh_extra_company, !is.gov, gov_name_match_company == T)
 
 
 gh_extra_company <- gh_extra_company%>%
   mutate(is.gov = if_else(gov_name_match_company==T, T, is.gov))
+table(gh_extra_company$is.gov)
+```
+
+## Bag of words (singleton/bigrams) matching
+```{r}
+#companies names listed by previously identified users in government sector
+institution_list <- all_lists_clean%>%
+  select(c_institution)
+
+#bigrams
+institution_list_bigrams <- institution_list %>%
+  unnest_tokens(bigram, c_institution, token = "ngrams", n = 2)%>%
+  count(bigram, sort=T) %>%
+  filter(n > 1)
+institution_list_bigrams_vector <- unlist(institution_list_bigrams$bigram)
+
+#trigrams
+institution_list_trigrams <- institution_list %>%
+  unnest_tokens(trigram, c_institution, token = "ngrams", n = 3)%>%
+  count(trigram, sort=T)
+
+#quatrigrams
+company_list_quatrigrams <- institution_list %>%
+  unnest_tokens(quatrigram, c_institution, token = "ngrams", n = 4)%>%
+  count(quatrigram, sort=T)
+
+#todo
+#false_positives <- c() 
+# institution_list_bigrams_vector <- setdiff(institution_list_bigrams_vector, false_positives)
+
+
+institution_list_bigrams_vector_pattern<-paste(institution_list_bigrams_vector, collapse="|")
+
+institution_list_bigrams_vector_pattern <- paste("\\b(?i)(", institution_list_bigrams_vector_pattern, ")\\b", sep="")
+
+gh_extra_company <- gh_extra_company%>%
+  mutate(institution_bigram_match_company = if_else(str_detect(c_company, institution_list_bigrams_vector_pattern) == T, T, F))%>%
+  mutate(institution_bigram_match_company= replace_na(institution_bigram_match_company, FALSE))
+
+#table(gh_extra_company$bigram_match_company)
+table(filter(gh_extra_company, !is.gov)$institution_bigram_match_company)
+gh_extra_company <- gh_extra_company%>%
+  mutate(is.gov = if_else(institution_bigram_match_company==T, T, is.gov))
 
 table(gh_extra_company$is.gov)
 ```
@@ -386,10 +513,10 @@ table(gh_extra_company$is.gov)
 ```{r}
 ####final step
 gh_extra_company <- gh_extra_company%>%
-  mutate(is.gov.extra = if_else(str_detect(company, "\\b(?i)(gov|government|bureau|federalhomeland security|fbi|cia|census|us army|u.s. army|united state army|usarmy)\\b") == T, T, F))%>%
+  mutate(is.gov.extra = if_else(str_detect(c_company, "\\b(?i)(gov|government|bureau|federalhomeland security|fbi|cia|census|united state army|usarmy)\\b") == T, T, F))%>%
   mutate(is.gov.extra= replace_na(is.gov.extra, FALSE))
 
-check <- filter(gh_extra_company, !is.gov, is.gov.extra == T)
+#check <- filter(gh_extra_company, !is.gov, is.gov.extra == T)
 
 nrow(filter(gh_extra_company, !is.gov, is.gov.extra == T))
 
@@ -399,26 +526,35 @@ gh_extra_company <- gh_extra_company%>%
 table(gh_extra_company$is.gov)
 ```
 
-#check internaitonal or domestic
+# Check internaitonal or domestic
 ```{r}
-check <- gh_extra_company%>%
-  filter(is.gov)
-table(is.na(check$domain_type))
+# check <- gh_extra_company%>%
+#   filter(is.gov)
+# table(is.na(check$domain_type))
 ```
 
 
-# 
+# Prepare for writing to pgAdmin
 ```{r}
-organization_counts <- gh_extra %>% 
-  drop_na(company) %>% 
-  mutate(organization = str_to_lower(company)) %>% 
-  mutate(organization = str_trim(organization)) %>% 
-  mutate(organization = ifelse(test = str_detect(string = organization, 
-                              pattern = "\\b(?i)(freelancer|freelance|freelancing|freelancers|freelances|self|personal|home|private|individual|myself|me|independent|independent contractor|contractor|private|household|house|home|my house|jobless|looking for a job|looking for job|seeking employment|seeking|actively seeking employment|seeking opportunities|seeking internship|seeking work)\\b"), 
-                              yes = "household", no = organization)) %>%
-  mutate(organization = ifelse(test = str_detect(string = organization, 
-                              pattern = "\\b(?i)(n/a|none|null|no|na)\\b"),      
-                              yes = "none/null", no = organization)) %>% 
-  group_by(organization) %>% count() %>% arrange(-n)
+nrow(gh_extra_company)-nrow(gh_extra) #check that we didn't lose any gh users
+gh_extra_company_final <- gh_extra_company%>%
+  select(login, is.gov)%>%
+  mutate(is.gov= replace_na(is.gov, FALSE))%>%
+  rename(is_gov = is.gov)%>%
+  filter(is_gov)
+
+#table(gh_extra_company_final$is_gov)
+
+# reconnecting to the database 
+conn <- dbConnect(drv = PostgreSQL(), 
+                  dbname = "sdad", 
+                  host = "10.250.124.195", 
+                  port = 5432, 
+                  user = Sys.getenv("db_userid"), 
+                  password = Sys.getenv("db_pwd"))
+# writing the new gh_extra_company_final table to postgis_2
+dbWriteTable(conn, c("gh", "sna_ctr_gov"), gh_extra_company_final)
+# disconnect from postgresql database  
+dbDisconnect(conn)
 ```
 
