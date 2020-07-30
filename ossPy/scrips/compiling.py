@@ -54,7 +54,13 @@ Symboloutput, symbolEraseList=ossPyFuncs.eraseFromColumn(LEoutput,symbollist)
 domainsList=pd.read_csv(os.path.join(currentDir,'keyFiles/curatedDomains.csv'),quotechar="'",header=None)
 domiansOutput, domainsEraseList=ossPyFuncs.eraseFromColumn(Symboloutput,domainsList)
 
-fixedList, fixedReport=ossPyFuncs.spaceSymbolRemap(domiansOutput)
+#fixedList, fixedReport=ossPyFuncs.spaceSymbolRemap(domiansOutput)
+sortedInputColumn, sortedTableUniqueFullNameCounts=ossPyFuncs.uniquePandasIndexMapping(domiansOutput)
+    
+#may need to resort this in order to get it to line up with origional
+subjectIndexArray=sortedTableUniqueFullNameCounts['inputIndexMapping'].loc[aboveThresholdBoolVec].array()
 
-sortedInputColumn, sortedTableUniqueFullNameCounts=ossPyFuncs.uniquePandasIndexMapping(inputColumn)
+fullData['is_business']=False
+#somehow need to flatten, use np.ravel for this 
+fullData['is_business'].loc[np.ravel(subjectIndexArray)]=True
 
