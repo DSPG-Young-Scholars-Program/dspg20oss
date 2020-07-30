@@ -299,5 +299,5 @@ city_clean_final_aggregate%>%
 
 ### Limitations and Future Steps 
 
-Our city code relies on the geocode provided by the Open Street Maps API, we will further evaluate the validity of the geocode and compare it with the user-input location. We identified users who reside in multiple countries, but we don't have multiple geocodes to reflect both/all of their locations. Currently, we counted the total number of users recide in each city. Futher, we would like to account for the population in each city to reflect the total number of GitHub users per capita.
+There are a few limitations to our geographic analyses. First, the city code assignment relies on the geocode provided by GHTorrent, which was assigned using the the Open Street Maps API. Before publishing our work to a broader audience, we want to further evaluate the validity of the geocode and compare it with the user-input location. A second known issue is that we have identified users who reported multiple countries in their location responses, but we don't have multiple geocodes to reflect all of their actual locations. Currently, we count the total number of users recide in each city. However, in our future analyses, we would like to account for the population in each city to reflect the total number of GitHub users per capita.
 
