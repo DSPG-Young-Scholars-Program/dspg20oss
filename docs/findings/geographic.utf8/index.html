@@ -3,8 +3,8 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>OSS in the Business Sector</title>
-        <link rel="canonical" href="../../findings/business/">
+        <title>Geographical Analyses of GitHub Users</title>
+        <link rel="canonical" href="../../findings/geographic.utf8/">
         <style>
 
     html body {
@@ -113,14 +113,14 @@ $(document).ready(function(){
     
     
     
-    <meta property="og:title" content="OSS in the Business Sector">
+    <meta property="og:title" content="Geographical Analyses of GitHub Users">
     <meta property="og:type" content="article">
       
       <meta name="twitter:card" content="summary">
       <meta name="twitter:image" content="/favicon/uva-dspg-logo.jpg" >
       
-    <meta property="description" content="Project description here">
-    <meta property="og:description" content="Project description here">
+    <meta property="description" content="This page focuses on mapping GitHub users around the world.">
+    <meta property="og:description" content="This page focuses on mapping GitHub users around the world.">
     
     <meta name="twitter:creator" content="">
     <meta name="twitter:site" content="">
@@ -138,7 +138,7 @@ $(document).ready(function(){
         <nav class="navbar navbar-default navbar-fixed-top">
             <div class="container">
                 <div class="navbar-header">
-                    <a class="navbar-brand visible-xs" href="#">OSS in the Business Sector</a>
+                    <a class="navbar-brand visible-xs" href="#">Geographical Analyses of GitHub Users</a>
                     <button class="navbar-toggle" data-target=".navbar-collapse" data-toggle="collapse">
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
@@ -193,33 +193,53 @@ $(document).ready(function(){
       
     
 
-    <h4><a href="../../findings/business/">OSS in the Business Sector</a></h4>
+    <h4><a href="../../findings/geographic.utf8/">Geographical Analyses of GitHub Users</a></h4>
     
-    <h5>Project description here</h5>
+    <h5>This page focuses on mapping GitHub users around the world.</h5>
 
     
     
-    <a href="../../tags/python">
-        <kbd class="item-tag"> python </kbd>
+    <a href="../../tags/r">
+        <kbd class="item-tag"> R </kbd>
     </a>
     
-    <a href="../../tags/nlp">
-        <kbd class="item-tag"> nlp </kbd>
+    <a href="../../tags/text-analysis/regex">
+        <kbd class="item-tag"> text analysis/regex </kbd>
     </a>
     
-    <a href="../../tags/regex">
-        <kbd class="item-tag"> regex </kbd>
+    <a href="../../tags/matching">
+        <kbd class="item-tag"> matching </kbd>
     </a>
     
-    <a href="../../tags/big-data">
-        <kbd class="item-tag"> big data </kbd>
+    <a href="../../tags/interactive-map">
+        <kbd class="item-tag"> interactive map </kbd>
     </a>
     
 
 </div>
 
 
-    <br> <div class="text-justify"><p>Our analyses are underway&hellip;</p>
+    <br> <div class="text-justify"><!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<h3 id="approach">Approach</h3>
+<p>To analyze GitHub users by different geographical units, we used regular expressions to recode all self-reported location data available in the <a href="https://ghtorrent.org/">GHTorrrent</a> data, finding ~770,000 users with valid country codes. In addition to this self-reported location data, GHTorrent also provides latitude and longitude information for GitHub users (assigned using the <a href="">Open Street Maps API</a>). Drawing on these geocoded data, we aggregated all latitude and longitude information that were within a 2-degree difference. Although this data reduction approach is somewhat crude, the main purpose of this assignment is to cluster users with a common &ldquo;city code&rdquo; so that we can examine how users collaborate between more specific geographic units. In turn, we used these city codes to construct networks where nodes represent GitHub users and edges correspond to the number of shared repositories that users can contributed. While 77.23% of the geographic information were originally missing, we were still able to map 488104 GitHub users in our final analyses of GitHub users by city.</p>
+<h3 id="github-users-by-continent">GitHub Users by Continent</h3>
+<p>North America is the continent with the highest number of GitHub users - followed by Europe and Asia. This effectively means that almost all OSS is produced within the context of these three continents with South America, Oceania and Africa lagging far behind. In a sense, these results may speak to other measures of global inequities across the world, which may prevent developers in poorer countries for developing OSS. To better understand global patterns of collaboration within the OSS community, we will later reduce our data into six continental networks and investigate collaborations within and across these networks.</p>
+<p><!-- raw HTML omitted --></p>
+<h3 id="github-users-by-country">GitHub Users by Country</h3>
+<p>The United States has the highest number of GitHub users (N=166,140) with nearly four times as much as China (N=38,391). This discrepency may be because GitHub started in the US and that other web hosting platforms are used in other parts of the world. On the other hand, these results may also indicate that the US is a global power house in terms of producing OSS software. Of course, as we look further down the graph, we see the difference in overall users are much smaller between the United Kingdom, India, Russia, and the rest of the countries in the top-10. Our team is currently developing a paper that examines historical patterns of international collaboration on GitHub, which will elucidate these preliminary findings in more detail.</p>
+<p><!-- raw HTML omitted --></p>
+<h3 id="github-users-in-the-united-states">GitHub Users in the United States</h3>
+<p>As we mentioned above, the US has the largest number of GitHub users. To get a better understanding of where they are located, we used the <a href="https://github.com/hrbrmstr/statebins">statebins package</a> to map users by state. As we see here, GitHub users are mostly located on the West and East coasts with California, New Jersey, Washington, Texas, and Massachusetts being the top-five ranked states. In our future work, we will be looking more into how users across different sectors account for this variation between states. Of course, these maps also point to influence that that major tech hubs, like Silicon Valley in California and Silicon Hills in Texas, have had on the development on OSS.</p>
+<p><!-- raw HTML omitted --></p>
+<h3 id="github-users-by-city">GitHub Users by City</h3>
+<p>When we looked deeper into where GitHub users are located at the city level, we found that San Francisco (US) is the city with the highest number of GitHub users - followed by London (UK), New York (US), Moscow (Russia), and Beijing (China). Again, these results speak to the importance of the tech industry in shaping OSS development, as San Francisco&rsquo;s prominence in tech has clearly spilled over into publicly available innovation tools. In our future research, we plan to delve deeper into collaboration networks between these cities. Knowing, for example, how often developers share resources between cities not only tells us where OSS users live but where collaborative ventures might be most successful.</p>
+<p><!-- raw HTML omitted --></p>
+<h3 id="interactive-map-of-github-users-by-city">Interactive Map of GitHub Users by City</h3>
+<p>In this interactive map, the size of the circle indicates how many GitHub users reported living or working in each city. While the majority of the cities are plotted in blue, we have highlighted the top-10 cities seen above in orange. You can zoom in and hover over the circle to see how many users are in that city or you can also type in a city of interest in the top-right corner. Overall, this map shows clearly that we need to continue looking closer into smaller geographical units when analyzing OSS production.</p>
+<p>preserve3a8e38afb204c467</p>
+<h3 id="limitations-and-future-steps">Limitations and Future Steps</h3>
+<p>[Please explain the limitations of your approach. For example, using a US-based dataset likely means you more accurately counted these instiutions. You could also explain what the next steps to your work would be.]</p>
 </div>
 
     

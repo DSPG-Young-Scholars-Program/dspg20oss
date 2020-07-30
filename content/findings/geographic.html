@@ -55,12 +55,12 @@ h1, h2, h3 {
 <div id="github-users-in-the-united-states" class="section level3">
 <h3>GitHub Users in the United States</h3>
 <p>As we mentioned above, the US has the largest number of GitHub users. To get a better understanding of where they are located, we used the <a href="https://github.com/hrbrmstr/statebins">statebins package</a> to map users by state. As we see here, GitHub users are mostly located on the West and East coasts with California, New Jersey, Washington, Texas, and Massachusetts being the top-five ranked states. In our future work, we will be looking more into how users across different sectors account for this variation between states. Of course, these maps also point to influence that that major tech hubs, like Silicon Valley in California and Silicon Hills in Texas, have had on the development on OSS.</p>
-<p><img src="/findings/geographic_files/figure-html/unnamed-chunk-4-1.png" width="912" /></p>
+<p><img src="/findings/geographic_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
 </div>
 <div id="github-users-by-city" class="section level3">
 <h3>GitHub Users by City</h3>
 <p>When we looked deeper into where GitHub users are located at the city level, we found that San Francisco (US) is the city with the highest number of GitHub users - followed by London (UK), New York (US), Moscow (Russia), and Beijing (China). Again, these results speak to the importance of the tech industry in shaping OSS development, as San Francisco's prominence in tech has clearly spilled over into publicly available innovation tools. In our future research, we plan to delve deeper into collaboration networks between these cities. Knowing, for example, how often developers share resources between cities not only tells us where OSS users live but where collaborative ventures might be most successful.</p>
-<p><img src="/findings/geographic_files/figure-html/unnamed-chunk-5-1.png" width="1056" /></p>
+<p><img src="/findings/geographic_files/figure-html/unnamed-chunk-5-1.png" width="960" /></p>
 </div>
 <div id="interactive-map-of-github-users-by-city" class="section level3">
 <h3>Interactive Map of GitHub Users by City</h3>
@@ -70,5 +70,5 @@ h1, h2, h3 {
 </div>
 <div id="limitations-and-future-steps" class="section level3">
 <h3>Limitations and Future Steps</h3>
-<p>[Please explain the limitations of your approach. For example, using a US-based dataset likely means you more accurately counted these instiutions. You could also explain what the next steps to your work would be.]</p>
+<p>Our city code relies on the geocode provided by the Open Street Maps API, we will further evaluate the validity of the geocode and compare it with the user-input location. We identified users who reside in multiple countries, but we don't have multiple geocodes to reflect both/all of their locations. Currently, we counted the total number of users recide in each city. Futher, we would like to account for the population in each city to reflect the total number of GitHub users per capita.</p>
 </div>
