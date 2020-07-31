@@ -36,12 +36,15 @@ academicCleaned=ossPyFuncs.queryToPDTable(postgreSql_selectQuery)
 postgreSql_selectQuery="SELECT login, is_gov FROM gh.sna_ctr_gov ;"
 govData=ossPyFuncs.queryToPDTable(postgreSql_selectQuery)
 
+
 #add nonprofit here and in the next code block if desired
 ```
 
 Now that we have obtained those pre-exisitng user mappings, we need to join them into one table.
 
 ```{python}
+import pandas as pd
+
 #join the academic into the raw table
 joinedData1=fullData.set_index('login').join(academicCleaned.set_index('login'))
 
@@ -51,12 +54,15 @@ joinedData2=joinedData1.join(govData.set_index('login'))
 #reset the the indexes
 joinedAndReset=joinedData2.reset_index()
 
-#it seems that the sql query pulls in boolean falses as NANs, which is not want we want for a boolean vector
-#as such, we replace the NANs in the relevant columns with false
-naReplaced=joinedAndReset[['is_gov','is_academic']].fillna(value=False)
+#it seems that pandas interpolates with NaN, which we have to reset to the relevant values for each column
+academicNanFix=pd.DataFrame(joinedAndReset['is_academic'].fillna(value=False))
+govNanFix=pd.DataFrame(joinedAndReset['is_gov'].fillna(value=False))
+companyCleanFix=pd.DataFrame(joinedAndReset['company_cleaned'].fillna(value=''))
 
 #take those NAN replaced columns and reinsert them
-fixedDataframe=joinedAndReset.assign(is_gov=naReplaced['is_gov'],is_academic=naReplaced['is_academic'])
+fixedDataframe=joinedAndReset.assign(is_gov=govNanFix['is_gov'],is_academic=academicNanFix['is_academic'],company_cleaned=companyCleanFix['company_cleaned'])
+
+fixedDataframe.head(20)
 ```
 
 In order to perform a full sectoring we also need the information for household and null values.  Lets obtain those now from our source keylists for [household](https://github.com/DSPG-Young-Scholars-Program/dspg20oss/blob/master/ossPy/keyFiles/individualKeys.csv) and [null values](https://github.com/DSPG-Young-Scholars-Program/dspg20oss/blob/master/ossPy/keyFiles/nullKeys.csv).  After that, we'll determine which users have yet to be mapped
@@ -131,19 +137,75 @@ Now that we have obtained the raw count of the users meeting this criteria, we c
 
 ```{python}
 #we need to obtain the subject mapping to count, which we get via company affiliation.  We have a function for that.
-sortedInputColumn, sortedTableUniqueFullNameCounts=ossPyFuncs.uniquePandasIndexMapping(domiansOutput)
-    
-#may need to resort this in order to get it to line up with origional
-subjectIndexArray=sortedTableUniqueFullNameCounts['inputIndexMapping'].loc[aboveThresholdBoolVec].array()
+sortedInputColumn, sortedTableUniqueFullNameCounts=ossPyFuncs.uniquePandasIndexMapping(pd.DataFrame(domiansOutput))  
 
-fullData['is_business']=False
-#somehow need to flatten, use np.ravel for this 
-fullData['is_business'].loc[np.ravel(subjectIndexArray)]=True
-                            
-#this modified "fullData" object is now the desired ouput.  It can be joined with the entries in withNoneColumn
-#if one wishes for a complete output data object.
+
 ```
 
 ```{python}
+#splitting this out because previous cell takes a long time to run
 
+#reset the indexing alterations that occur with the previous function
+namesWithMapping=sortedTableUniqueFullNameCounts.set_index('index')
+namesWithMapping=namesWithMapping.sort_index()
+
+#may need to resort this in order to get it to line up with origional
+superThresholdIndexSubframe=namesWithMapping['inputIndexMapping'].loc[aboveThresholdBoolVec]
+
+#initialize concatonation vector
+concatIndexArray=np.ma.empty([1],dtype=int)
+print(concatIndexArray)
+#WARNING: this function generates an array that is NOT empty, but rather contains a -1 which will cause 
+#signifigant problems when indexing if not dealt with.
+
+#iteratively concatonate the user indexes obtained from the remapping function
+for index, value in superThresholdIndexSubframe.iteritems():
+    concatIndexArray=np.concatenate([concatIndexArray,superThresholdIndexSubframe.loc[index].to_numpy()])
+
+#here we deal with the aformentioned [-1] issue by indexing all but the first numbers of the vector
+concatIndexArray= concatIndexArray[1:-1]   
+    
+fixedDataframe['is_business']=False
+fixedDataframe['is_business'].loc[concatIndexArray]=True
+fixedDataframe['company_cleaned']=domiansOutput
+
+fixedDataframe.head(10)
+#save down this object if you so choose, WARNING: it will be big
+#fixedDataframe.to_csv('some.file.path')
+```
+
+As we round out this notebook we can make some final observations.  For example, we can look at the top 20 company affiliations on GitHub
+
+```{python}
+tableCleanedFullNameCounts.head(20)
+```
+
+Additionally, we can create a barplot depiciting the counts for the various affiliations we have mapped
+
+```{python}
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+#establish new column
+fixedDataframe['AfiliationString']=''
+
+#set an appropriate string 
+fixedDataframe['AfiliationString'].loc[fixedDataframe['is_business']]='Business'
+fixedDataframe['AfiliationString'].loc[fixedDataframe['is_academic']]='Academic'
+fixedDataframe['AfiliationString'].loc[fixedDataframe['is_gov']]='Government'
+fixedDataframe['AfiliationString'].loc[fixedDataframe['household']]='Individual'
+#label unmapped by process of elimination
+LabeledBoolVec=np.any([fixedDataframe['household'],fixedDataframe['is_business'],fixedDataframe['is_academic'],fixedDataframe['is_gov']],axis=0)
+
+fixedDataframe['AfiliationString'].loc[np.logical_not(LabeledBoolVec)]='Unmapped'
+
+#and plot
+ax=sns.countplot(x='AfiliationString',data=fixedDataframe)
+ax.set_yscale("log")
+plt.figure(figsize=(16,32),dpi=200)                                   
+```
+
+```{python}
+sectorCounts=fixedDataframe['AfiliationString'].value_counts()
+sectorCounts.head(6)
 ```

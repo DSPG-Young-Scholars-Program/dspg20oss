@@ -55,10 +55,35 @@ domainsList=pd.read_csv(os.path.join(currentDir,'keyFiles/curatedDomains.csv'),q
 domiansOutput, domainsEraseList=ossPyFuncs.eraseFromColumn(Symboloutput,domainsList)
 
 #fixedList, fixedReport=ossPyFuncs.spaceSymbolRemap(domiansOutput)
-sortedInputColumn, sortedTableUniqueFullNameCounts=ossPyFuncs.uniquePandasIndexMapping(domiansOutput)
+sortedInputColumn, sortedTableUniqueFullNameCounts=ossPyFuncs.uniquePandasIndexMapping(pd.DataFrame(domiansOutput))
     
+namesWithMapping=sortedTableUniqueFullNameCounts.set_index('index')
+namesWithMapping=namesWithMapping.sort_index()
+#+1 because we are using greater than or equal to
+#we'll also be using this vector to obtain our user remapping
+threshold=5
+aboveThresholdBoolVec=namesWithMapping['count'].ge(threshold+1)
+
+totalUsersAboveThreshold=np.sum(namesWithMapping['count'].loc[aboveThresholdBoolVec])
 #may need to resort this in order to get it to line up with origional
-subjectIndexArray=sortedTableUniqueFullNameCounts['inputIndexMapping'].loc[aboveThresholdBoolVec].array()
+superThresholdIndexSubframe=namesWithMapping['inputIndexMapping'].loc[aboveThresholdBoolVec]
+
+concatIndexArray=np.empty([1],dtype=int)
+for index, value in superThresholdIndexSubframe.iteritems():
+    concatIndexArray=np.concatenate([concatIndexArray,superThresholdIndexSubframe.loc[index].to_numpy()])
+
+joinedAndReset['is_business']=False
+joinedAndReset['is_business'].loc[concatIndexArray]=True
+joinedAndReset['company_cleaned']=domiansOutput
+
+
+testMerge=joinedAndReset.merge(pd.DataFrame(onlyUnassignedFrame[['company_cleaned]])
+
+joinedData3=joinedAndReset.set_index('login').join(onlyUnassignedFrame.set_index('login'))
+
+joinedAndResetOut=joinedData3.reset_index()
+
+
 
 fullData['is_business']=False
 #somehow need to flatten, use np.ravel for this 
