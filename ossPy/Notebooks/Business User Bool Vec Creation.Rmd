@@ -62,27 +62,38 @@ companyCleanFix=pd.DataFrame(joinedAndReset['company_cleaned'].fillna(value=''))
 #take those NAN replaced columns and reinsert them
 fixedDataframe=joinedAndReset.assign(is_gov=govNanFix['is_gov'],is_academic=academicNanFix['is_academic'],company_cleaned=companyCleanFix['company_cleaned'])
 
-fixedDataframe.head(20)
+fixedDataframe.head(10)
 ```
 
 In order to perform a full sectoring we also need the information for household and null values.  Lets obtain those now from our source keylists for [household](https://github.com/DSPG-Young-Scholars-Program/dspg20oss/blob/master/ossPy/keyFiles/individualKeys.csv) and [null values](https://github.com/DSPG-Young-Scholars-Program/dspg20oss/blob/master/ossPy/keyFiles/nullKeys.csv).  After that, we'll determine which users have yet to be mapped
 
 ```{python}
 import pandas as pd
+import numpy as np
 
 #get the directory structure using the ossPyFuncs library as the reference point
 currentDir=os.path.dirname('ossPyFuncs.py')
 
 #obtain the household list from the keyfile directory, and make a bool column for it
 houseHoldList=pd.read_csv(os.path.join(currentDir,'keyFiles/individualKeys.csv'),quotechar="'",header=None)
-withHouseholdColumn=ossPyFuncs.addBooleanColumnFromCriteria(fixedDataframe,houseHoldList,'household')
+withHouseholdColumn=ossPyFuncs.addBooleanColumnFromCriteria(pd.DataFrame(fixedDataframe['company']),houseHoldList,'household')
+#get the count
+householdCount=np.count_nonzero(withHouseholdColumn['household'])
+print(str(householdCount) + ' users in individual sector')
+#add the column to the main table
+fixedDataframe['household']=withHouseholdColumn['household']
 
 #obtain the null list from the keyfile directory, and make a bool column for it
 noneList=pd.read_csv(os.path.join(currentDir,'keyFiles/nullKeys.csv'),quotechar="'",header=None)
-withNoneColumn=ossPyFuncs.addBooleanColumnFromCriteria(withHouseholdColumn,noneList,'null')
+withNoneColumn=ossPyFuncs.addBooleanColumnFromCriteria(pd.DataFrame(fixedDataframe['company']),noneList,'null')
+#get the count
+nullCount=np.count_nonzero(withNoneColumn['null'])
+print(str(nullCount) + ' users with null affiliations')
+#add the column to the main table
+fixedDataframe['null']=withNoneColumn['null']
 
 #generate a bool column for all users that have been mapped, these will be excluded from our business count
-alreadyAssigned=withNoneColumn[['is_gov','is_academic','household','null']].any(axis=1)
+alreadyAssigned=fixedDataframe[['is_gov','is_academic','household','null']].any(axis=1)
 
 #extract those users which are not assigned
 onlyUnassignedFrame=fixedDataframe.loc[~alreadyAssigned]
@@ -136,10 +147,11 @@ print(str(totalUsersAboveThreshold)+ ' users users assumed to be business sector
 Now that we have obtained the raw count of the users meeting this criteria, we can also obtain a boolean vector that indicates which users are associated with these presumed businesses.
 
 ```{python}
+#force lowercase
+domiansOutput=domiansOutput.assign(company=domiansOutput['company'].str.lower())
+
 #we need to obtain the subject mapping to count, which we get via company affiliation.  We have a function for that.
 sortedInputColumn, sortedTableUniqueFullNameCounts=ossPyFuncs.uniquePandasIndexMapping(pd.DataFrame(domiansOutput))  
-
-
 ```
 
 ```{python}
@@ -148,6 +160,9 @@ sortedInputColumn, sortedTableUniqueFullNameCounts=ossPyFuncs.uniquePandasIndexM
 #reset the indexing alterations that occur with the previous function
 namesWithMapping=sortedTableUniqueFullNameCounts.set_index('index')
 namesWithMapping=namesWithMapping.sort_index()
+
+#drop the empty vector
+namesWithMapping=namesWithMapping[namesWithMapping.company != '']
 
 #may need to resort this in order to get it to line up with origional
 superThresholdIndexSubframe=namesWithMapping['inputIndexMapping'].loc[aboveThresholdBoolVec]
@@ -177,13 +192,19 @@ fixedDataframe.head(10)
 As we round out this notebook we can make some final observations.  For example, we can look at the top 20 company affiliations on GitHub
 
 ```{python}
-tableCleanedFullNameCounts.head(20)
+namesWithMapping.head(20)
+```
+
+```{python}
+top20=namesWithMapping.loc[0:20]
+import seaborn as sns
+ax=sns.barplot(x='count',y='company',data=top20)
 ```
 
 Additionally, we can create a barplot depiciting the counts for the various affiliations we have mapped
 
 ```{python}
-import seaborn as sns
+
 import matplotlib.pyplot as plt
 
 #establish new column
@@ -191,13 +212,15 @@ fixedDataframe['AfiliationString']=''
 
 #set an appropriate string 
 fixedDataframe['AfiliationString'].loc[fixedDataframe['is_business']]='Business'
-fixedDataframe['AfiliationString'].loc[fixedDataframe['is_academic']]='Academic'
 fixedDataframe['AfiliationString'].loc[fixedDataframe['is_gov']]='Government'
 fixedDataframe['AfiliationString'].loc[fixedDataframe['household']]='Individual'
+fixedDataframe['AfiliationString'].loc[fixedDataframe['is_academic']]='Academic'
 #label unmapped by process of elimination
-LabeledBoolVec=np.any([fixedDataframe['household'],fixedDataframe['is_business'],fixedDataframe['is_academic'],fixedDataframe['is_gov']],axis=0)
-
+LabeledBoolVec=fixedDataframe[['is_gov','is_academic','household','is_business']].any(axis=1)
 fixedDataframe['AfiliationString'].loc[np.logical_not(LabeledBoolVec)]='Unmapped'
+
+#for some reason we have to go back and relabel academic?
+fixedDataframe['AfiliationString'].loc[academicNanFix['is_academic']]='Academic'
 
 #and plot
 ax=sns.countplot(x='AfiliationString',data=fixedDataframe)
@@ -206,6 +229,14 @@ plt.figure(figsize=(16,32),dpi=200)
 ```
 
 ```{python}
+print(np.where(academicNanFix['is_academic']))
+```
+
+```{python}
 sectorCounts=fixedDataframe['AfiliationString'].value_counts()
 sectorCounts.head(6)
+```
+
+```{python}
+
 ```

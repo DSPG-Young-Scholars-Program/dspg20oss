@@ -26,7 +26,7 @@ joinedAndReset=joinedData2.reset_index()
 currentDir=os.path.dirname('ossPyFuncs.py')
 
 houseHoldList=pd.read_csv(os.path.join(currentDir,'keyFiles/individualKeys.csv'),quotechar="'",header=None)
-withHouseholdColumn=ossPyFuncs.addBooleanColumnFromCriteria(joinedAndReset,houseHoldList,'household')
+withHouseholdColumn=ossPyFuncs.addBooleanColumnFromCriteria(pd.DataFrame(joinedAndReset['company'],houseHoldList,'household')
 
 noneList=pd.read_csv(os.path.join(currentDir,'keyFiles/nullKeys.csv'),quotechar="'",header=None)
 withNoneColumn=ossPyFuncs.addBooleanColumnFromCriteria(withHouseholdColumn,noneList,'null')
