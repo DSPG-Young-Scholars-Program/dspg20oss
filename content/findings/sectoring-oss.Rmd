@@ -185,11 +185,11 @@ collapsibleTree(OSS,
 
 ## Data
 
-#### We used GHTorrent data to categorize users into sectors <br/> (dataset of ~2.1 million GitHub users with email, affiliation and location data) 
-
 <center>
 ![](/findings/sectoring-oss_files/ghtorrent.png) 
 </center>
+
+#### We used GHTorrent data to categorize users into sectors <br/> (dataset of ~2.1 million GitHub users with email, affiliation and location data) 
 
 #### We also used multiple publicly available datasources to help <br/> match users to existing organizations within each sector 
 #### (see our [Data & Methods](/methods/) page for more details)
@@ -206,8 +206,6 @@ collapsibleTree(OSS,
 <br>
 
 ## Methods
-
-#### The problem is that our text data are very messy 
 
 <center>
 ![](/findings/sectoring-oss_files/messy-data.png)
@@ -1072,6 +1070,11 @@ ggplot(gh_country, aes(x = c_country_name, y = ttl_users, fill = ttl_users)) +
 <br>
 <br>
 <br>
+<br>
+<br>
+<br>
+<br>
+<br>
 
 ```{r fig.width=7, fig.height=4, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 state_ttl_user <- city_clean_final%>%
@@ -1107,6 +1110,11 @@ theme(plot.margin = margin(10,10,10,10))
 
 #### Within the US, most GitHub users are based on the coasts and near major tech hubs 
 
+<br>
+<br>
+<br>
+<br>
+<br>
 <br>
 <br>
 <br>
@@ -1163,6 +1171,11 @@ ggplot(gh_city, aes(x = city_country, y = ttl_users, fill = ttl_users))+
 <br>
 <br>
 <br>
+<br>
+<br>
+<br>
+<br>
+<br>
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, include=FALSE}
 #In this map, the color of the circle indicates the number of github users in each city, still under development.
@@ -1193,8 +1206,7 @@ city_clean_final_aggregate%>%
   addLegend(pal = pal, values = c( "not topcity", "topcity"))
 ```
 
-<iframe  title="YouTube video player" width="480" height="390" src="https://www.youtube.com/watch?v=KHokyhsd6IM" frameborder="0" allowfullscreen></iframe>
-
+[![GitHub Users Around the World](https://res.cloudinary.com/marcomontalbano/image/upload/v1596230317/video_to_markdown/images/youtube--KHokyhsd6IM-c05b58ac6eb4c4700831b2b3070cd403.jpg)](https://www.youtube.com/watch?v=KHokyhsd6IM "GitHub Users Around the World")
 
 #### Click to see a video or visit our [interactive map](/findings/geographic/) of GitHub users around the world
 
@@ -1225,15 +1237,6 @@ city_clean_final_aggregate%>%
 
 #### Major universities in California may also be benefitting <br/> from the proximity of Silicon Valley's OSS production 
 
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
 <br>
 
 ## Challenges & Future Directions
