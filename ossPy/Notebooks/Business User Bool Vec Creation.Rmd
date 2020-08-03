@@ -15,13 +15,18 @@ jupyter:
 
 As part of our overarching strategy for assigning users to specific sectors, we need to be able to assign users to business as well.  Given the specifics of our source dataset (GHTorrent), we can reasonably assume that the more frequently that a company name appears, the more "authoratative" (reflective of a consensus) of a representation of that company name it is.  Once we've removed the user entries that correspond to the non-business sectors, we can be reasonably confident in mapping users whose worplace affiliation listing is shared with some critical threshold of other users (i.e. 5) to the business sector.
 
-Lets begin by obtaining the raw user data, as well as the user mappings for the acadmic and government sector.
+Lets begin by [obtaining the raw user data from the sql database](https://github.com/DSPG-Young-Scholars-Program/dspg20oss/blob/3a4431544bc32ac6abc82f14f8ccdd9f90923089/ossPy/ossPyFuncs.py#L9), as well as the user mappings for the acadmic and government sector.
 
 ```{python}
+#this code guarentees you can impor the ossPyFuncs library
+import subprocess
 import os
-os.chdir('../')
-#assuming you're starting this notebook from it's source directory,
-#this will get us to the directory containing the ossPyFuncs library
+#get top directory path of the current git repository, under the presumption that
+#you're in the dspg20oss repo.
+gitRepoPath=subprocess.check_output(['git', 'rev-parse', '--show-toplevel']).decode('ascii').strip()
+#move to the osspy directory, assuming the directory structure has remained the  same
+os.chdir(os.path.join(gitRepoPath, 'ossPy'))
+#import the osspy library
 import ossPyFuncs
 
 #obtain the raw GHTorrent data
@@ -36,12 +41,16 @@ academicCleaned=ossPyFuncs.queryToPDTable(postgreSql_selectQuery)
 postgreSql_selectQuery="SELECT login, is_gov FROM gh.sna_ctr_gov ;"
 govData=ossPyFuncs.queryToPDTable(postgreSql_selectQuery)
 
+
 #add nonprofit here and in the next code block if desired
 ```
 
 Now that we have obtained those pre-exisitng user mappings, we need to join them into one table.
 
 ```{python}
+import pandas as pd
+import numpy as np
+
 #join the academic into the raw table
 joinedData1=fullData.set_index('login').join(academicCleaned.set_index('login'))
 
@@ -51,41 +60,65 @@ joinedData2=joinedData1.join(govData.set_index('login'))
 #reset the the indexes
 joinedAndReset=joinedData2.reset_index()
 
-#it seems that the sql query pulls in boolean falses as NANs, which is not want we want for a boolean vector
-#as such, we replace the NANs in the relevant columns with false
-naReplaced=joinedAndReset[['is_gov','is_academic']].fillna(value=False)
+#it seems that pandas interpolates with NaN, which we have to reset to the relevant values for each column
+academicNanFix=pd.DataFrame(joinedAndReset['is_academic'].fillna(value=False))
+govNanFix=pd.DataFrame(joinedAndReset['is_gov'].fillna(value=False))
+companyCleanFix=pd.DataFrame(joinedAndReset['company_cleaned'].fillna(value=''))
+
+
+#get the count for both
+academicCount=np.count_nonzero(academicNanFix['is_academic'])
+print(str(academicCount) + ' users with academic affiliations')
+#get the count
+govCount=np.count_nonzero(govNanFix['is_gov'])
+print(str(govCount) + ' users with governmental affiliations')
 
 #take those NAN replaced columns and reinsert them
-fixedDataframe=joinedAndReset.assign(is_gov=naReplaced['is_gov'],is_academic=naReplaced['is_academic'])
+fixedDataframe=joinedAndReset.assign(is_gov=govNanFix['is_gov'],is_academic=academicNanFix['is_academic'],company_cleaned=companyCleanFix['company_cleaned'])
+
+fixedDataframe.head(10)
 ```
 
-In order to perform a full sectoring we also need the information for household and null values.  Lets obtain those now from our source keylists.  After that, we'll determine which users have yet to be mapped
+In order to perform a full sectoring we also need the information for household and null values.  Lets obtain those now from our source keylists for [household](https://github.com/DSPG-Young-Scholars-Program/dspg20oss/blob/master/ossPy/keyFiles/individualKeys.csv) and [null values](https://github.com/DSPG-Young-Scholars-Program/dspg20oss/blob/master/ossPy/keyFiles/nullKeys.csv).  After that, we'll determine which users have yet to be mapped
 
 ```{python}
 import pandas as pd
+import numpy as np
 
 #get the directory structure using the ossPyFuncs library as the reference point
 currentDir=os.path.dirname('ossPyFuncs.py')
 
 #obtain the household list from the keyfile directory, and make a bool column for it
 houseHoldList=pd.read_csv(os.path.join(currentDir,'keyFiles/individualKeys.csv'),quotechar="'",header=None)
-withHouseholdColumn=ossPyFuncs.addBooleanColumnFromCriteria(fixedDataframe,houseHoldList,'household')
+withHouseholdColumn=ossPyFuncs.addBooleanColumnFromCriteria(pd.DataFrame(fixedDataframe['company']),houseHoldList,'household')
+#get the count
+householdCount=np.count_nonzero(withHouseholdColumn['household'])
+print(str(householdCount) + ' users in individual sector')
+#add the column to the main table
+fixedDataframe['household']=withHouseholdColumn['household']
 
 #obtain the null list from the keyfile directory, and make a bool column for it
 noneList=pd.read_csv(os.path.join(currentDir,'keyFiles/nullKeys.csv'),quotechar="'",header=None)
-withNoneColumn=ossPyFuncs.addBooleanColumnFromCriteria(withHouseholdColumn,noneList,'null')
+withNoneColumn=ossPyFuncs.addBooleanColumnFromCriteria(pd.DataFrame(fixedDataframe['company']),noneList,'null')
+#get the count
+nullCount=np.count_nonzero(withNoneColumn['null'])
+print(str(nullCount) + ' users with null affiliations')
+#add the column to the main table
+fixedDataframe['null']=withNoneColumn['null']
 
 #generate a bool column for all users that have been mapped, these will be excluded from our business count
-alreadyAssigned=withNoneColumn[['is_gov','is_academic','household','null']].any(axis=1)
+alreadyAssigned=fixedDataframe[['is_gov','is_academic','household','null']].any(axis=1)
 
 #extract those users which are not assigned
 onlyUnassignedFrame=fixedDataframe.loc[~alreadyAssigned]
 ```
 
-Now that we have derived the list of users which have yet to be assigned, lets clean their input in the company column, in preperation for subsequent processing
+Now that we have derived the list of users which have yet to be assigned, lets clean their input in the company column, in preperation for subsequent processing.  We'll be cleaning out entries for substrings related to [legal entities](https://github.com/DSPG-Young-Scholars-Program/dspg20oss/blob/master/ossPy/keyFiles/curatedLegalEntitesRaw.csv), [web domains](https://github.com/DSPG-Young-Scholars-Program/dspg20oss/blob/master/ossPy/keyFiles/curatedDomains.csv), and [extraneous symbols](https://github.com/DSPG-Young-Scholars-Program/dspg20oss/blob/master/ossPy/keyFiles/symbolRemove.csv) as [described in another notebook](https://github.com/DSPG-Young-Scholars-Program/dspg20oss/blob/master/ossPy/Notebooks/Company%20Cleaning%20Narritive.ipynb) and [quantatively profiled in another](https://github.com/DSPG-Young-Scholars-Program/dspg20oss/blob/master/ossPy/Notebooks/Cleaning%20heuristic%20assesment.ipynb).
 
 ```{python}
 import numpy as np
+
+
 
 #construct path to legal entity list and erase them
 LElist=pd.read_csv(os.path.join(currentDir,'keyFiles/curatedLegalEntitesRaw.csv'),quotechar="'",header=None)
@@ -97,22 +130,6 @@ Symboloutput, symbolEraseList=ossPyFuncs.eraseFromColumn(LEoutput,symbollist)
 #construct path to legal symbol list and erase them
 domainsList=pd.read_csv(os.path.join(currentDir,'keyFiles/curatedDomains.csv'),quotechar="'",header=None)
 domiansOutput, domainsEraseList=ossPyFuncs.eraseFromColumn(Symboloutput,domainsList)
-```
-
-```{python}
-#we'll do this in a different cell, as the previous one can take quite a while
-
-#save this for later, as it takes a very long time
-
-#remap all of the space, case, and symbol variants to their most common form
-#fixedList=ossPyFuncs.spaceSymbolRemap(pd.DataFrame(domiansOutput))
-
-#report the number of changes made
-#print(str(np.sum(fixedReport['changeNum'])),' space, case and symbol variations entries remapped')
-```
-
-```{python}
-
 ```
 
 Now that we have fully cleaned and remapped the data (and in doing so, collapsed redundant entries in to one another) we can now apply our heuristic count.  Specifically, given that we have removed all entries which would be associated with governmental, academic, and independent (household) users (and removed null entries), it seems reasonable to assume that entries which have multiple users listing them are businesses.  This inference is based on our exhausting any other workplace affiliations that a person might express.
@@ -146,20 +163,92 @@ print(str(totalUsersAboveThreshold)+ ' users users assumed to be business sector
 Now that we have obtained the raw count of the users meeting this criteria, we can also obtain a boolean vector that indicates which users are associated with these presumed businesses.
 
 ```{python}
-#we need to obtain the subject mapping to count, which we get via company affiliation.  We have a function for that.
-sortedInputColumn, sortedTableUniqueFullNameCounts=ossPyFuncs.uniquePandasIndexMapping(domiansOutput)
-    
-#may need to resort this in order to get it to line up with origional
-subjectIndexArray=sortedTableUniqueFullNameCounts['inputIndexMapping'].loc[aboveThresholdBoolVec].array()
+#force lowercase
+domiansOutput=domiansOutput.assign(company=domiansOutput['company'].str.lower())
 
-fullData['is_business']=False
-#somehow need to flatten, use np.ravel for this 
-fullData['is_business'].loc[np.ravel(subjectIndexArray)]=True
-                            
-#this modified "fullData" object is now the desired ouput.  It can be joined with the entries in withNoneColumn
-#if one wishes for a complete output data object.
+#we need to obtain the subject mapping to count, which we get via company affiliation.  We have a function for that.
+sortedInputColumn, sortedTableUniqueFullNameCounts=ossPyFuncs.uniquePandasIndexMapping(pd.DataFrame(domiansOutput))  
 ```
 
 ```{python}
+#splitting this out because previous cell takes a long time to run
 
+#reset the indexing alterations that occur with the previous function
+namesWithMapping=sortedTableUniqueFullNameCounts.set_index('index')
+namesWithMapping=namesWithMapping.sort_index()
+
+#drop the empty vector
+namesWithMapping=namesWithMapping[namesWithMapping.company != '']
+
+#may need to resort this in order to get it to line up with origional
+superThresholdIndexSubframe=namesWithMapping['inputIndexMapping'].loc[aboveThresholdBoolVec]
+
+#initialize concatonation vector
+concatIndexArray=np.ma.empty([1],dtype=int)
+print(concatIndexArray)
+#WARNING: this function generates an array that is NOT empty, but rather contains a -1 which will cause 
+#signifigant problems when indexing if not dealt with.
+
+#iteratively concatonate the user indexes obtained from the remapping function
+for index, value in superThresholdIndexSubframe.iteritems():
+    concatIndexArray=np.concatenate([concatIndexArray,superThresholdIndexSubframe.loc[index].to_numpy()])
+
+#here we deal with the aformentioned [-1] issue by indexing all but the first numbers of the vector
+concatIndexArray= concatIndexArray[1:-1]   
+    
+fixedDataframe['is_business']=False
+fixedDataframe['is_business'].loc[concatIndexArray]=True
+fixedDataframe['company_cleaned']=domiansOutput
+
+fixedDataframe.head(10)
+#save down this object if you so choose, WARNING: it will be big
+fixedDataframe.to_csv('fixedDataFrame.csv')
+```
+
+As we round out this notebook we can make some final observations.  For example, we can look at the top 20 company affiliations on GitHub
+
+```{python}
+namesWithMapping.head(20)
+```
+
+```{python}
+top20=namesWithMapping.loc[0:20]
+import seaborn as sns
+ax=sns.barplot(x='count',y='company',data=top20)
+```
+
+Additionally, we can create a barplot depiciting the counts for the various affiliations we have mapped
+
+```{python}
+
+import matplotlib.pyplot as plt
+
+#establish new column
+fixedDataframe['AfiliationString']=''
+
+#set an appropriate string 
+fixedDataframe['AfiliationString'].loc[fixedDataframe['is_business']]='Business'
+fixedDataframe['AfiliationString'].loc[fixedDataframe['is_gov']]='Government'
+fixedDataframe['AfiliationString'].loc[fixedDataframe['household']]='Individual'
+fixedDataframe['AfiliationString'].loc[fixedDataframe['is_academic']]='Academic'
+#label unmapped by process of elimination
+LabeledBoolVec=fixedDataframe[['is_gov','is_academic','household','is_business']].any(axis=1)
+fixedDataframe['AfiliationString'].loc[np.logical_not(LabeledBoolVec)]='Unmapped'
+
+#for some reason we have to go back and relabel academic?
+fixedDataframe['AfiliationString'].loc[academicNanFix['is_academic']]='Academic'
+
+#and plot
+ax=sns.countplot(x='AfiliationString',data=fixedDataframe)
+ax.set_yscale("log")
+plt.figure(figsize=(16,32),dpi=200)                                   
+```
+
+```{python}
+print(np.where(academicNanFix['is_academic']))
+```
+
+```{python}
+sectorCounts=fixedDataframe['AfiliationString'].value_counts()
+sectorCounts.head(6)
 ```
