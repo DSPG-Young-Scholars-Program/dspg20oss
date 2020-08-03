@@ -233,7 +233,7 @@ fixedDataframe['AfiliationString'].loc[fixedDataframe['household']]='Individual'
 fixedDataframe['AfiliationString'].loc[fixedDataframe['is_academic']]='Academic'
 #label unmapped by process of elimination
 LabeledBoolVec=fixedDataframe[['is_gov','is_academic','household','is_business']].any(axis=1)
-fixedDataframe['AfiliationString'].loc[np.logical_not(LabeledBoolVec)]='Unmapped'
+#fixedDataframe['AfiliationString'].loc[np.logical_not(LabeledBoolVec)]='Unmapped'
 
 #for some reason we have to go back and relabel academic?
 fixedDataframe['AfiliationString'].loc[academicNanFix['is_academic']]='Academic'
