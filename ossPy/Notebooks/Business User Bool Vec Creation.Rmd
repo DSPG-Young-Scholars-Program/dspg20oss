@@ -18,10 +18,15 @@ As part of our overarching strategy for assigning users to specific sectors, we 
 Lets begin by [obtaining the raw user data from the sql database](https://github.com/DSPG-Young-Scholars-Program/dspg20oss/blob/3a4431544bc32ac6abc82f14f8ccdd9f90923089/ossPy/ossPyFuncs.py#L9), as well as the user mappings for the acadmic and government sector.
 
 ```{python}
+#this code guarentees you can impor the ossPyFuncs library
+import subprocess
 import os
-os.chdir('../')
-#assuming you're starting this notebook from it's source directory,
-#this will get us to the directory containing the ossPyFuncs library
+#get top directory path of the current git repository, under the presumption that
+#you're in the dspg20oss repo.
+gitRepoPath=subprocess.check_output(['git', 'rev-parse', '--show-toplevel']).decode('ascii').strip()
+#move to the osspy directory, assuming the directory structure has remained the  same
+os.chdir(os.path.join(gitRepoPath, 'ossPy'))
+#import the osspy library
 import ossPyFuncs
 
 #obtain the raw GHTorrent data
@@ -44,6 +49,7 @@ Now that we have obtained those pre-exisitng user mappings, we need to join them
 
 ```{python}
 import pandas as pd
+import numpy as np
 
 #join the academic into the raw table
 joinedData1=fullData.set_index('login').join(academicCleaned.set_index('login'))
@@ -58,6 +64,14 @@ joinedAndReset=joinedData2.reset_index()
 academicNanFix=pd.DataFrame(joinedAndReset['is_academic'].fillna(value=False))
 govNanFix=pd.DataFrame(joinedAndReset['is_gov'].fillna(value=False))
 companyCleanFix=pd.DataFrame(joinedAndReset['company_cleaned'].fillna(value=''))
+
+
+#get the count for both
+academicCount=np.count_nonzero(academicNanFix['is_academic'])
+print(str(academicCount) + ' users with academic affiliations')
+#get the count
+govCount=np.count_nonzero(govNanFix['is_gov'])
+print(str(govCount) + ' users with governmental affiliations')
 
 #take those NAN replaced columns and reinsert them
 fixedDataframe=joinedAndReset.assign(is_gov=govNanFix['is_gov'],is_academic=academicNanFix['is_academic'],company_cleaned=companyCleanFix['company_cleaned'])
@@ -103,6 +117,8 @@ Now that we have derived the list of users which have yet to be assigned, lets c
 
 ```{python}
 import numpy as np
+
+
 
 #construct path to legal entity list and erase them
 LElist=pd.read_csv(os.path.join(currentDir,'keyFiles/curatedLegalEntitesRaw.csv'),quotechar="'",header=None)
@@ -186,7 +202,7 @@ fixedDataframe['company_cleaned']=domiansOutput
 
 fixedDataframe.head(10)
 #save down this object if you so choose, WARNING: it will be big
-#fixedDataframe.to_csv('some.file.path')
+fixedDataframe.to_csv('fixedDataFrame.csv')
 ```
 
 As we round out this notebook we can make some final observations.  For example, we can look at the top 20 company affiliations on GitHub
@@ -235,8 +251,4 @@ print(np.where(academicNanFix['is_academic']))
 ```{python}
 sectorCounts=fixedDataframe['AfiliationString'].value_counts()
 sectorCounts.head(6)
-```
-
-```{python}
-
 ```
