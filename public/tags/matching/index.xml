@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>matching on UVA Biocomplexity Institute</title>
+    <link>/tags/matching/</link>
+    <description>Recent content in matching on UVA Biocomplexity Institute</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    
+	<atom:link href="/tags/matching/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>OSS in the Academic Sector</title>
+      <link>/findings/academic/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/findings/academic/</guid>
+      <description>/* this chunk of code centers all of the headings */ h1, h2, h3 { text-align: center; }  Approach One of the main goals of our summer project is to understand who is producting open-source software (OSS) and important characteristics about them, including which sectors they are embedded within. To classify contributors into the academic sector, we matched GitHub users&#39; email and self-reported affiliation columns to information about universities and colleges from around the world using the Hipo Labs&#39; university domain list - a dataset that has names, countries, and domain names for nearly 9,800 universities across the world.</description>
+    </item>
+    
+    <item>
+      <title>Geographical Analyses of GitHub Users</title>
+      <link>/findings/geographic/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/findings/geographic/</guid>
+      <description>/* this chunk of code centers all of the headings */ h1, h2, h3 { text-align: center; }  Approach To analyze GitHub users by different geographical units, we used regular expressions to recode all self-reported location data available in the GHTorrrent data, finding ~770,000 users with valid country codes. In addition to this self-reported location data, GHTorrent also provides latitude and longitude information for GitHub users (assigned using the Open Street Maps API).</description>
+    </item>
+    
+  </channel>
+</rss>
