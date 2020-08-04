@@ -1,6 +1,6 @@
 ---
-title: 'Sectoring Open Source Software'
-description: 'Symposium Presentation of the 2020 DSPG OSS Project'
+#title: 'Sectoring Open Source Software'
+#description: 'Symposium Presentation of the 2020 DSPG Project'
 weight: 1
 output: html_document
 ---
@@ -18,7 +18,7 @@ h1, h2, h3, h4, h5 {
 
 ## Sectoring Open Source Software: <br> Where Do GitHub Contributions Come From?
 
-#### Crystal Zang, Morgan Klutzke, Daniel Bullock, Brandon Kramer, Gizem Korkmaz, <br> José Bayoán Santiago Calderón, Aaron Schroeder, and Sallie Keller
+#### Crystal Zang, Morgan Klutzke, Daniel Bullock, <br> Brandon Kramer, Gizem Korkmaz, José Bayoán Santiago Calderón, <br> Carol Robbins (NCSES) and Ledia Guci (NCSES)
 
 <br>
 <br>
