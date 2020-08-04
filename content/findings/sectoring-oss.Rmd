@@ -232,6 +232,10 @@ collapsibleTree(OSS,
 
 ```
 
+<center>
+![](/findings/sectoring-oss_files/domainScaleAlt.svg)
+</center>
+
 <br>
 <br>
 <br>
@@ -926,9 +930,9 @@ ggplot(us_academic_counts[(.N-20):.N, ], aes(color = type)) +
 
 ## Business Sector
 
-```{r business, echo=FALSE, message=FALSE, warning=FALSE}
-
-```
+<center>
+![](/findings/sectoring-oss_files/topCompanies.svg)
+</center>
 
 <br>
 <br>
