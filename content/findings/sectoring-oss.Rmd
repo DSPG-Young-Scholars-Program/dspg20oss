@@ -1,6 +1,6 @@
 ---
-#title: 'Sectoring Open Source Software'
-#description: 'Symposium Presentation of the 2020 DSPG Project'
+title: 'Sectoring Open Source Software'
+description: 'Symposium Presentation of the 2020 DSPG Project'
 weight: 1
 output: html_document
 ---
@@ -12,13 +12,19 @@ h1, h2, h3, h4, h5 {
 }
 ```
 
+<br>
+<br>
+<br>
+<br>
+<br>
+
 <center>
 ![](/findings/sectoring-oss_files/dspg-small.jpg)
 </center>
 
 ## Sectoring Open Source Software: <br> Where Do GitHub Contributions Come From?
 
-#### Crystal Zang, Morgan Klutzke, Daniel Bullock, <br> Brandon Kramer, Gizem Korkmaz, José Bayoán Santiago Calderón, <br> Carol Robbins (NCSES) and Ledia Guci (NCSES)
+#### Crystal Zang, Morgan Klutzke, Daniel Bullock, <br> Brandon Kramer, Gizem Korkmaz, and José Bayoán Santiago Calderón <br> Sponsors: Carol Robbins (NCSES) and Ledia Guci (NCSES)
 
 <br>
 <br>
@@ -34,7 +40,7 @@ h1, h2, h3, h4, h5 {
 ## Why Study Open Source Software? 
 
 <center>
-![](/findings/sectoring-oss_files/ncses-large.png)
+![](/findings/sectoring-oss_files/oss.png)
 </center>
 
 #### OSS is any software that is developed by a copyright holder, <br/> but shared with a broader public to share with anyone and for any purpose
@@ -186,10 +192,15 @@ collapsibleTree(OSS,
 ## Data
 
 <center>
+
 ![](/findings/sectoring-oss_files/ghtorrent.png) 
 </center>
 
+<br>
+
 #### We used GHTorrent data to categorize users into sectors <br/> (dataset of ~2.1 million GitHub users with email, affiliation and location data) 
+
+<br>
 
 #### We also used multiple publicly available datasources to help <br/> match users to existing organizations within each sector 
 #### (see our [Data & Methods](/methods/) page for more details)
@@ -208,9 +219,8 @@ collapsibleTree(OSS,
 ## Methods
 
 <center>
-![](/findings/sectoring-oss_files/messy-data.png)
-![](/findings/sectoring-oss_files/messy-data-crystal.png)
-![](/findings/sectoring-oss_files/messy-email.png)
+![](/findings/sectoring-oss_files/ucsd-example.png)
+![](/findings/sectoring-oss_files/microsoft-example.png)
 
 </center>
 

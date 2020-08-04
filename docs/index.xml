@@ -11,13 +11,13 @@
     
     
     <item>
-      <title></title>
+      <title>Sectoring Open Source Software</title>
       <link>/findings/sectoring-oss/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>/findings/sectoring-oss/</guid>
-      <description>/* this chunk of code centers all of the headings */ h1, h2, h3, h4, h5 { text-align: center; }    Sectoring Open Source Software: Where Do GitHub Contributions Come From? Crystal Zang, Morgan Klutzke, Daniel Bullock, Brandon Kramer, Gizem Korkmaz, José Bayoán Santiago Calderón, Carol Robbins (NCSES) and Ledia Guci (NCSES) 
-  Why Study Open Source Software?</description>
+      <description>/* this chunk of code centers all of the headings */ h1, h2, h3, h4, h5 { text-align: center; }  
+  Sectoring Open Source Software: Where Do GitHub Contributions Come From? Crystal Zang, Morgan Klutzke, Daniel Bullock, Brandon Kramer, Gizem Korkmaz, and José Bayoán Santiago Calderón Sponsors: Carol Robbins (NCSES) and Ledia Guci (NCSES)</description>
     </item>
     
     <item>
