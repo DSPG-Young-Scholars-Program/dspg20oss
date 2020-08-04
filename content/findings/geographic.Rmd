@@ -112,6 +112,7 @@ city_clean_final_aggregate <- city_clean_final_aggregate%>%
 
 North America is the continent with the highest number of GitHub users - followed by Europe and Asia. This effectively means that almost all OSS is produced within the context of these three continents with South America, Oceania and Africa lagging far behind. In a sense, these results may speak to other measures of global inequities across the world, which may prevent developers in poorer countries for developing OSS. To better understand global patterns of collaboration within the OSS community, we will later reduce our data into six continental networks and investigate collaborations within and across these networks.
 
+$$\textbf{Continents Where Github Users are Located}$$
 ```{r fig.width=9.5, fig.height=5, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 gh_continent<- city_clean_final_aggregate_continent%>%
   arrange(desc(ttl_users))%>%
@@ -140,6 +141,7 @@ ggplot(gh_continent, aes(x = Continent_Name, y = ttl_users, fill = ttl_users))+
 
 The United States has the highest number of GitHub users (N=166,140) with nearly four times as much as China (N=38,391). This discrepency may be because GitHub started in the US and that other web hosting platforms are used in other parts of the world. On the other hand, these results may also indicate that the US is a global power house in terms of producing OSS software. Of course, as we look further down the graph, we see the difference in overall users are much smaller between the United Kingdom, India, Russia, and the rest of the countries in the top-10. Our team is currently developing a paper that examines historical patterns of international collaboration on GitHub, which will elucidate these preliminary findings in more detail.  
 
+$$\textbf{Countries Where Github Users are Located}$$
 ```{r fig.width=9.5, fig.height=5, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 gh_country <- city_clean_final_aggregate_country%>%
   arrange(desc(ttl_users))%>%
@@ -170,6 +172,7 @@ ggplot(gh_country, aes(x = c_country_name, y = ttl_users, fill = ttl_users)) +
 
 As we mentioned above, the US has the largest number of GitHub users. To get a better understanding of where they are located, we used the [statebins package](https://github.com/hrbrmstr/statebins) to map users by state. As we see here, GitHub users are mostly located on the West and East coasts with California, New Jersey, Washington, Texas, and Massachusetts being the top-five ranked states. In our future work, we will be looking more into how users across different sectors account for this variation between states. Of course, these maps also point to influence that that major tech hubs, like Silicon Valley in California and Silicon Hills in Texas, have had on the development on OSS. 
 
+$$\textbf{U.S. States Where Github Users are Located}$$
 ```{r fig.width=7, fig.height=6.2, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 state_ttl_user <- city_clean_final%>%
   filter(!is.na(c_us_state))%>%
@@ -190,22 +193,24 @@ state_ttl_user <- state_ttl_user%>%
 state_ttl_user$ttl_users_quantile <- factor(state_ttl_user$ttl_users_quantile, levels = c("[56, 399)", "[399, 728)","[728, 1961)","[1961, 3885)", "[3885, 40379)" ))
 
 statebins(state_ttl_user,
+         # plot_title = "U.S. States Where Github Users are Located",
           state_col = "c_us_state",
           value_col = "ttl_users_quantile",
           name = "Total Number of Users \n by Quantile Groups",
           ggplot2_scale_function = scale_fill_manual,
           values = c("[56, 399)" = "#f9f9f9" , "[399, 728)" = "#60999A","[728, 1961)" = "#0E879C","[1961, 3885)" = "#1D6B84", "[3885, 40379)" = "#232D4B",
           font_size=10,
-          state_border_size =1)
-          )+
+          state_border_size =1))+
   theme_statebins(legend_position = "right",  base_size = 11)+
-theme(plot.margin = margin(10,10,10,10))
+theme(plot.margin = margin(1,1,1,1))
 ```
 
 
 ### GitHub Users by City
 
 When we looked deeper into where GitHub users are located at the city level, we found that San Francisco (US) is the city with the highest number of GitHub users - followed by London (UK), New York (US), Moscow (Russia), and Beijing (China). Again, these results speak to the importance of the tech industry in shaping OSS development, as San Francisco's prominence in tech has clearly spilled over into publicly available innovation tools. In our future research, we plan to delve deeper into collaboration networks between these cities. Knowing, for example, how often developers share resources between cities not only tells us where OSS users live but where collaborative ventures might be most successful. 
+
+$$\textbf{Cities Where Github Users are Located}$$
 
 ```{r fig.width=10, fig.height=7, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 gh_city <- city_clean_final_aggregate%>%
