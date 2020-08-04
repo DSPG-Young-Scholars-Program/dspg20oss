@@ -209,7 +209,9 @@ collapsibleTree(OSS,
 
 <center>
 ![](/findings/sectoring-oss_files/messy-data.png)
+![](/findings/sectoring-oss_files/messy-data-crystal.png)
 ![](/findings/sectoring-oss_files/messy-email.png)
+
 </center>
 
 #### We relied on aspects of computational text analysis to standardize entries 
