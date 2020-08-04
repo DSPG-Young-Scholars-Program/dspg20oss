@@ -124,15 +124,12 @@ min = min(gh_continent$ttl_users)
 max = max(gh_continent$ttl_users)
 
 ggplot(gh_continent, aes(x = Continent_Name, y = ttl_users, fill = ttl_users))+
-  geom_bar(stat = "identity")+ 
-  scale_fill_continuous(low = uva_color_palette[3], high=uva_color_palette[2], breaks=c(min,50000,100000,150000,max), labels = c(as.character(min),"50000","100000","150000", as.character(max)))+
+  geom_bar(stat = "identity", fill = uva_color_palette[3])+
   labs(#title = "Continents where Github users are located", 
-       x = "Continent", y = "Total Number of Users", fill = "Total Number \n    of Users") +
-  scale_y_continuous(breaks=c(min,50000,100000,150000,max), labels = c(as.character(min),"50000","100000","150000", as.character(max))) +
+       x = "Continent", y = "Total Number of Users")+
   theme_bw() +
-  theme( legend.spacing.y = unit(1,"cm"))+
-  theme(axis.text.x = element_text(size = 11, hjust = .5, vjust = .5),
-        axis.text.y = element_text(size = 11, hjust = .5, vjust = .5),  
+  theme(axis.text.x = element_text(size = 13, hjust = .5, vjust = .5),
+        axis.text.y = element_text(size = 12, hjust = .5, vjust = .5),  
         axis.title.x = element_text(size = 14, hjust = .5, vjust = .5),
         axis.title.y = element_text(size = 14, hjust = .5, vjust = .5),
         legend.title=element_text(size=13),
@@ -155,29 +152,18 @@ min = min(gh_country$ttl_users)
 max = max(gh_country$ttl_users)
 
 ggplot(gh_country, aes(x = c_country_name, y = ttl_users, fill = ttl_users)) +
-  geom_bar(stat = "identity")+ 
-  scale_fill_continuous(
-    low = "#E6890F", 
-    high=uva_color_palette[9], 
-    breaks=c(min, 60000, 100000, 140000, max), 
-    labels = c(
-      as.character(min), 
-      "60000",
-      "100000",
-      "140000",
-      as.character(max)
-      )
-    )+
+  geom_bar(stat = "identity", fill = uva_color_palette[9])+
   labs(#title = "Countries where Github users are located", 
-       x = "Country", y = "Total Number of Users", fill = "Total Number \n    of Users") +
+       x = "Country", y = "Total Number of Users") +
   theme_bw()+
   theme(legend.spacing.y = unit(1,"cm"))+
-  theme(axis.text.x = element_text(size = 11, hjust = .5, vjust = .5),
-        axis.text.y = element_text(size = 11, hjust = .5, vjust = .5),  
+  theme(axis.text.x = element_text(size = 13, hjust = .5, vjust = .5),
+        axis.text.y = element_text(size = 12, hjust = .5, vjust = .5),  
         axis.title.x = element_text(size = 14, hjust = .5, vjust = .5),
         axis.title.y = element_text(size = 14, hjust = .5, vjust = .5),
         legend.title=element_text(size=13),
-        legend.text = element_text(size=11))
+        legend.text = element_text(size=11))+
+  scale_y_continuous(breaks = c(0, 25000, 50000, 75000, 100000, 125000, 150000))
 ```
 
 ### GitHub Users in the United States 
@@ -221,7 +207,7 @@ theme(plot.margin = margin(10,10,10,10))
 
 When we looked deeper into where GitHub users are located at the city level, we found that San Francisco (US) is the city with the highest number of GitHub users - followed by London (UK), New York (US), Moscow (Russia), and Beijing (China). Again, these results speak to the importance of the tech industry in shaping OSS development, as San Francisco's prominence in tech has clearly spilled over into publicly available innovation tools. In our future research, we plan to delve deeper into collaboration networks between these cities. Knowing, for example, how often developers share resources between cities not only tells us where OSS users live but where collaborative ventures might be most successful. 
 
-```{r fig.width=10, fig.height=4, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+```{r fig.width=10, fig.height=7, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 gh_city <- city_clean_final_aggregate%>%
   arrange(-ttl_users)%>%
  # top_n(10, ttl_users)%>%  #don't know why this code doesn't work
@@ -242,26 +228,18 @@ gh_city$city_country <- factor(gh_city$city_country, levels = gh_city$city_count
 min = min(gh_city$ttl_users)
 max = max(gh_city$ttl_users)
 
-ggplot(gh_city, aes(x = city_country, y = ttl_users, fill = ttl_users))+
-  geom_bar(stat = "identity") + 
-  scale_fill_continuous(
-    low = uva_color_palette[3], 
-    high=uva_color_palette[2],
-   breaks=c(0,min, 8000, 10000,12000, 14000,max), 
-    labels = c("0", as.character(min),"8000", "10000",  "12000", "14000",as.character(max))
-   )+
+ggplot(gh_city, aes(x = city_country, y = ttl_users))+
+  geom_bar(stat = "identity", fill = uva_color_palette[2]) +
   labs(#title = "Countries where Github users are located", 
-       x = "City", y = "Total Number of Users", fill = "Total Number \n    of Users")+
+       x = "City", y = "Total Number of Users")+
   theme_bw()+
   scale_y_continuous(breaks=c(0,2000, 4000, 6000, 8000, 10000,12000, 14000,max), 
     labels = c("0", "2000", "4000", "6000","8000", "10000",  "12000", "14000",as.character(max)))+
   theme(legend.spacing.y = unit(1,"cm"))+
-  theme(axis.text.x = element_text(size = 12, hjust = .5, vjust = .5),
-        axis.text.y = element_text(size = 11, hjust = .5, vjust = .5),  
+  theme(axis.text.x = element_text(size = 13, hjust = .5, vjust = .5),
+        axis.text.y = element_text(size = 12, hjust = .5, vjust = .5),  
         axis.title.x = element_text(size = 14, hjust = .5, vjust = .5),
-        axis.title.y = element_text(size = 14, hjust = .5, vjust = .5),
-        legend.title=element_text(size=13),
-        legend.text = element_text(size=11))
+        axis.title.y = element_text(size = 14, hjust = .5, vjust = .5))
 ```
 
 ### Interactive Map of GitHub Users by City 
