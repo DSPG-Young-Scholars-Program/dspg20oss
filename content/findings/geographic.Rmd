@@ -9,7 +9,7 @@ output:
 editor_options: 
   chunk_output_type: console
 tags: ["R","text analysis/regex","matching","interactive map"]
-weight: 1
+weight: 5
 draft: false
 ---
 
@@ -221,7 +221,7 @@ theme(plot.margin = margin(10,10,10,10))
 
 When we looked deeper into where GitHub users are located at the city level, we found that San Francisco (US) is the city with the highest number of GitHub users - followed by London (UK), New York (US), Moscow (Russia), and Beijing (China). Again, these results speak to the importance of the tech industry in shaping OSS development, as San Francisco's prominence in tech has clearly spilled over into publicly available innovation tools. In our future research, we plan to delve deeper into collaboration networks between these cities. Knowing, for example, how often developers share resources between cities not only tells us where OSS users live but where collaborative ventures might be most successful. 
 
-```{r fig.width=10, fig.height=6, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+```{r fig.width=10, fig.height=4, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 gh_city <- city_clean_final_aggregate%>%
   arrange(-ttl_users)%>%
  # top_n(10, ttl_users)%>%  #don't know why this code doesn't work

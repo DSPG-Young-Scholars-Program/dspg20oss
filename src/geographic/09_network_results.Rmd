@@ -1,0 +1,42 @@
+---
+title: "09 Network Results"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+rm(list = ls())
+
+# load packages
+for (pkg in c("tidyverse", "data.table", "R.utils", "RPostgreSQL", "cowplot", "maditr", "stringr", "stringi",  "dplyr", "leaflet", "leaflet.extras")) {library(pkg, character.only = TRUE)}
+```
+
+
+
+### Network
+As we saw previously, the GitHub users in the U.S. is nearly four times as much as those in China, which is the second largest country for GitHub users. We want to further understand the U.S. centered collaboration network. Previously, the team has studied the open-source collaboration network on the coutnry level. After constucting city code in this summer project, we want to a closer look at the open-source collaboration network at city level. Specifically, we want to investigate what city is in the center of the network and serves as an influential collaborator of the open-source software. 
+
+In this network, the nodes include all the cities in the U.S. that have at least one GitHub user and cities outside of the U.S. that have collaboration with any of the city in the U.S. We say that there is a collaboration between two Github users if they are listed as contributors in one licensesd repository. An edge in our network is defined as a collaboration between two GitHub users who are located in two different cities. We then define this as a collaboration between two cities. 
+
+Before introducing our network visualizations, we would like to introduce some network statistics in the GitHub collaboration setting:
+
+* Degree: the number of cities one city is collaborating with.
+* Weighted degree: the sum of weights of the edges of nodes.
+* Betweeness centrality:calculated by the number of times a city lies on the shortest path between each pair of cities, which identifies the cities that are bridge of two communities.
+* Modularity: measure the strength of division of a network into communities
+
+
+In total, we identified 2933 cities as shown in Figure 1. A city is indicated as a circle, orange circles represent cities in the U.S. and dark blue circles represent cities in Canada. The node size is indicated by the degree, larger the degree, larger the node size.
+
+![alt text here](/sfs/qumulo/qhome/zz3hs/git/dspg20oss/src/geographic/output/network1.png)
+$$\text{Fig 1. Complete GitHub User Network on The City-level}$$
+
+
+To have a closer look of our network, we first identified 1151 (42.07%) cities within the major community using the modularity score, and then we excluded cities with betweenness centrality less than... The size of the circles indicates weighted degree, larger the circle size, higher the weighted degree. A city with a high weighted degree indicates that this city has a lot of direct collaborations with other cities. These cities are identified as influential locally. As shown in Figure 2, San Francisco, New York, Seattle, and Mountain View are the most influential cities locally, having high weighted degrees.
+
+Meanwhile, we use color gradient of the circle to indicate the betweenness centrality, lighter the color, higher the betweenness centrality score. A node with high betweenness centrality score are more important to serve as the bridge between two communities in the network. Different from the weighted degree, betweenness centrality identifies cities are influential in the whole network globally. San Francisco, New York, and Seattle are the most influential cities locally (indicated by weighted degree) and globally (indicated by betweeness centrality). However, Mountain View having darker blue (lower betweeness centraily) but larger size (higher weighted degree) than Portland, Boston, Austin, Chicago and Los Angeles, exhibits a localized collabortions in Mountain View. As a contrast, Portland, Boston, Austin, Chicago and Los Angeles have more globalized collaborations, serve higher influential roles in the whole network.
+
+![alt text here](/sfs/qumulo/qhome/zz3hs/git/dspg20oss/src/geographic/output/network.png)
+
+$$\text{Fig 2. City Network}$$
+

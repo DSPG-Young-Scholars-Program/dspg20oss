@@ -233,3 +233,6 @@ city_clean_final_aggregate%>%
   addLegend(pal = pal, values = c( "not topcity", "topcity"))
 ```
 
+
+### Network
+![](/geographic/03_interactive_map_files/Screen Shot 2020-07-31 at 9.55.44 AM.png){width=100%}

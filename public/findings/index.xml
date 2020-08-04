@@ -11,12 +11,13 @@
     
     
     <item>
-      <title>Geographical Analyses of GitHub Users</title>
-      <link>/findings/geographic/</link>
+      <title>Sectoring Open Source Software</title>
+      <link>/findings/sectoring-oss/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>/findings/geographic/</guid>
-      <description>/* this chunk of code centers all of the headings */ h1, h2, h3 { text-align: center; }  Approach To analyze GitHub users by different geographical units, we used regular expressions to recode all self-reported location data available in the GHTorrrent data, finding ~770,000 users with valid country codes. In addition to this self-reported location data, GHTorrent also provides latitude and longitude information for GitHub users (assigned using the Open Street Maps API).</description>
+      <guid>/findings/sectoring-oss/</guid>
+      <description>/* this chunk of code centers all of the headings */ h1, h2, h3, h4, h5 { text-align: center; }    Sectoring Open Source Software: Where Do GitHub Contributions Come From? Crystal Zang, Morgan Klutzke, Daniel Bullock, Brandon Kramer, Gizem Korkmaz, José Bayoán Santiago Calderón, Aaron Schroeder, and Sallie Keller 
+  Why Study Open Source Software?</description>
     </item>
     
     <item>
@@ -41,24 +42,21 @@
     </item>
     
     <item>
-      <title>OSS in the Non-Profit &amp; Household Sectors</title>
-      <link>/findings/nonprofit-household/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>/findings/nonprofit-household/</guid>
-      <description> Test Tabs By Product (tab content)
- By Region (tab content)
- By Third Category (tab content)
-  </description>
-    </item>
-    
-    <item>
       <title>OSS in the Business Sector</title>
       <link>/findings/business/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>/findings/business/</guid>
       <description>Our analyses are underway&amp;hellip;</description>
+    </item>
+    
+    <item>
+      <title>Geographical Analyses of GitHub Users</title>
+      <link>/findings/geographic/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/findings/geographic/</guid>
+      <description>/* this chunk of code centers all of the headings */ h1, h2, h3 { text-align: center; }  Approach To analyze GitHub users by different geographical units, we used regular expressions to recode all self-reported location data available in the GHTorrrent data, finding ~770,000 users with valid country codes. In addition to this self-reported location data, GHTorrent also provides latitude and longitude information for GitHub users (assigned using the Open Street Maps API).</description>
     </item>
     
   </channel>
