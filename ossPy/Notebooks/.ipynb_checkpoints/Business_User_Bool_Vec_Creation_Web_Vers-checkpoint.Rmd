@@ -18,6 +18,11 @@ As part of our overarching strategy for assigning users to specific sectors, we 
 Lets begin by [obtaining the raw user data from the sql database](https://github.com/DSPG-Young-Scholars-Program/dspg20oss/blob/3a4431544bc32ac6abc82f14f8ccdd9f90923089/ossPy/ossPyFuncs.py#L9), as well as the user mappings for the acadmic and government sector.
 
 ```{python}
+{
+    "tahs"
+    
+}
+
 #this code guarentees you can impor the ossPyFuncs library
 import subprocess
 import os
@@ -215,7 +220,6 @@ namesWithMapping.head(20)
 top20=namesWithMapping.loc[0:20]
 import seaborn as sns
 ax=sns.barplot(x='count',y='company',data=top20)
-
 ```
 
 Additionally, we can create a barplot depiciting the counts for the various affiliations we have mapped
@@ -234,14 +238,15 @@ fixedDataframe['AfiliationString'].loc[fixedDataframe['household']]='Individual'
 fixedDataframe['AfiliationString'].loc[fixedDataframe['is_academic']]='Academic'
 #label unmapped by process of elimination
 LabeledBoolVec=fixedDataframe[['is_gov','is_academic','household','is_business']].any(axis=1)
-fixedDataframe['AfiliationString'].loc[np.logical_not(LabeledBoolVec)]='Unmapped'
+#fixedDataframe['AfiliationString'].loc[np.logical_not(LabeledBoolVec)]='Unmapped'
 
-
+#for some reason we have to go back and relabel academic?
+fixedDataframe['AfiliationString'].loc[academicNanFix['is_academic']]='Academic'
 
 #and plot
 ax=sns.countplot(x='AfiliationString',data=fixedDataframe)
 ax.set_yscale("log")
-plt.figure(figsize=(16,32),dpi=200)
+plt.figure(figsize=(16,32),dpi=200)                                   
 ```
 
 ```{python}
@@ -251,9 +256,4 @@ print(np.where(academicNanFix['is_academic']))
 ```{python}
 sectorCounts=fixedDataframe['AfiliationString'].value_counts()
 sectorCounts.head(6)
-sectorCounts.to_csv('sectorCounts.csv')
-```
-
-```{python}
-
 ```
