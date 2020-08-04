@@ -55,9 +55,11 @@ h1, h2, h3, h4, h5 {
 ## Sectoring Open Source Software
 
 ### Our two main goals for the 2020 DSPG Summer Project were to: 
-### (1) Classify GitHub users into one of five economic sectors 
+
+#### (1) Classify GitHub users into one of five economic sectors 
 #### (Academic, Business, Household, Government and Non-Profit) 
-### (2) Examine where GitHub users are located around the world
+
+#### (2) Examine where GitHub users are located around the world
 
 ```{r message=FALSE, warning=FALSE, echo=FALSE, paged.print=FALSE}
 library(collapsibleTree)
@@ -181,15 +183,16 @@ collapsibleTree(OSS,
 <br>
 <br>
 
-## Data & Methods
-
-#### We used GHTorrent (a dataset of ~2.1 million GitHub users with <br/> email, affiliation and location data) to categorize users into sectors
+## Data
 
 <center>
 ![](/findings/sectoring-oss_files/ghtorrent.png) 
 </center>
 
+#### We used GHTorrent data to categorize users into sectors <br/> (dataset of ~2.1 million GitHub users with email, affiliation and location data) 
+
 #### We also used multiple publicly available datasources to help <br/> match users to existing organizations within each sector 
+#### (see our [Data & Methods](/methods/) page for more details)
 
 <br>
 <br>
@@ -202,16 +205,17 @@ collapsibleTree(OSS,
 <br>
 <br>
 
-## Data & Methods
-
-#### The problem is that our text data are very messy 
+## Methods
 
 <center>
 ![](/findings/sectoring-oss_files/messy-data.png)
+![](/findings/sectoring-oss_files/messy-data-crystal.png)
+![](/findings/sectoring-oss_files/messy-email.png)
+
 </center>
 
 #### We relied on aspects of computational text analysis to standardize entries 
-#### (Regular expressions, list matching, and bigrams)
+#### (regular expressions, list matching, and bigrams)
 
 <br>
 <br>
@@ -229,6 +233,10 @@ collapsibleTree(OSS,
 ```{r sectoring, echo=FALSE, message=FALSE, warning=FALSE}
 
 ```
+
+<center>
+![](/findings/sectoring-oss_files/domainScaleAlt.svg)
+</center>
 
 <br>
 <br>
@@ -851,6 +859,15 @@ ggplot(country_users_sorted[(.N-20):.N, ], aes(color = continent)) +
   scale_color_manual(labels=c("asia",  "australia", "europe", "north america","south america"),
                      values=c("#232D4B", "#99BDAD",  "#E57200", "#0E879C", "#D9E12B")) 
 ```
+
+#### US-based academic institutions are the largest producers of OSS
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
 ```{r, us_universities, fig.height = 9, fig.width = 12,  warning = FALSE, message=FALSE, echo=FALSE}
 us_academic_counts <- academic_counts_sorted %>% filter(country == "United States")
 
@@ -900,6 +917,8 @@ ggplot(us_academic_counts[(.N-20):.N, ], aes(color = type)) +
                                   colour ="black")) 
 ```
 
+#### Most of the top OSS-producing universities are close to <br/> major tech hubs in CA, MA, NY, TX and WA 
+
 <br>
 <br>
 <br>
@@ -913,9 +932,9 @@ ggplot(us_academic_counts[(.N-20):.N, ], aes(color = type)) +
 
 ## Business Sector
 
-```{r business, echo=FALSE, message=FALSE, warning=FALSE}
-
-```
+<center>
+![](/findings/sectoring-oss_files/topCompanies.svg)
+</center>
 
 <br>
 <br>
@@ -1049,6 +1068,20 @@ ggplot(gh_country, aes(x = c_country_name, y = ttl_users, fill = ttl_users)) +
         legend.title=element_text(size=13),
         legend.text = element_text(size=11))
 ```
+
+#### Most GitHub users based in the US are around 4 times higher than in China 
+
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+
 ```{r fig.width=7, fig.height=4, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 state_ttl_user <- city_clean_final%>%
   filter(!is.na(c_us_state))%>%
@@ -1080,6 +1113,20 @@ statebins(state_ttl_user,
   theme_statebins(legend_position = "right",  base_size = 11)+
 theme(plot.margin = margin(10,10,10,10))
 ```
+
+#### Within the US, most GitHub users are based on the coasts and near major tech hubs 
+
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+
 ```{r fig.width=10, fig.height=6, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 gh_city <- city_clean_final_aggregate%>%
   arrange(-ttl_users)%>%
@@ -1122,7 +1169,21 @@ ggplot(gh_city, aes(x = city_country, y = ttl_users, fill = ttl_users))+
         legend.title=element_text(size=13),
         legend.text = element_text(size=11))
 ```
-```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+
+#### Silicon Valley is the world's most prominent OSS hotspot <br/> followed by London, NYC, Moscow and Beijing
+
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, include=FALSE}
 #In this map, the color of the circle indicates the number of github users in each city, still under development.
 city_clean_final_aggregate_top <- city_clean_final_aggregate%>%
   filter(ttl_users > 10)%>%
@@ -1151,6 +1212,10 @@ city_clean_final_aggregate%>%
   addLegend(pal = pal, values = c( "not topcity", "topcity"))
 ```
 
+[![GitHub Users Around the World](https://res.cloudinary.com/marcomontalbano/image/upload/v1596230317/video_to_markdown/images/youtube--KHokyhsd6IM-c05b58ac6eb4c4700831b2b3070cd403.jpg)](https://www.youtube.com/watch?v=KHokyhsd6IM "GitHub Users Around the World")
+
+#### Click to see a video or visit our [interactive map](/findings/geographic/) of GitHub users around the world
+
 <br>
 <br>
 <br>
@@ -1162,26 +1227,39 @@ city_clean_final_aggregate%>%
 <br>
 <br>
 
-## Summary of Main Findings
+## Main Findings
 
 #### The majority of users come from the business sector followed <br/> by the academic, government and household sectors
-#### 
 
 <br>
+
+#### Most OSS production seems to be coming from the business sector 
+
 <br>
+
+#### Most GitHub users are based in the US (both in general and in the academic sector)
+
 <br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
+
+#### Major universities in California may also be benefitting <br/> from the proximity of Silicon Valley's OSS production 
+
 <br>
 
 ## Challenges & Future Directions
 
-#### Improve the government, non-profit and household classification systems 
+#### Hoping to scrape more user data to improve classification accurary
+
+<br>
+
+#### Improving the government, non-profit and household classification systems 
+
+<br>
+
 #### Determine how to classify contributions at the intersection of multiple sectors 
+
+<br>
+
+#### Conducting network analysis to understand collaboration tendencies
 
 <br>
 <br>

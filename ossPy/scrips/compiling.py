@@ -26,7 +26,7 @@ joinedAndReset=joinedData2.reset_index()
 currentDir=os.path.dirname('ossPyFuncs.py')
 
 houseHoldList=pd.read_csv(os.path.join(currentDir,'keyFiles/individualKeys.csv'),quotechar="'",header=None)
-withHouseholdColumn=ossPyFuncs.addBooleanColumnFromCriteria(joinedAndReset,houseHoldList,'household')
+withHouseholdColumn=ossPyFuncs.addBooleanColumnFromCriteria(pd.DataFrame(joinedAndReset['company'],houseHoldList,'household')
 
 noneList=pd.read_csv(os.path.join(currentDir,'keyFiles/nullKeys.csv'),quotechar="'",header=None)
 withNoneColumn=ossPyFuncs.addBooleanColumnFromCriteria(withHouseholdColumn,noneList,'null')
@@ -54,7 +54,38 @@ Symboloutput, symbolEraseList=ossPyFuncs.eraseFromColumn(LEoutput,symbollist)
 domainsList=pd.read_csv(os.path.join(currentDir,'keyFiles/curatedDomains.csv'),quotechar="'",header=None)
 domiansOutput, domainsEraseList=ossPyFuncs.eraseFromColumn(Symboloutput,domainsList)
 
-fixedList, fixedReport=ossPyFuncs.spaceSymbolRemap(domiansOutput)
+#fixedList, fixedReport=ossPyFuncs.spaceSymbolRemap(domiansOutput)
+sortedInputColumn, sortedTableUniqueFullNameCounts=ossPyFuncs.uniquePandasIndexMapping(pd.DataFrame(domiansOutput))
+    
+namesWithMapping=sortedTableUniqueFullNameCounts.set_index('index')
+namesWithMapping=namesWithMapping.sort_index()
+#+1 because we are using greater than or equal to
+#we'll also be using this vector to obtain our user remapping
+threshold=5
+aboveThresholdBoolVec=namesWithMapping['count'].ge(threshold+1)
 
-sortedInputColumn, sortedTableUniqueFullNameCounts=ossPyFuncs.uniquePandasIndexMapping(inputColumn)
+totalUsersAboveThreshold=np.sum(namesWithMapping['count'].loc[aboveThresholdBoolVec])
+#may need to resort this in order to get it to line up with origional
+superThresholdIndexSubframe=namesWithMapping['inputIndexMapping'].loc[aboveThresholdBoolVec]
+
+concatIndexArray=np.empty([1],dtype=int)
+for index, value in superThresholdIndexSubframe.iteritems():
+    concatIndexArray=np.concatenate([concatIndexArray,superThresholdIndexSubframe.loc[index].to_numpy()])
+
+joinedAndReset['is_business']=False
+joinedAndReset['is_business'].loc[concatIndexArray]=True
+joinedAndReset['company_cleaned']=domiansOutput
+
+
+testMerge=joinedAndReset.merge(pd.DataFrame(onlyUnassignedFrame[['company_cleaned]])
+
+joinedData3=joinedAndReset.set_index('login').join(onlyUnassignedFrame.set_index('login'))
+
+joinedAndResetOut=joinedData3.reset_index()
+
+
+
+fullData['is_business']=False
+#somehow need to flatten, use np.ravel for this 
+fullData['is_business'].loc[np.ravel(subjectIndexArray)]=True
 
