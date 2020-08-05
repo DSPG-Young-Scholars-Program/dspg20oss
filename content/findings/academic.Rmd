@@ -684,10 +684,40 @@ datatable(country_user_percentages)
 This figure shows which specific academic institutions had the greatest number of GitHub users contributing to OSS. The top 10 are all located in the US, though both China and Canada also have universities with a high number of contributors. Below the figure is another searchable table, this time of academic institutions.
 
 ```{r, by_country, fig.height = 9, fig.width=12, warning = FALSE,  echo=FALSE}
-ggplot(academic_counts_sorted[(.N-20):.N, ], aes(color = country)) +
-  geom_point(aes(x = organization, y = n), size = 4) +
-  geom_segment(data = academic_counts_sorted[(.N-20):.N, ], mapping = aes(x = organization, xend = organization, y = 0, yend = n), size = 1) +
-  scale_color_manual(labels = c("canada", "china", "united states"), 
+# rename top universities to make labels shorter
+
+
+top_universities <- select(academic_counts_sorted[(.N-20):.N, ], organization) %>%
+  add_column(shorter = c("Peking University",
+                         "Tsinghua University",
+                         "University of Waterloo",
+                         "Harvard University",
+                         "UC San Diego",
+                         "Duke University",
+                         "Shanghai Jiao Tong Univ.",
+                         "Zhejiang University",
+                         "Georgia Tech",
+                         "University of Texas",
+                         "Columbia University",
+                         "University of Illinois",
+                         "University of Michigan",
+                         "New York University",
+                         "Carnegie Mellon University",
+                         "University of Washington",
+                         "Cornell University",
+                         "Univ. of Southern California",
+                         "Stanford University",
+                         "MIT",
+                         "UC Berkeley")) %>%
+  inner_join(academic_counts_sorted) %>%
+  arrange(n) %>%
+  dt_mutate(shorter = factor(shorter, levels = shorter))
+
+
+ggplot(top_universities, aes(color = country)) +
+  geom_point(aes(x = shorter, y = n), size = 4) +
+  geom_segment(data = top_universities, mapping = aes(x = shorter, xend = shorter, y = 0, yend = n), size = 1) +
+  scale_color_manual(labels = c("Canada", "China", "United States"), 
                      values = c("#0E879C", "#E57200", "#232D4B")) +
   labs(x = "University", y = "Number of Users", color = "Country", title = "Top-20 Universities by Number of Users") +
   #theme_classic() +
@@ -697,7 +727,7 @@ ggplot(academic_counts_sorted[(.N-20):.N, ], aes(color = country)) +
         axis.title =element_text(size=18),
         axis.title.y =element_blank(),
         axis.text.x = element_text(size = 18),
-        axis.text.y = element_text(size = 12),
+        axis.text.y = element_text(size = 16),
         legend.title=element_text(size=18, hjust = 0.5, face="bold"),
         legend.text=element_text(size=18),
         legend.position = c(.9, .1),
@@ -719,33 +749,59 @@ Here we focus specifically on the US. The figure below details which US universi
 ```{r, us_universities, fig.height = 9, fig.width = 12,  warning = FALSE, echo=FALSE}
 us_academic_counts <- academic_counts_sorted %>% filter(country == "United States")
 
-type <- c("university of california, berkeley" = "public",
-          "massachusetts institute of technology" = "private",
-          "stanford university" = "private",
-          "university of southern california" = "private",
-          "cornell university" = "private",
-          "university of washington" = "public",
-          "carnegie mellon university" = "private",
-          "new york university" = "private",
-          "university of michigan - ann arbor" = "public",
-          "university of illinois at urbana-champaign" = "public",
-          "columbia university" = "private",
-          "university of texas at austin" = "public",
-          "georgia institute of technology" = "public",
-          "duke university" = "private",
-          "university of california, san diego" = "public",
-          "harvard university" = "private",
-          "university of pennsylvania" = "private",
-          "university of wisconsin - madison" = "public",
-          "purdue university" = "public",
-          "university of california, los angeles" = "public",
-          "arizona state university" = "public") %>% rev()
+top_us_universities <- select(us_academic_counts[(.N-20):.N, ], organization) %>%
+  add_column(shorter = c("Arizona State University",
+                         "UC Los Angeles",
+                         "Purdue University",
+                         "University of Wisconsin",
+                         "University of Pennsylvania",
+                         "Harvard University",
+                         "UC San Diego",
+                         "Duke University",
+                         "Georgia Tech",
+                         "University of Texas",
+                         "Columbia University",
+                         "University of Illinois",
+                         "University of Michigan",
+                         "New York University",
+                         "Carnegie Mellon University",
+                         "University of Washington",
+                         "Cornell University",
+                         "Univ. of Southern California",
+                         "Stanford University",
+                         "MIT",
+                         "UC Berkeley")) %>%
+  inner_join(us_academic_counts) %>%
+  arrange(n) %>%
+  dt_mutate(shorter = factor(shorter, levels = shorter))
 
-ggplot(us_academic_counts[(.N-20):.N, ], aes(color = type)) +
-  geom_point(aes(x = organization, y = n), size = 4) +
-  geom_segment(data = us_academic_counts[(.N-20):.N, ], mapping = aes(x = organization, xend = organization, y = 0, yend = n), size = 1) +
+Type <- c("university of california, berkeley" = "Public",
+          "massachusetts institute of technology" = "Private",
+          "stanford university" = "Private",
+          "university of southern california" = "Private",
+          "cornell university" = "Private",
+          "university of washington" = "Public",
+          "carnegie mellon university" = "Private",
+          "new york university" = "Private",
+          "university of michigan - ann arbor" = "Public",
+          "university of illinois at urbana-champaign" = "Public",
+          "columbia university" = "Private",
+          "university of texas at austin" = "Public",
+          "georgia institute of technology" = "Public",
+          "duke university" = "Private",
+          "university of california, san diego" = "Public",
+          "harvard university" = "Private",
+          "university of pennsylvania" = "Private",
+          "university of wisconsin - madison" = "Public",
+          "purdue university" = "Public",
+          "university of california, los angeles" = "Public",
+          "arizona state university" = "Public") %>% rev()
+
+ggplot(top_us_universities, aes(color = Type)) +
+  geom_point(aes(x = shorter, y = n), size = 4) +
+  geom_segment(data = top_us_universities, mapping = aes(x = shorter, xend = shorter, y = 0, yend = n), size = 1) +
   labs(x = "Academic Institution", y = "Number of Users", title = "Top-20 Universities in the United States") +
-  scale_color_manual(values = c("public" = "#0E879C", "private" = "#E57200")) +
+  scale_color_manual(values = c("Public" = "#0E879C", "Private" = "#E57200")) +
   #scale_y_reverse() +
   coord_flip() +
   theme_minimal() +
