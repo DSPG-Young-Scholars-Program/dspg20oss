@@ -239,7 +239,8 @@ collapsibleTree(OSS,
 <br>
 
 ## Sectoring Results
-Twenty percent of the GHTorrent data (~2.1 million) provides email address or work affiliation for sectoring, which gives us 420,000 GitHub users. 
+#### Twenty percent of the GHTorrent data (~2.1 million) provides email address or work
+#### affiliation for sectoring, which gives us 420,000 GitHub users. 
 ```{r sectoring, echo=FALSE, message=FALSE, warning=FALSE}
 
 ```
@@ -1042,6 +1043,8 @@ min = min(gh_continent$ttl_users)
 max = max(gh_continent$ttl_users)
 
 ```
+
+$$\textbf{Countries Where Github Users are Located}$$
 ```{r fig.width=9.5, fig.height=5, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 gh_country <- city_clean_final_aggregate_country%>%
   arrange(desc(ttl_users))%>%
@@ -1054,29 +1057,18 @@ min = min(gh_country$ttl_users)
 max = max(gh_country$ttl_users)
 
 ggplot(gh_country, aes(x = c_country_name, y = ttl_users, fill = ttl_users)) +
-  geom_bar(stat = "identity")+ 
-  scale_fill_continuous(
-    low = "#E6890F", 
-    high=uva_color_palette[9], 
-    breaks=c(min, 60000, 100000, 140000, max), 
-    labels = c(
-      as.character(min), 
-      "60000",
-      "100000",
-      "140000",
-      as.character(max)
-      )
-    )+
+  geom_bar(stat = "identity", fill = uva_color_palette[9])+
   labs(#title = "Countries where Github users are located", 
-       x = "Country", y = "Total Number of Users", fill = "Total Number \n    of Users") +
+       x = "Country", y = "Total Number of Users") +
   theme_bw()+
   theme(legend.spacing.y = unit(1,"cm"))+
-  theme(axis.text.x = element_text(size = 11, hjust = .5, vjust = .5),
-        axis.text.y = element_text(size = 11, hjust = .5, vjust = .5),  
+  theme(axis.text.x = element_text(size = 13, hjust = .5, vjust = .5),
+        axis.text.y = element_text(size = 12, hjust = .5, vjust = .5),  
         axis.title.x = element_text(size = 14, hjust = .5, vjust = .5),
         axis.title.y = element_text(size = 14, hjust = .5, vjust = .5),
         legend.title=element_text(size=13),
-        legend.text = element_text(size=11))
+        legend.text = element_text(size=11))+
+  scale_y_continuous(breaks = c(0, 25000, 50000, 75000, 100000, 125000, 150000))
 ```
 
 #### Most GitHub users based in the US are around 4 times higher than in China 
@@ -1092,6 +1084,7 @@ ggplot(gh_country, aes(x = c_country_name, y = ttl_users, fill = ttl_users)) +
 <br>
 <br>
 
+$$\textbf{U.S. States Where Github Users are Located}$$
 ```{r fig.width=7, fig.height=4, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 state_ttl_user <- city_clean_final%>%
   filter(!is.na(c_us_state))%>%
@@ -1112,16 +1105,16 @@ state_ttl_user <- state_ttl_user%>%
 state_ttl_user$ttl_users_quantile <- factor(state_ttl_user$ttl_users_quantile, levels = c("[56, 399)", "[399, 728)","[728, 1961)","[1961, 3885)", "[3885, 40379)" ))
 
 statebins(state_ttl_user,
+         # plot_title = "U.S. States Where Github Users are Located",
           state_col = "c_us_state",
           value_col = "ttl_users_quantile",
           name = "Total Number of Users \n by Quantile Groups",
           ggplot2_scale_function = scale_fill_manual,
           values = c("[56, 399)" = "#f9f9f9" , "[399, 728)" = "#60999A","[728, 1961)" = "#0E879C","[1961, 3885)" = "#1D6B84", "[3885, 40379)" = "#232D4B",
           font_size=10,
-          state_border_size =1)
-          )+
+          state_border_size =1))+
   theme_statebins(legend_position = "right",  base_size = 11)+
-theme(plot.margin = margin(10,10,10,10))
+theme(plot.margin = margin(1,1,1,1))
 ```
 
 #### Within the US, most GitHub users are based on the coasts and near major tech hubs 
@@ -1136,6 +1129,8 @@ theme(plot.margin = margin(10,10,10,10))
 <br>
 <br>
 <br>
+
+$$\textbf{Cities Where Github Users are Located}$$
 
 ```{r fig.width=10, fig.height=6, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 gh_city <- city_clean_final_aggregate%>%
@@ -1158,26 +1153,18 @@ gh_city$city_country <- factor(gh_city$city_country, levels = gh_city$city_count
 min = min(gh_city$ttl_users)
 max = max(gh_city$ttl_users)
 
-ggplot(gh_city, aes(x = city_country, y = ttl_users, fill = ttl_users))+
-  geom_bar(stat = "identity") + 
-  scale_fill_continuous(
-    low = uva_color_palette[3], 
-    high=uva_color_palette[2],
-   breaks=c(0,min, 8000, 10000,12000, 14000,max), 
-    labels = c("0", as.character(min),"8000", "10000",  "12000", "14000",as.character(max))
-   )+
+ggplot(gh_city, aes(x = city_country, y = ttl_users))+
+  geom_bar(stat = "identity", fill = uva_color_palette[2]) +
   labs(#title = "Countries where Github users are located", 
-       x = "City", y = "Total Number of Users", fill = "Total Number \n    of Users")+
+       x = "City", y = "Total Number of Users")+
   theme_bw()+
   scale_y_continuous(breaks=c(0,2000, 4000, 6000, 8000, 10000,12000, 14000,max), 
     labels = c("0", "2000", "4000", "6000","8000", "10000",  "12000", "14000",as.character(max)))+
   theme(legend.spacing.y = unit(1,"cm"))+
-  theme(axis.text.x = element_text(size = 12, hjust = .5, vjust = .5),
-        axis.text.y = element_text(size = 11, hjust = .5, vjust = .5),  
+  theme(axis.text.x = element_text(size = 13, hjust = .5, vjust = .5),
+        axis.text.y = element_text(size = 12, hjust = .5, vjust = .5),  
         axis.title.x = element_text(size = 14, hjust = .5, vjust = .5),
-        axis.title.y = element_text(size = 14, hjust = .5, vjust = .5),
-        legend.title=element_text(size=13),
-        legend.text = element_text(size=11))
+        axis.title.y = element_text(size = 14, hjust = .5, vjust = .5))
 ```
 
 #### Silicon Valley is the world's most prominent OSS hotspot <br/> followed by London, NYC, Moscow and Beijing
