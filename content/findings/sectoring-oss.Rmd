@@ -83,8 +83,13 @@ OSS <- data.frame(
         "Business","Business","Business","Business","Business", 
         "Business", "Business", "Business", "Business", "Business",
           "Business","Business","Business","Business","Business", 
-        "Business", "Business", "Business", 
+        "Business", "Business", "Business", "Business", "Business",
+          "Business","Business","Business","Business","Business", 
+        "Business", "Business", "Business", "Business", "Business",
+        "Business","Business",
        
+        "Household", "Household", "Household", "Household", "Household", "Household", "Household",
+      "Household","Household", "Household","Household", "Household",
         
         "Government", "Government","Government","Government","Government",
         "Government","Government", "Government", "Government","Government",
@@ -111,9 +116,17 @@ OSS <- data.frame(
       #business
       "GHTorrent", "GHTorrent", "GHTorrent", "GHTorrent", "GHTorrent", "GHTorrent", "GHTorrent",
       "GitHub","GitHub", "GitHub","GitHub","GitHub",
-      "DataHub Domain List",  "DataHub Domain List", "DataHub Domain List", 
+
       
-      "Gleif's Legal Entity List",  "Gleif's Legal Entity List", "Gleif's Legal Entity List", 
+      "Forbes 2018 Fortune-1000",  "Forbes 2018 Fortune-1000", "Forbes 2018 Fortune-1000", "Forbes 2018 Fortune-1000","Forbes 2018 Fortune-1000","Forbes 2018 Fortune-1000","Forbes 2018 Fortune-1000",
+      
+      "Forbes 2019 Fortune-1000",  "Forbes 2019 Fortune-1000", "Forbes 2019 Fortune-1000", "Forbes 2019 Fortune-1000","Forbes 2019 Fortune-1000","Forbes 2019 Fortune-1000","Forbes 2019 Fortune-1000",
+      
+      "Forbes 2020 Global-2000", "Forbes 2020 Global-2000", "Forbes 2020 Global-2000", "Forbes 2020 Global-2000", "Forbes 2020 Global-2000", "Forbes 2020 Global-2000",
+     
+      #household
+       "GHTorrent", "GHTorrent", "GHTorrent", "GHTorrent", "GHTorrent", "GHTorrent", "GHTorrent",
+      "GitHub","GitHub", "GitHub","GitHub","GitHub",
       
     #gov  
       "GHTorrent", "GHTorrent", "GHTorrent", "GHTorrent", "GHTorrent", "GHTorrent", "GHTorrent",
@@ -138,26 +151,31 @@ OSS <- data.frame(
     ),
     Variables = c(
        #academic
-        "username", "affiliation", "city", "state","country code", "latitude",  "longitude",  #7
+        "login(rename, username)", "company (affiliation)", "city", "state","country code", "latitude",  "longitude",  #7
         "username","commits", "additions", "deletions", "created at", #5
         "institution name", "country code", "email domain", "website",  #4
         
         #business
-         "username","affiliation","city","state","country code",  "latitude",  "longitude",  #7 
+         "login(rename, username)","company (affiliation)","city","state","country code",  "latitude",  "longitude",  #7 
         "username","commits", "additions", "deletions", "created at", #5
         
-        "email domain", "organization", "organization type",   #7
-         "legal entity form", "entity abbreviation", "country",    #7
+        "company", "industry", "location", "revenue", "profits", "assets", "market value",  #7
+         "company", "industry", "location", "revenue", "profits", "assets", "market value",  #7
+         "company", "country", "sales", "profits", "assets",  "market value", #6
+        
+        #household
+         "login(rename, username)", "company (affiliation)", "city", "state","country code", "latitude",  "longitude",  #7
+        "username","commits", "additions", "deletions", "created at", 
         
         #gov
-        "username","affiliation","city","state","country code",  "latitude",  "longitude", 
+        "login(rename, username)","company (affiliation)","city","state","country code",  "latitude",  "longitude", 
         "username","commits", "additions", "deletions", "created at",
         "gov branch", "gov agency", "gov subagency", "website",
         "ffrdc", "ffrdc admin", "ffrdc url", "ffrdc location", "gov agency", "gov subagency",
         "gov branch", "gov agency",
         
          #nonprofit
-        "username","affiliation","city","state","country code",  "latitude",  "longitude", 
+        "login(rename, username)","company (affiliation)","city","state","country code",  "latitude",  "longitude", 
         "username","commits", "additions", "deletions", "created at",
         
         "organization","acronym", "private support", "total revenue", "donor dependency", 
@@ -165,11 +183,12 @@ OSS <- data.frame(
       "organization", "acronym", 
       "ffrdc", "ffrdc admin", 
       
-        "username","affiliation","city","state","country code",  "latitude",  "longitude", 
+        "login(rename, username)","company (affiliation)","city","state","country code",  "latitude",  "longitude", 
         "username","commits", "additions", "deletions", "created at",
         "continent name", "country code"
     )
 )
+
 
 collapsibleTree(OSS, 
                 c("Sector", "DataSource", "Variables"), 
