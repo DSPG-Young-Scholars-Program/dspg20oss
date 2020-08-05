@@ -101,8 +101,6 @@ sum(initial_overlap[,"n"])
 # 16,677 identified users from academic institutions
 ```
 
-
-
 ```{r regex_recode, message = FALSE, results = FALSE, warning = FALSE, echo=FALSE}
 orgs_clean <- users_gh %>%
   # remove all na's 
@@ -684,6 +682,7 @@ datatable(country_user_percentages)
 This figure shows which specific academic institutions had the greatest number of GitHub users contributing to OSS. The top 10 are all located in the US, though both China and Canada also have universities with a high number of contributors. Below the figure is another searchable table, this time of academic institutions.
 
 ```{r, by_country, fig.height = 9, fig.width=12, warning = FALSE,  echo=FALSE}
+<<<<<<< HEAD
 # rename top universities to make labels shorter
 
 
@@ -718,6 +717,33 @@ ggplot(top_universities, aes(color = country)) +
   geom_point(aes(x = shorter, y = n), size = 4) +
   geom_segment(data = top_universities, mapping = aes(x = shorter, xend = shorter, y = 0, yend = n), size = 1) +
   scale_color_manual(labels = c("Canada", "China", "United States"), 
+=======
+academic_counts_sorted2 <- academic_counts_sorted[(.N-20):.N, ]
+#academic_counts_sorted2 <- academic_counts_sorted %>% arrange(-n) %>% slice(1:20)
+
+#academic_counts_sorted2 <- academic_counts_sorted2 %>% 
+#  mutate(organization = as.character(organization)) %>% 
+#  mutate(organization = ifelse(test = str_detect(string = organization, 
+#                       pattern = "university of california, berkeley"), 
+#                       yes = "uc berkeley", no = organization)) %>% 
+#  mutate(organization = ifelse(test = str_detect(string = organization, 
+#                       pattern = "university of california, san diego"), 
+#                       yes = "uc berkeley", no = organization)) %>% 
+#  mutate(organization = ifelse(test = str_detect(string = organization, 
+#                       pattern = "university of illinois at urbana-champaign"), 
+#                       yes = "univ of illinois, uc", no = organization)) %>% 
+#  mutate(organization = ifelse(test = str_detect(string = organization, 
+#                       pattern = "university of michigan - ann arbor"), 
+#                       yes = "univ of michigan", no = organization)) %>% 
+#  mutate(organization = as.factor(organization)) 
+  
+
+academic_counts_sorted2 %>% 
+  ggplot() + geom_point(aes(x = organization, y = n, color = country), size = 4) +
+  geom_segment(data = academic_counts_sorted[(.N-20):.N, ], 
+               mapping = aes(x = organization, xend = organization, y = 0, yend = n), size = 1) +
+  scale_color_manual(labels = c("canada", "china", "united states"), 
+>>>>>>> 0d111336ca25c43b757a32cd98a47444d39091ff
                      values = c("#0E879C", "#E57200", "#232D4B")) +
   labs(x = "University", y = "Number of Users", color = "Country", title = "Top-20 Universities by Number of Users") +
   #theme_classic() +

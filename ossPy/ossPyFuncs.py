@@ -161,6 +161,7 @@ def uniquePandasIndexMapping(inputColumn):
     duplications.  Will create a frequency table and a mapping back to the source entries.
     """
     import numpy as np
+    import pandas as pd
     
     inputColumn.sort_values(by=['company'], inplace=True)
     sortedInputColumn=inputColumn.reset_index() 

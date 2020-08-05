@@ -3,7 +3,7 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
-    <loc>/findings/geographic/</loc>
+    <loc>/findings/sectoring-oss/</loc>
   </url>
   
   <url>
@@ -15,11 +15,7 @@
   </url>
   
   <url>
-    <loc>/findings/nonprofit-household/</loc>
-  </url>
-  
-  <url>
-    <loc>/findings/business/</loc>
+    <loc>/findings/geographic/</loc>
   </url>
   
   <url>
@@ -56,10 +52,6 @@
   
   <url>
     <loc>/tags/nlp/</loc>
-  </url>
-  
-  <url>
-    <loc>/tags/python/</loc>
   </url>
   
   <url>

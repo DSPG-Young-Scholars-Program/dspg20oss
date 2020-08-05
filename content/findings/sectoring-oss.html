@@ -1,0 +1,196 @@
+---
+title: 'Sectoring Open Source Software'
+description: 'Symposium Presentation of the 2020 DSPG Project'
+weight: 1
+output: html_document
+---
+
+<script src="/rmarkdown-libs/htmlwidgets/htmlwidgets.js"></script>
+<script src="/rmarkdown-libs/d3/d3.min.js"></script>
+<link href="/rmarkdown-libs/collapsibleTree/collapsibleTree.css" rel="stylesheet" />
+<script src="/rmarkdown-libs/collapsibleTree-binding/collapsibleTree.js"></script>
+<script src="/rmarkdown-libs/jquery/jquery.min.js"></script>
+<link href="/rmarkdown-libs/leaflet/leaflet.css" rel="stylesheet" />
+<script src="/rmarkdown-libs/leaflet/leaflet.js"></script>
+<link href="/rmarkdown-libs/leafletfix/leafletfix.css" rel="stylesheet" />
+<script src="/rmarkdown-libs/Proj4Leaflet/proj4-compressed.js"></script>
+<script src="/rmarkdown-libs/Proj4Leaflet/proj4leaflet.js"></script>
+<link href="/rmarkdown-libs/rstudio_leaflet/rstudio_leaflet.css" rel="stylesheet" />
+<script src="/rmarkdown-libs/leaflet-binding/leaflet.js"></script>
+<script src="/rmarkdown-libs/fuse_js/fuse_js-prod.js"></script>
+<link href="/rmarkdown-libs/lfx-search/lfx-search-prod.css" rel="stylesheet" />
+<script src="/rmarkdown-libs/lfx-search/lfx-search-prod.js"></script>
+<script src="/rmarkdown-libs/lfx-search/lfx-search-bindings.js"></script>
+<link href="/rmarkdown-libs/leaflet-easybutton/easy-button.css" rel="stylesheet" />
+<script src="/rmarkdown-libs/leaflet-easybutton/easy-button.js"></script>
+<script src="/rmarkdown-libs/leaflet-easybutton/EasyButton-binding.js"></script>
+<link href="/rmarkdown-libs/ionicons/ionicons.min.css" rel="stylesheet" />
+
+
+<style type="text/css">
+/* this chunk of code centers all of the headings */
+h1, h2, h3, h4, h5 {
+  text-align: center;
+}
+</style>
+<p><br> <br> <br> <br> <br></p>
+<center>
+<img src="/findings/sectoring-oss_files/dspg-small.jpg" />
+</center>
+<div id="sectoring-open-source-software-where-do-github-contributions-come-from" class="section level2">
+<h2>Sectoring Open Source Software: <br> Where Do GitHub Contributions Come From?</h2>
+<div id="crystal-zang-morgan-klutzke-daniel-bullock-brandon-kramer-gizem-korkmaz-and-josé-bayoán-santiago-calderón-sponsors-carol-robbins-ncses-and-ledia-guci-ncses" class="section level4">
+<h4>Crystal Zang, Morgan Klutzke, Daniel Bullock, <br> Brandon Kramer, Gizem Korkmaz, and José Bayoán Santiago Calderón <br> Sponsors: Carol Robbins (NCSES) and Ledia Guci (NCSES)</h4>
+<p><br> <br> <br> <br> <br> <br> <br> <br> <br> <br></p>
+</div>
+</div>
+<div id="why-study-open-source-software" class="section level2">
+<h2>Why Study Open Source Software?</h2>
+<center>
+<img src="/findings/sectoring-oss_files/oss.png" />
+</center>
+<div id="oss-is-any-software-that-is-developed-by-a-copyright-holder-but-shared-with-a-broader-public-to-share-with-anyone-and-for-any-purpose" class="section level4">
+<h4>OSS is any software that is developed by a copyright holder, <br/> but shared with a broader public to share with anyone and for any purpose</h4>
+</div>
+<div id="current-ncses-and-other-economic-indicators-do-not-measure-the-scope-and-impact-of-oss-developed-outside-the-business-sector" class="section level4">
+<h4>Current NCSES and other economic indicators do not measure <br/> the scope and impact of OSS developed outside the business sector</h4>
+<p><br> <br> <br> <br> <br> <br> <br> <br> <br> <br></p>
+</div>
+</div>
+<div id="sectoring-open-source-software" class="section level2">
+<h2>Sectoring Open Source Software</h2>
+<div id="our-two-main-goals-for-the-2020-dspg-summer-project-were-to" class="section level3">
+<h3>Our two main goals for the 2020 DSPG Summer Project were to:</h3>
+<div id="classify-github-users-into-one-of-five-economic-sectors" class="section level4">
+<h4>(1) Classify GitHub users into one of five economic sectors</h4>
+</div>
+<div id="academic-business-household-government-and-non-profit" class="section level4">
+<h4>(Academic, Business, Household, Government and Non-Profit)</h4>
+</div>
+<div id="examine-where-github-users-are-located-around-the-world" class="section level4">
+<h4>(2) Examine where GitHub users are located around the world</h4>
+<div id="htmlwidget-1" style="width:672px;height:480px;" class="collapsibleTree html-widget"></div>
+<script type="application/json" data-for="htmlwidget-1">{"x":{"data":{"name":"OSS","children":[{"name":"Academic","children":[{"name":"GHTorrent","children":[{"name":"username"},{"name":"affiliation"},{"name":"city"},{"name":"state"},{"name":"country code"},{"name":"latitude"},{"name":"longitude"}]},{"name":"GitHub","children":[{"name":"username"},{"name":"commits"},{"name":"additions"},{"name":"deletions"},{"name":"created at"}]},{"name":"Hipo Labs","children":[{"name":"institution name"},{"name":"country code"},{"name":"email domain"},{"name":"website"}]}]},{"name":"Business","children":[{"name":"GHTorrent","children":[{"name":"username"},{"name":"affiliation"},{"name":"city"},{"name":"state"},{"name":"country code"},{"name":"latitude"},{"name":"longitude"}]},{"name":"GitHub","children":[{"name":"username"},{"name":"commits"},{"name":"additions"},{"name":"deletions"},{"name":"created at"}]},{"name":"DataHub Domain List","children":[{"name":"email domain"},{"name":"organization"},{"name":"organization type"}]},{"name":"Gleif's Legal Entity List","children":[{"name":"legal entity form"},{"name":"entity abbreviation"},{"name":"country"}]}]},{"name":"Government","children":[{"name":"GHTorrent","children":[{"name":"username"},{"name":"affiliation"},{"name":"city"},{"name":"state"},{"name":"country code"},{"name":"latitude"},{"name":"longitude"}]},{"name":"GitHub","children":[{"name":"username"},{"name":"commits"},{"name":"additions"},{"name":"deletions"},{"name":"created at"}]},{"name":"US Gov A-Z Index","children":[{"name":"gov branch"},{"name":"gov agency"},{"name":"gov subagency"},{"name":"website"}]},{"name":"US Gov FFRDCs","children":[{"name":"ffrdc"},{"name":"ffrdc admin"},{"name":"ffrdc url"},{"name":"ffrdc location"},{"name":"gov agency"},{"name":"gov subagency"}]},{"name":"US Gov Manual","children":[{"name":"gov branch"},{"name":"gov agency"}]}]},{"name":"Nonprofit","children":[{"name":"GHTorrent","children":[{"name":"username"},{"name":"affiliation"},{"name":"city"},{"name":"state"},{"name":"country code"},{"name":"latitude"},{"name":"longitude"}]},{"name":"GitHub","children":[{"name":"username"},{"name":"commits"},{"name":"additions"},{"name":"deletions"},{"name":"created at"}]},{"name":"Forbes Top-100 Charities","children":[{"name":"organization"},{"name":"acronym"},{"name":"private support"},{"name":"total revenue"},{"name":"donor dependency"}]},{"name":"United Nation NGOs","children":[{"name":"organization"},{"name":"acronym"}]},{"name":"US Gov FFRDCs","children":[{"name":"ffrdc"},{"name":"ffrdc admin"}]}]},{"name":"Geographic","children":[{"name":"GHTorrent","children":[{"name":"username"},{"name":"affiliation"},{"name":"city"},{"name":"state"},{"name":"country code"},{"name":"latitude"},{"name":"longitude"}]},{"name":"GitHub","children":[{"name":"username"},{"name":"commits"},{"name":"additions"},{"name":"deletions"},{"name":"created at"}]},{"name":"DataHub","children":[{"name":"continent name"},{"name":"country code"}]}]}]},"options":{"hierarchy":["Sector","DataSource","Variables"],"input":null,"attribute":"leafCount","linkLength":null,"fontSize":10,"tooltip":false,"collapsed":true,"zoomable":true,"margin":{"top":20,"bottom":20,"left":40,"right":120},"fill":"#E57200"}},"evals":[],"jsHooks":[]}</script>
+<p><br> <br> <br> <br> <br> <br> <br> <br> <br> <br></p>
+</div>
+</div>
+</div>
+<div id="data" class="section level2">
+<h2>Data</h2>
+<center>
+<img src="/findings/sectoring-oss_files/ghtorrent.png" />
+</center>
+<p><br></p>
+<div id="we-used-ghtorrent-data-to-categorize-users-into-sectors-dataset-of-2.1-million-github-users-with-email-affiliation-and-location-data" class="section level4">
+<h4>We used GHTorrent data to categorize users into sectors <br/> (dataset of ~2.1 million GitHub users with email, affiliation and location data)</h4>
+<p><br></p>
+</div>
+<div id="we-also-used-multiple-publicly-available-datasources-to-help-match-users-to-existing-organizations-within-each-sector" class="section level4">
+<h4>We also used multiple publicly available datasources to help <br/> match users to existing organizations within each sector</h4>
+</div>
+<div id="see-our-data-methods-page-for-more-details" class="section level4">
+<h4>(see our <a href="/methods/">Data &amp; Methods</a> page for more details)</h4>
+<p><br> <br> <br> <br> <br> <br> <br> <br> <br> <br></p>
+</div>
+</div>
+<div id="methods" class="section level2">
+<h2>Methods</h2>
+<center>
+<p><img src="/findings/sectoring-oss_files/ucsd-example.png" /> <img src="/findings/sectoring-oss_files/microsoft-example.png" /></p>
+</center>
+<div id="we-relied-on-aspects-of-computational-text-analysis-to-standardize-entries" class="section level4">
+<h4>We relied on aspects of computational text analysis to standardize entries</h4>
+</div>
+<div id="regular-expressions-list-matching-and-bigrams" class="section level4">
+<h4>(regular expressions, list matching, and bigrams)</h4>
+<p><br> <br> <br> <br> <br> <br> <br> <br> <br> <br></p>
+</div>
+</div>
+<div id="sectoring-results" class="section level2">
+<h2>Sectoring Results</h2>
+<center>
+<img src="/findings/sectoring-oss_files/domainScaleAlt.svg" />
+</center>
+<p><br> <br> <br> <br> <br> <br> <br> <br> <br> <br></p>
+</div>
+<div id="academic-sector" class="section level2">
+<h2>Academic Sector</h2>
+<p><img src="/findings/sectoring-oss_files/figure-html/countries_users-1.png" width="1152" /></p>
+<div id="us-based-academic-institutions-are-the-largest-producers-of-oss" class="section level4">
+<h4>US-based academic institutions are the largest producers of OSS</h4>
+<p><br> <br> <br> <br> <br></p>
+<p><img src="/findings/sectoring-oss_files/figure-html/us_universities-1.png" width="1152" /></p>
+</div>
+<div id="most-of-the-top-oss-producing-universities-are-close-to-major-tech-hubs-in-ca-ma-ny-tx-and-wa" class="section level4">
+<h4>Most of the top OSS-producing universities are close to <br/> major tech hubs in CA, MA, NY, TX and WA</h4>
+<p><br> <br> <br> <br> <br> <br> <br> <br> <br> <br></p>
+</div>
+</div>
+<div id="business-sector" class="section level2">
+<h2>Business Sector</h2>
+<center>
+<img src="/findings/sectoring-oss_files/topCompanies.svg" />
+</center>
+<p><br> <br> <br> <br> <br> <br> <br> <br> <br> <br></p>
+</div>
+<div id="geographic-analyses" class="section level2">
+<h2>Geographic Analyses</h2>
+<p><img src="/findings/sectoring-oss_files/figure-html/unnamed-chunk-3-1.png" width="912" /></p>
+<div id="most-github-users-based-in-the-us-are-around-4-times-higher-than-in-china" class="section level4">
+<h4>Most GitHub users based in the US are around 4 times higher than in China</h4>
+<p><br> <br> <br> <br> <br> <br> <br> <br> <br> <br></p>
+<p><img src="/findings/sectoring-oss_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+</div>
+<div id="within-the-us-most-github-users-are-based-on-the-coasts-and-near-major-tech-hubs" class="section level4">
+<h4>Within the US, most GitHub users are based on the coasts and near major tech hubs</h4>
+<p><br> <br> <br> <br> <br> <br> <br> <br> <br> <br></p>
+<p><img src="/findings/sectoring-oss_files/figure-html/unnamed-chunk-5-1.png" width="960" /></p>
+</div>
+<div id="silicon-valley-is-the-worlds-most-prominent-oss-hotspot-followed-by-london-nyc-moscow-and-beijing" class="section level4">
+<h4>Silicon Valley is the world's most prominent OSS hotspot <br/> followed by London, NYC, Moscow and Beijing</h4>
+<p><br> <br> <br> <br> <br> <br> <br> <br> <br> <br></p>
+<p><a href="https://www.youtube.com/watch?v=KHokyhsd6IM" title="GitHub Users Around the World"><img src="https://res.cloudinary.com/marcomontalbano/image/upload/v1596230317/video_to_markdown/images/youtube--KHokyhsd6IM-c05b58ac6eb4c4700831b2b3070cd403.jpg" alt="GitHub Users Around the World" /></a></p>
+</div>
+<div id="click-to-see-a-video-or-visit-our-interactive-map-of-github-users-around-the-world" class="section level4">
+<h4>Click to see a video or visit our <a href="/findings/geographic/">interactive map</a> of GitHub users around the world</h4>
+<p><br> <br> <br> <br> <br> <br> <br> <br> <br> <br></p>
+</div>
+</div>
+<div id="main-findings" class="section level2">
+<h2>Main Findings</h2>
+<div id="the-majority-of-users-come-from-the-business-sector-followed-by-the-academic-government-and-household-sectors" class="section level4">
+<h4>The majority of users come from the business sector followed <br/> by the academic, government and household sectors</h4>
+<p><br></p>
+</div>
+<div id="most-oss-production-seems-to-be-coming-from-the-business-sector" class="section level4">
+<h4>Most OSS production seems to be coming from the business sector</h4>
+<p><br></p>
+</div>
+<div id="most-github-users-are-based-in-the-us-both-in-general-and-in-the-academic-sector" class="section level4">
+<h4>Most GitHub users are based in the US (both in general and in the academic sector)</h4>
+<p><br></p>
+</div>
+<div id="major-universities-in-california-may-also-be-benefitting-from-the-proximity-of-silicon-valleys-oss-production" class="section level4">
+<h4>Major universities in California may also be benefitting <br/> from the proximity of Silicon Valley's OSS production</h4>
+<p><br></p>
+</div>
+</div>
+<div id="challenges-future-directions" class="section level2">
+<h2>Challenges &amp; Future Directions</h2>
+<div id="hoping-to-scrape-more-user-data-to-improve-classification-accurary" class="section level4">
+<h4>Hoping to scrape more user data to improve classification accurary</h4>
+<p><br></p>
+</div>
+<div id="improving-the-government-non-profit-and-household-classification-systems" class="section level4">
+<h4>Improving the government, non-profit and household classification systems</h4>
+<p><br></p>
+</div>
+<div id="determine-how-to-classify-contributions-at-the-intersection-of-multiple-sectors" class="section level4">
+<h4>Determine how to classify contributions at the intersection of multiple sectors</h4>
+<p><br></p>
+</div>
+<div id="conducting-network-analysis-to-understand-collaboration-tendencies" class="section level4">
+<h4>Conducting network analysis to understand collaboration tendencies</h4>
+<p><br> <br> <br> <br> <br> <br> <br> <br> <br> <br></p>
+</div>
+</div>

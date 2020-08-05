@@ -9,7 +9,7 @@ output:
 editor_options: 
   chunk_output_type: console
 tags: ["R","text analysis/regex","matching","interactive map"]
-weight: 1
+weight: 5
 draft: false
 ---
 
@@ -112,9 +112,12 @@ city_clean_final_aggregate <- city_clean_final_aggregate%>%
 
 North America is the continent with the highest number of GitHub users - followed by Europe and Asia. This effectively means that almost all OSS is produced within the context of these three continents with South America, Oceania and Africa lagging far behind. In a sense, these results may speak to other measures of global inequities across the world, which may prevent developers in poorer countries for developing OSS. To better understand global patterns of collaboration within the OSS community, we will later reduce our data into six continental networks and investigate collaborations within and across these networks.
 
+$$\textbf{Continents Where Github Users are Located}$$
 ```{r fig.width=9.5, fig.height=5, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 gh_continent<- city_clean_final_aggregate_continent%>%
-  arrange(desc(ttl_users))
+  arrange(desc(ttl_users))%>%
+  mutate(c_continent_name = if_else(c_continent_name == "North America", "North \n America",
+                                    if_else(c_continent_name == "South America", "South \n America", c_continent_name)))
 
 gh_continent$Continent_Name <- factor(gh_continent$c_continent_name, levels = gh_continent$c_continent_name[order(gh_continent$ttl_users)])
 
@@ -122,56 +125,55 @@ min = min(gh_continent$ttl_users)
 max = max(gh_continent$ttl_users)
 
 ggplot(gh_continent, aes(x = Continent_Name, y = ttl_users, fill = ttl_users))+
-  geom_bar(stat = "identity")+ 
-  scale_fill_continuous(low = uva_color_palette[3], high=uva_color_palette[2], breaks=c(min,50000,100000,150000,max), labels = c(as.character(min),"50000","100000","150000", as.character(max)))+
+  geom_bar(stat = "identity", fill = uva_color_palette[3])+
   labs(#title = "Continents where Github users are located", 
-       x = "Continent", y = "Total Number of Users", fill = "Total Number \n    of Users") +
-  scale_y_continuous(breaks=c(min,50000,100000,150000,max), labels = c(as.character(min),"50000","100000","150000", as.character(max))) +
+       x = "Continent", y = "Total Number of Users")+
   theme_bw() +
-  theme( legend.spacing.y = unit(1,"cm"))
+  theme(axis.text.x = element_text(size = 13, hjust = .5, vjust = .5),
+        axis.text.y = element_text(size = 12, hjust = .5, vjust = .5),  
+        axis.title.x = element_text(size = 14, hjust = .5, vjust = .5),
+        axis.title.y = element_text(size = 14, hjust = .5, vjust = .5),
+        legend.title=element_text(size=13),
+        legend.text = element_text(size=11))
 ```
 
 ### GitHub Users by Country
 
 The United States has the highest number of GitHub users (N=166,140) with nearly four times as much as China (N=38,391). This discrepency may be because GitHub started in the US and that other web hosting platforms are used in other parts of the world. On the other hand, these results may also indicate that the US is a global power house in terms of producing OSS software. Of course, as we look further down the graph, we see the difference in overall users are much smaller between the United Kingdom, India, Russia, and the rest of the countries in the top-10. Our team is currently developing a paper that examines historical patterns of international collaboration on GitHub, which will elucidate these preliminary findings in more detail.  
 
-```{r fig.width=9.5, fig.height=6, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+$$\textbf{Countries Where Github Users are Located}$$
+```{r fig.width=9.5, fig.height=5, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 gh_country <- city_clean_final_aggregate_country%>%
   arrange(desc(ttl_users))%>%
-  top_n(10, ttl_users)
+  top_n(10, ttl_users)%>%
+  mutate(c_country_name = if_else(c_country_name == "United Kingdom", "UK", c_country_name))
 
 gh_country$c_country_name <- factor(gh_country$c_country_name, levels = gh_country$c_country_name[order(gh_country$ttl_users)])
-
-
 
 min = min(gh_country$ttl_users)
 max = max(gh_country$ttl_users)
 
 ggplot(gh_country, aes(x = c_country_name, y = ttl_users, fill = ttl_users)) +
-  geom_bar(stat = "identity")+ 
-  scale_fill_continuous(
-    low = "#E6890F", 
-    high=uva_color_palette[9], 
-    breaks=c(min, 60000, 100000, 140000, max), 
-    labels = c(
-      as.character(min), 
-      "60000",
-      "100000",
-      "140000",
-      as.character(max)
-      )
-    )+
+  geom_bar(stat = "identity", fill = uva_color_palette[9])+
   labs(#title = "Countries where Github users are located", 
-       x = "Country", y = "Total Number of Users", fill = "Total Number \n    of Users") +
+       x = "Country", y = "Total Number of Users") +
   theme_bw()+
-  theme(legend.spacing.y = unit(1,"cm"))
+  theme(legend.spacing.y = unit(1,"cm"))+
+  theme(axis.text.x = element_text(size = 13, hjust = .5, vjust = .5),
+        axis.text.y = element_text(size = 12, hjust = .5, vjust = .5),  
+        axis.title.x = element_text(size = 14, hjust = .5, vjust = .5),
+        axis.title.y = element_text(size = 14, hjust = .5, vjust = .5),
+        legend.title=element_text(size=13),
+        legend.text = element_text(size=11))+
+  scale_y_continuous(breaks = c(0, 25000, 50000, 75000, 100000, 125000, 150000))
 ```
 
 ### GitHub Users in the United States 
 
 As we mentioned above, the US has the largest number of GitHub users. To get a better understanding of where they are located, we used the [statebins package](https://github.com/hrbrmstr/statebins) to map users by state. As we see here, GitHub users are mostly located on the West and East coasts with California, New Jersey, Washington, Texas, and Massachusetts being the top-five ranked states. In our future work, we will be looking more into how users across different sectors account for this variation between states. Of course, these maps also point to influence that that major tech hubs, like Silicon Valley in California and Silicon Hills in Texas, have had on the development on OSS. 
 
-```{r fig.width=9.5, fig.height=6, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+$$\textbf{U.S. States Where Github Users are Located}$$
+```{r fig.width=7, fig.height=6.2, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 state_ttl_user <- city_clean_final%>%
   filter(!is.na(c_us_state))%>%
   group_by(c_us_state)%>%
@@ -191,20 +193,16 @@ state_ttl_user <- state_ttl_user%>%
 state_ttl_user$ttl_users_quantile <- factor(state_ttl_user$ttl_users_quantile, levels = c("[56, 399)", "[399, 728)","[728, 1961)","[1961, 3885)", "[3885, 40379)" ))
 
 statebins(state_ttl_user,
+         # plot_title = "U.S. States Where Github Users are Located",
           state_col = "c_us_state",
           value_col = "ttl_users_quantile",
           name = "Total Number of Users \n by Quantile Groups",
           ggplot2_scale_function = scale_fill_manual,
-          values = c("[56, 399)" = "#f9f9f9" , "[399, 728)" = "#60999A","[728, 1961)" = "#0E879C","[1961, 3885)" = "#1D6B84", "[3885, 40379)" = "#232D4B")
-          )+
-  theme_statebins(legend_position = "right")
-
-# statebins(state_ttl_user, 
-#           state_col = "c_us_state", 
-#           value_col = "ttl_users_quantile",
-#           name = "Total Number of Users \n by Quantile Groups", 
-#           brewer_pal =  c(uva_color_palette[1], uva_color_palette[2], uva_color_palette[3], uva_color_palette[4], uva_color_palette[5]))+
-#   theme_statebins(legend_position = "right")
+          values = c("[56, 399)" = "#f9f9f9" , "[399, 728)" = "#60999A","[728, 1961)" = "#0E879C","[1961, 3885)" = "#1D6B84", "[3885, 40379)" = "#232D4B",
+          font_size=10,
+          state_border_size =1))+
+  theme_statebins(legend_position = "right",  base_size = 11)+
+theme(plot.margin = margin(1,1,1,1))
 ```
 
 
@@ -212,14 +210,20 @@ statebins(state_ttl_user,
 
 When we looked deeper into where GitHub users are located at the city level, we found that San Francisco (US) is the city with the highest number of GitHub users - followed by London (UK), New York (US), Moscow (Russia), and Beijing (China). Again, these results speak to the importance of the tech industry in shaping OSS development, as San Francisco's prominence in tech has clearly spilled over into publicly available innovation tools. In our future research, we plan to delve deeper into collaboration networks between these cities. Knowing, for example, how often developers share resources between cities not only tells us where OSS users live but where collaborative ventures might be most successful. 
 
-```{r fig.width=11, fig.height=6, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+$$\textbf{Cities Where Github Users are Located}$$
+
+```{r fig.width=10, fig.height=7, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 gh_city <- city_clean_final_aggregate%>%
   arrange(-ttl_users)%>%
  # top_n(10, ttl_users)%>%  #don't know why this code doesn't work
-  filter(ttl_users >= 6651) 
+  filter(ttl_users >= 6651) %>%
+  mutate(city_country = if_else(city_country == "London, United Kingdom", "London, UK", 
+                                if_else(city_country == "San Francisco, US", "San, Francisco, US",
+                                city_country)))
 
+#table(gh_city$city_country)
 gh_city$city_country <- str_replace_all(gh_city$city_country, fixed(","), "\n") 
-
+#table(gh_city$city_country)
 
 gh_city$city_country <- factor(gh_city$city_country, levels = gh_city$city_country[order(gh_city$ttl_users)])
 # NOTE ::: Could you please shorten the labels for the USA and Russia cities 
@@ -229,20 +233,18 @@ gh_city$city_country <- factor(gh_city$city_country, levels = gh_city$city_count
 min = min(gh_city$ttl_users)
 max = max(gh_city$ttl_users)
 
-ggplot(gh_city, aes(x = city_country, y = ttl_users, fill = ttl_users))+
-  geom_bar(stat = "identity") + 
-  scale_fill_continuous(
-    low = uva_color_palette[3], 
-    high=uva_color_palette[2],
-   breaks=c(0,min, 8000, 10000,12000, 14000,max), 
-    labels = c("0", as.character(min),"8000", "10000",  "12000", "14000",as.character(max))
-   )+
+ggplot(gh_city, aes(x = city_country, y = ttl_users))+
+  geom_bar(stat = "identity", fill = uva_color_palette[2]) +
   labs(#title = "Countries where Github users are located", 
-       x = "City", y = "Total Number of Users", fill = "Total Number \n    of Users")+
+       x = "City", y = "Total Number of Users")+
   theme_bw()+
   scale_y_continuous(breaks=c(0,2000, 4000, 6000, 8000, 10000,12000, 14000,max), 
     labels = c("0", "2000", "4000", "6000","8000", "10000",  "12000", "14000",as.character(max)))+
-  theme(legend.spacing.y = unit(1,"cm"))
+  theme(legend.spacing.y = unit(1,"cm"))+
+  theme(axis.text.x = element_text(size = 13, hjust = .5, vjust = .5),
+        axis.text.y = element_text(size = 12, hjust = .5, vjust = .5),  
+        axis.title.x = element_text(size = 14, hjust = .5, vjust = .5),
+        axis.title.y = element_text(size = 14, hjust = .5, vjust = .5))
 ```
 
 ### Interactive Map of GitHub Users by City 
@@ -280,4 +282,5 @@ city_clean_final_aggregate%>%
 
 ### Limitations and Future Steps 
 
-[Please explain the limitations of your approach. For example, using a US-based dataset likely means you more accurately counted these instiutions. You could also explain what the next steps to your work would be.]
+There are a few limitations to our geographic analyses. First, the city code assignment relies on the geocode provided by GHTorrent, which was assigned using the the Open Street Maps API. Before publishing our work to a broader audience, we want to further evaluate the validity of the geocode and compare it with the user-input location. A second known issue is that we have identified users who reported multiple countries in their location responses, but we don't have multiple geocodes to reflect all of their actual locations. Currently, we count the total number of users recide in each city. However, in our future analyses, we would like to account for the population in each city to reflect the total number of GitHub users per capita.
+
