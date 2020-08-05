@@ -58,7 +58,14 @@ h1, h2, h3, h4, h5 {
 <br>
 <br>
  
-## Sectoring Open Source Software
+
+
+<center>
+![GHTorrent](/findings/sectoring-oss_files/ghtorrent.png){width=10%}
+</center>
+
+## Sectoring Open Source Software on GitHub
+
 
 ### Our two main goals for the 2020 DSPG Summer Project were to: 
 
@@ -208,33 +215,6 @@ collapsibleTree(OSS,
 <br>
 <br>
 
-## Data
-
-<center>
-
-![](/findings/sectoring-oss_files/ghtorrent.png) 
-</center>
-
-<br>
-
-#### We used GHTorrent data to categorize users into sectors <br/> (dataset of ~2.1 million GitHub users with email, affiliation and location data) 
-
-<br>
-
-#### We also used multiple publicly available datasources to help <br/> match users to existing organizations within each sector 
-#### (see our [Data & Methods](/methods/) page for more details)
-
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-
 ## Methods
 
 <center>
@@ -259,7 +239,7 @@ collapsibleTree(OSS,
 <br>
 
 ## Sectoring Results
-
+Twenty percent of the GHTorrent data (~2.1 million) provides email address or work affiliation for sectoring, which gives us 420,000 GitHub users. 
 ```{r sectoring, echo=FALSE, message=FALSE, warning=FALSE}
 
 ```
