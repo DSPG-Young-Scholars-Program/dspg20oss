@@ -11,15 +11,6 @@
     
     
     <item>
-      <title>big data</title>
-      <link>/tags/big-data/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>/tags/big-data/</guid>
-      <description></description>
-    </item>
-    
-    <item>
       <title>interactive map</title>
       <link>/tags/interactive-map/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -38,11 +29,11 @@
     </item>
     
     <item>
-      <title>nlp</title>
-      <link>/tags/nlp/</link>
+      <title>Python</title>
+      <link>/tags/python/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>/tags/nlp/</guid>
+      <guid>/tags/python/</guid>
       <description></description>
     </item>
     
@@ -52,15 +43,6 @@
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>/tags/r/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>regex</title>
-      <link>/tags/regex/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>/tags/regex/</guid>
       <description></description>
     </item>
     

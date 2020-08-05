@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Python on UVA Biocomplexity Institute</title>
+    <link>/tags/python/</link>
+    <description>Recent content in Python on UVA Biocomplexity Institute</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    
+	<atom:link href="/tags/python/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Classifing Users Across Sectors &amp; OSS in the Business Sector</title>
+      <link>/findings/business/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/findings/business/</guid>
+      <description>/* this chunk of code centers all of the headings */ h1, h2, h3, h4 { text-align: center; }  General Approach To assign users into the business sector, we took an exclusionary approach that depends on the other four sectors. First, we worked to standardize the affiliation column by removing (1) all website domain information using manually curated terms originally based on DataHub&#39;s Domain Entries, (2) all legal entity nomenclature based on manually curated version of Gleif&#39;s legal entity abbreviations, and (3) a list of commonly occurring arbitrary symbols.</description>
+    </item>
+    
+  </channel>
+</rss>

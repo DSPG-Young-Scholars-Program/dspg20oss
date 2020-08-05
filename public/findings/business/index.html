@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Classifing Users Across Sectors &amp; OSS in the Business Sector</title>
+        <link rel="canonical" href="../../findings/business/">
+        <style>
+
+    html body {
+        font-family: 'Oxygen', sans-serif;
+        background-color: #FFFFFF;
+    }
+
+    :root {
+        --accent: #232D4B;
+        --border-width:  0 ;
+    }
+
+</style>
+
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Oxygen">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=VT323">
+
+
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/ascetic.min.css"> 
+
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.0/css/all.css" integrity="sha384-Mmxa0mLqhmOeaE8vgOSbKacftZcsNYDjQzuCOm6D02luYSzBG8vpaOykv9lFQ51Y" crossorigin="anonymous">
+
+
+<link rel="stylesheet" href="../../css/main.css">
+
+
+
+
+ 
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/r.min.js"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/bash.min.js"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/go.min.js"></script>
+    
+
+    <script>hljs.initHighlightingOnLoad();</script>
+
+
+
+
+
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+
+<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+
+
+<script>$(document).on('click', function() { $('.collapse').collapse('hide'); })</script>
+
+
+<script>
+$(document).ready(function(){
+    
+  var input = $('#night-mode-toggle');
+  var container = $('#bigbody');
+  var stat = $('#button-status');
+  
+  container.toggleClass(localStorage.toggled);
+  stat.bootstrapToggle(localStorage.button).change();
+  
+  input.on('click', function() {
+      if (localStorage.toggled != "-nightmode" ) {
+          container.toggleClass("-nightmode", true );
+          localStorage.toggled = "-nightmode";
+          localStorage.button = "on";
+       } else {
+          container.toggleClass("-nightmode", false );
+          localStorage.toggled = "";
+          localStorage.button = "off"
+       }
+  })
+});
+</script>
+ <meta name="generator" content="Hugo 0.74.1" />
+        <link href="" rel="alternate" type="application/rss+xml" title="UVA Biocomplexity Institute" />
+        <link href="" rel="feed" type="application/rss+xml" title="UVA Biocomplexity Institute" />
+        
+
+    
+    <link rel="apple-touch-icon" sizes="180x180" href="../../apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../../favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../../favicon-16x16.png">
+    <link rel="manifest" href="../../site.webmanifest">
+    <link rel="mask-icon" href="../../img/favicon/safari-pinned-tab.svg" color="#000000">
+    <link rel="shortcut icon" href="../../img/favicon/favicon.ico">
+    <meta name="msapplication-TileColor" content="#2b5797">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
+    
+    
+    
+    <meta property="og:title" content="Classifing Users Across Sectors &amp; OSS in the Business Sector">
+    <meta property="og:type" content="article">
+      
+      <meta name="twitter:card" content="summary">
+      <meta name="twitter:image" content="/favicon/uva-dspg-logo.jpg" >
+      
+    <meta property="description" content="This page focuses on classifying GitHub users across all sectors and the business domain.">
+    <meta property="og:description" content="This page focuses on classifying GitHub users across all sectors and the business domain.">
+    
+    <meta name="twitter:creator" content="">
+    <meta name="twitter:site" content="">
+    
+    </head>
+
+    
+    
+    <script type="text/javascript" async
+      src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+    </script>
+    
+
+    <body id = "bigbody">
+        <nav class="navbar navbar-default navbar-fixed-top">
+            <div class="container">
+                <div class="navbar-header">
+                    <a class="navbar-brand visible-xs" href="#">Classifing Users Across Sectors &amp; OSS in the Business Sector</a>
+                    <button class="navbar-toggle" data-target=".navbar-collapse" data-toggle="collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                </div>
+                <div class="collapse navbar-collapse">
+                    
+                        <ul class="nav navbar-nav">
+                            
+                                <li><a href="../../">Home</a></li>
+                            
+                                <li><a href="../../overview/">Overview</a></li>
+                            
+                                <li><a href="../../methods/">Data &amp; Methods</a></li>
+                            
+                                <li><a href="../../findings/">Findings</a></li>
+                            
+                                <li><a href="../../team/">Team</a></li>
+                            
+                        </ul>
+                    
+                    
+                        <ul class="nav navbar-nav navbar-right">
+                            
+                                <li class="navbar-icon"><a href="https://biocomplexity.virginia.edu/social-decision-analytics/dspg-program"><i class="fas fa-globe-americas"></i></a></li>
+                            
+                                <li class="navbar-icon"><a href="https://github.com/DSPG-Young-Scholars-Program"><i class="fab fa-github"></i></a></li>
+                            
+                                <li class="navbar-icon"><a href="https://twitter.com/UVA_BI"><i class="fab fa-twitter"></i></a></li>
+                            
+                                <li class="navbar-icon"><a href="mailto:kb7hp@virginia.edu"><i class="far fa-envelope"></i></a></li>
+                            
+                            
+                        </ul>
+                    
+                </div>
+            </div>
+        </nav>
+
+
+<main>
+
+    <div class="item">
+
+    
+    
+    
+
+    
+      
+      
+    
+
+    <h4><a href="../../findings/business/">Classifing Users Across Sectors &amp; OSS in the Business Sector</a></h4>
+    
+    <h5>This page focuses on classifying GitHub users across all sectors and the business domain.</h5>
+
+    
+    
+    <a href="../../tags/python">
+        <kbd class="item-tag"> Python </kbd>
+    </a>
+    
+    <a href="../../tags/r">
+        <kbd class="item-tag"> R </kbd>
+    </a>
+    
+    <a href="../../tags/text-analysis/regex">
+        <kbd class="item-tag"> text analysis/regex </kbd>
+    </a>
+    
+    <a href="../../tags/matching">
+        <kbd class="item-tag"> matching </kbd>
+    </a>
+    
+
+</div>
+
+
+    <br> <div class="text-justify">
+
+
+<style type="text/css">
+/* this chunk of code centers all of the headings */
+h1, h2, h3, h4 {
+  text-align: center;
+}
+</style>
+<div id="general-approach" class="section level3">
+<h3>General Approach</h3>
+<p>To assign users into the business sector, we took an exclusionary approach that depends on the other four sectors. First, we worked to standardize the affiliation column by removing (1) all website domain information using <a href="https://github.com/DSPG-Young-Scholars-Program/dspg20oss/blob/master/ossPy/keyFiles/curatedDomains.csv">manually curated terms</a> originally based on <a href="https://datahub.io/core/top-level-domain-names">DataHub's Domain Entries</a>, (2) all legal entity nomenclature based on <a href="https://github.com/DSPG-Young-Scholars-Program/dspg20oss/blob/danBranch/ossPy/keyFiles/curatedLegalEntitesRaw.csv">manually curated version</a> of <a href="https://www.gleif.org/en/about-lei/code-lists/iso-20275-entity-legal-forms-code-list">Gleif's legal entity abbreviations</a>, and (3) a list of <a href="https://github.com/DSPG-Young-Scholars-Program/dspg20oss/blob/master/ossPy/keyFiles/symbolRemove.csv">commonly occurring arbitrary symbols</a>. After these procedures were applied, we removed (a) all users classified into the academic, government, non-profit or household sectors and (b) all users that did not list an institution that was mentioned in the affiliation column more than five times. This critical threshold of 5 is arbitrary but helps us to establish some degree of commonality among those in the business sector. Furthermore, while this exclusionary approach is less than ideal, classifying GitHub users into the business sector is complicated by the absence of a publicly available data source that comprehensively lists all businesses around the world. While we present the results at the top half of this page, the most valuable aspects of this sector come from the experimental text analysis process we detail in the second half of the page.</p>
+</div>
+<div id="sectoring-results" class="section level3">
+<h3>Sectoring Results</h3>
+<p><img src="../../findings/business_files/figure-html/unnamed-chunk-2-1.png" width="1152" /></p>
+<p>Our original GHTorrent data contained ~2.1 million users. Of these total users, only 578,852 (or 27%) had valid email information while only 422,517 (or 19.7%) had valid affiliation information. Working from this subset, we were able to classify 46,403 users into the academic sector, 5,455 users into the household sector, 3,576 users into the government sector and 823 users into the non-profit sector. After removing users that provided an organization that was listed fewer than five times, this left us with around 116,000 users that we allocated to the business sector.</p>
+<p>How valid are these results? So far, we feel most confident in our sectoring of academic results. This is because academics seemed to use more formalized modes of entry in the affiliation data and because we had the Hipo Labs data to &quot;ground truth&quot; our matching approach. The government, household, and non-profit sectors created major challenges because users vary quite a bit in what they put in their self-report data. We have allocated considerably less time to those domains to date, which means we will likely see some improvements in the coming months. Of course, the business sectoring is the most difficult of these domains - largely because we do not have a good list of businesses around the world to match entries against. We had to make several assumptions in our sectoring approach, but these preliminary results have opened a number of future approaches that we can explore. In fact, we have documented some of the more experimental strategies we are toying with toward the end of this page.</p>
+</div>
+<div id="top-businesses-developing-open-source-software" class="section level3">
+<h3>Top Businesses Developing Open Source Software</h3>
+<p><img src="../../findings/business_files/figure-html/unnamed-chunk-3-1.png" width="1152" /></p>
+<p>Who are the top businesses developing OSS on GitHub? In a sense, the answers are not surprising, as they align with some of major tech companies around the world. Those based in the US include Microsoft, Google, Red Hat, IBM and Facebook while Chinese (Alibaba, Tencent and Baidu), German (SAP), Canadian (Shoplify), and Russian (Yandex) companies are all represented in the top-20. One remarkable thing that stuck out about these companies was how many of them are based in California. Like we saw in the academic sector, the major tech hub of Silicon Valley has had a huge impact on OSS production. While these findings are interesting, our future work will need to assess how collaboration tendencies impact production output. In this sense, we can learn more about how the structure of collaboration may outweigh total users or the production of raw code.</p>
+</div>
+<div id="detailed-classification-process-in-python" class="section level3">
+<h3><a href="https://github.com/DSPG-Young-Scholars-Program/dspg20oss/blob/master/ossPy/Notebooks/Business_User_Bool_Vec_Creation_Web_Vers.ipynb">Detailed Classification Process in Python</a></h3>
+<p>As part of our overarching strategy for assigning users to specific sectors, we need to be able to assign users to business as well. Given the specifics of our source dataset (GHTorrent), we can reasonably assume that the more frequently that a company name appears, the more &quot;authoratative&quot; (reflective of a consensus) of a representation of that company name it is. Once we've removed the user entries that correspond to the non-business sectors, we can be reasonably confident in mapping users whose worplace affiliation listing is shared with some critical threshold of other users (i.e. 5) to the business sector.</p>
+<p>In contrast to the rest of the team using R, we used Python to carry out the classification process in the business sector. Using a <a href="https://github.com/DSPG-Young-Scholars-Program/dspg20oss/blob/3a4431544bc32ac6abc82f14f8ccdd9f90923089/ossPy/ossPyFuncs.py#L9">set of functions developed by Daniel Bullock</a>, we pulled data from our PostgreSQL database to pull GitHub user data. In these tables, academic, governnment and nonprofit users were already codified, which helped to remove around 45,000 users. In order to perform a full sectoring we also need the information for household and null values. We classified (or removed) those users by drawing from source keylists for <a href="https://github.com/DSPG-Young-Scholars-Program/dspg20oss/blob/master/ossPy/keyFiles/individualKeys.csv">household</a> and <a href="https://github.com/DSPG-Young-Scholars-Program/dspg20oss/blob/master/ossPy/keyFiles/nullKeys.csv">null values</a>. After we derived the list of users which have yet to be assigned, we cleaned their input in the company column in preperation for subsequent processing. We cleaned these entries for substrings related to <a href="https://github.com/DSPG-Young-Scholars-Program/dspg20oss/blob/master/ossPy/keyFiles/curatedLegalEntitesRaw.csv">legal entities</a>, <a href="https://github.com/DSPG-Young-Scholars-Program/dspg20oss/blob/master/ossPy/keyFiles/curatedDomains.csv">web domains</a>, and <a href="https://github.com/DSPG-Young-Scholars-Program/dspg20oss/blob/master/ossPy/keyFiles/symbolRemove.csv">extraneous symbols</a> as described in <a href="https://github.com/DSPG-Young-Scholars-Program/dspg20oss/blob/master/ossPy/Notebooks/Company%20Cleaning%20Narritive.ipynb">another notebook</a> and <a href="https://github.com/DSPG-Young-Scholars-Program/dspg20oss/blob/master/ossPy/Notebooks/Cleaning%20heuristic%20assesment.ipynb">quantatively profiled in another</a>.</p>
+<p>For more details on the experimental approach we took in the business sector, see our <a href="https://github.com/DSPG-Young-Scholars-Program/dspg20oss/tree/master/ossPy">GitHub page</a>.</p>
+</div>
+</div>
+
+    
+    
+
+    
+
+    
+
+    
+
+    
+
+</main>
+
+        <footer id = "bigfooter">
+            <div style = "padding:15px;">
+                <p>Powered by <a href="https://gohugo.io">Hugo</a>. Themed by <a href="https://github.com/nathancday/min_night">min_night_dspg</a>. <a href="https://biocomplexity.virginia.edu/social-decision-analytics">Website by University of Virginia Biocomplexity Institute.</a>
+                </p>
+                <a rel="license" href="https://creativecommons.org/licenses/by/4.0/"
+                title="Creative Commons Attribution 4.0 International license">
+                <i class="fab fa-creative-commons" aria-hidden="true"></i> Attribution 4.0 International license
+                </a>
+            </div>
+        </footer>
+        
+        <script async src="https://www.googletagmanager.com/gtag/js?id="></script>
+        <script>
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments)};
+          gtag('js', new Date());
+          gtag('config', '');
+        </script>
+       
+    </body>
+
+</html>
+
