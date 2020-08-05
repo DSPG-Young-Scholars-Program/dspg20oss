@@ -60,9 +60,7 @@ h1, h2, h3, h4, h5 {
  
 
 
-<center>
-![GHTorrent](/findings/sectoring-oss_files/ghtorrent.png){width=10%}
-</center>
+
 
 ## Sectoring Open Source Software on GitHub
 
@@ -260,6 +258,21 @@ collapsibleTree(OSS,
 <br>
 <br>
 
+<center>
+![](/findings/sectoring-oss_files/wordcloud.svg){width=70%}
+</center>
+
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+
 ## Business Sector
 
 <center>
@@ -281,8 +294,8 @@ collapsibleTree(OSS,
 
 ```{r academic, include=FALSE, message=FALSE, warning=FALSE}
 # load packages 
-for (pkg in c("tidyverse", "igraph", "visNetwork", "data.table", "R.utils", "DT",
-              "RPostgreSQL", "cowplot", "maditr", "stringr", "stringi", "gridExtra")) {library(pkg, character.only = TRUE)}
+for (pkg in c("data.table", "R.utils", "DT",
+              "RPostgreSQL", "cowplot", "maditr", "stringr", "stringi", "gridExtra", "ggplot2")) {library(pkg, character.only = TRUE)}
 
 # connect to postgresql to get our data
 conn <- dbConnect(drv = PostgreSQL(), 
@@ -828,6 +841,7 @@ academic_counts_sorted <- academic_counts %>%
   dt_mutate(organization = factor(organization, levels = organization))
 
 ```
+
 ```{r, countries_users, fig.height = 9, fig.width = 12, warning = FALSE,  message=FALSE, echo=FALSE}
 #country_frequency_institutions <- academic_counts %>% group_by(country) %>% count(wt = n(), sort = TRUE)
 
@@ -962,7 +976,7 @@ ggplot(us_academic_counts[(.N-20):.N, ], aes(color = type)) +
 
 ```{r loading data, message=FALSE, warning=FALSE, include=FALSE}
 # load packages
-for (pkg in c("tidyverse", "data.table", "R.utils", "RPostgreSQL", "cowplot", "maditr", "stringr", "stringi",  "dplyr", "leaflet", "leaflet.extras", "tools", "statebins")) {library(pkg, character.only = TRUE)}
+for (pkg in c("tidyverse", "RPostgreSQL",   "dplyr", "leaflet", "leaflet.extras", "tools", "statebins")) {library(pkg, character.only = TRUE)}
 
 # connect to postgresql to get our data
 conn <- dbConnect(drv = PostgreSQL(), 
@@ -1044,7 +1058,7 @@ max = max(gh_continent$ttl_users)
 
 ```
 
-$$\textbf{Countries Where Github Users are Located}$$
+### Countries Where Github Users are Located
 ```{r fig.width=9.5, fig.height=5, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 gh_country <- city_clean_final_aggregate_country%>%
   arrange(desc(ttl_users))%>%
@@ -1084,7 +1098,7 @@ ggplot(gh_country, aes(x = c_country_name, y = ttl_users, fill = ttl_users)) +
 <br>
 <br>
 
-$$\textbf{U.S. States Where Github Users are Located}$$
+### U.S. States Where Github Users are Located
 ```{r fig.width=7, fig.height=4, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 state_ttl_user <- city_clean_final%>%
   filter(!is.na(c_us_state))%>%
@@ -1130,7 +1144,7 @@ theme(plot.margin = margin(1,1,1,1))
 <br>
 <br>
 
-$$\textbf{Cities Where Github Users are Located}$$
+### Cities Where Github Users are Located
 
 ```{r fig.width=10, fig.height=6, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 gh_city <- city_clean_final_aggregate%>%
