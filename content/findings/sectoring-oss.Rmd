@@ -219,8 +219,9 @@ collapsibleTree(OSS,
 ## Methods
 
 <center>
-![](/findings/sectoring-oss_files/ucsd-example.png)
 ![](/findings/sectoring-oss_files/microsoft-example.png)
+
+![](/findings/sectoring-oss_files/ucsd-example.png)
 
 </center>
 
@@ -246,6 +247,23 @@ collapsibleTree(OSS,
 
 <center>
 ![](/findings/sectoring-oss_files/domainScaleAlt.svg)
+</center>
+
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+
+## Business Sector
+
+<center>
+![](/findings/sectoring-oss_files/topCompanies.svg)
 </center>
 
 <br>
@@ -928,23 +946,6 @@ ggplot(us_academic_counts[(.N-20):.N, ], aes(color = type)) +
 ```
 
 #### Most of the top OSS-producing universities are close to <br/> major tech hubs in CA, MA, NY, TX and WA 
-
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-
-## Business Sector
-
-<center>
-![](/findings/sectoring-oss_files/topCompanies.svg)
-</center>
 
 <br>
 <br>
