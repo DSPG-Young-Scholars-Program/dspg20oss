@@ -304,7 +304,7 @@ In our network analysis, 6,745 cities are included, which spanned 165 countries.
 #### Major Countries in the U.S. Centralized Network
 </center>
 
-```{r fig.width=10, fig.height=7, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+```{r fig.width=10, fig.height=6, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 #number of unique sources
 source <- city_edgelist$source
 source <- unique(source)
@@ -357,7 +357,8 @@ ggplot(cities_in_network, aes(x = country, y = ttl_number_cities, fill = contine
         axis.title.x = element_text(size = 15, hjust = .5, vjust = .5),
         axis.title.y = element_text(size = 15, hjust = .5, vjust = .5),
         legend.title=element_text(size=14),
-        legend.text = element_text(size=13))
+        legend.text = element_text(size=13))+
+  theme(legend.position="top")
 ```
 
 
