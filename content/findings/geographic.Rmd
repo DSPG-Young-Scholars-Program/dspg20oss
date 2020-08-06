@@ -294,7 +294,7 @@ In this network, the nodes include:
 We say that there is a collaboration between two Github users if they are listed as contributors in one licensesd repository. We say there is a collaboration between two countries if there is a collaboration between two GitHub users who reside in these two countries respectively.    
 
 
-In our network analysis, 8,092 cities are included that spanned 165 countries. In the U.S. network, we identified 2820 cities. In the following plot, we are showing the countries that are collaborating with the U.S. Germany, having 453 cities that are collaborating with the U.S., is the major collaborator with the U.S., following by UK, Brazil, and India. 
+In our network analysis, 6,745 cities are included, which spanned 165 countries. In the U.S. network, we identified 2820 cities. In the following plot, we are showing the countries that are collaborating with the U.S. Germany, having 453 cities that are collaborating with the U.S., is the major collaborator with the U.S., following by UK, Brazil, and India. 
 
 <br>
 <br>
@@ -380,23 +380,24 @@ In total, we identified 8,092 cities as shown in the following figure. A city is
 #### Overall City Network
 
 <center>
-![alt text here](/sfs/qumulo/qhome/zz3hs/git/dspg20oss/src/geographic/output/network1.png) 
-<\center>
 
+![](/sfs/qumulo/qhome/zz3hs/git/dspg20oss/src/geographic/output/network1.png) 
+</center>
 
 To have a closer look of our network, we first identified 1151 (42.07%) cities within the major community using the modularity score, and then we excluded cities with betweenness centrality less than... The size of the circles indicates weighted degree, larger the circle size, higher the weighted degree. A city with a high weighted degree indicates that this city has a lot of direct collaborations with other cities. These cities are identified as influential locally. As shown in Figure 2, San Francisco, New York, Seattle, and Mountain View are the most influential cities locally, having high weighted degrees.
 
 Meanwhile, we use color gradient of the circle to indicate the betweenness centrality, lighter the color, higher the betweenness centrality score. A node with high betweenness centrality score are more important to serve as the bridge between two communities in the network. Different from the weighted degree, betweenness centrality identifies cities are influential in the whole network globally. San Francisco, New York, and Seattle are the most influential cities locally (indicated by weighted degree) and globally (indicated by betweeness centrality). However, Mountain View having darker blue (lower betweeness centraily) but larger size (higher weighted degree) than Portland, Boston, Austin, Chicago and Los Angeles, exhibits a localized collabortions in Mountain View. As a contrast, Portland, Boston, Austin, Chicago and Los Angeles have more globalized collaborations, serve higher influential roles in the whole network.
 
+<br>
+<br>
+<br>
+
 #### Major City Network
 
+
 <center>
-
-![alt text here](/sfs/qumulo/qhome/zz3hs/git/dspg20oss/src/geographic/output/network.png)
+![](/findings/geographic_files/12_all_comtinents_major_cities.png)
 </center>
-
-
-
 
 
 ### Limitations and Future Steps 
