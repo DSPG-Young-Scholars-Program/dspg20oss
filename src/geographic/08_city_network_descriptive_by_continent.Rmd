@@ -42,7 +42,7 @@ city_edgelist_us <- city_edgelist%>%
   mutate(source_is_us = if_else( str_detect(source, "us_"), T, F))%>%
   filter(target_is_us | source_is_us)%>%
   select(-target_is_us, -source_is_us)
-write.csv(city_edgelist_us, file = "sna_city_us_edgelist_0819.csv", row.names = F)
+#write.csv(city_edgelist_us, file = "sna_city_us_edgelist_0819.csv", row.names = F)
 
 #number of unique sources
 source <- city_edgelist_us$source
