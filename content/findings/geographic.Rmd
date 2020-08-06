@@ -43,6 +43,8 @@ conn <- dbConnect(drv = PostgreSQL(),
 city_clean_final <- dbGetQuery(conn, "SELECT *
                               FROM gh.sna_ctr_city_codes")
 
+#all us centralized city network
+city_edgelist <- dbGetQuery(conn, "SELECT * FROM gh.sna_city_all_edgelist_0819")
 
 # disconnect from postgresql database 
 dbDisconnect(conn)
@@ -279,6 +281,123 @@ city_clean_final_aggregate%>%
     color  = ~pal(top_city))%>% 
   addLegend(pal = pal, values = c( "not topcity", "topcity"))
 ```
+
+
+### U.S. Centralized City Network
+
+As we saw previously, the GitHub users in the U.S. is nearly four times as much as those in China, which is the second largest country for GitHub users. We want to further understand the U.S. centered collaboration networkand to understand open source software collaboration tendency. Previously, Kramer et al (2020) has studied the country-level open-source collaboration network on GitHub, and identified users in the U.S. have higher impact on the global collaboration. After constucting city code in this summer project, we want to take a closer look at the open-source collaboration network at the city level. Specifically, we want to investigate what cities in the U.S. have higher impact of the global network and serve as an influential collaborator of the open-source software development. 
+
+In this network, the nodes include:   
+* all the cities in the U.S. that have at least one GitHub user;  
+* cities outside of the U.S. that have collaboration with any of the city in the U.S.    
+
+We say that there is a collaboration between two Github users if they are listed as contributors in one licensesd repository. We say there is a collaboration between two countries if there is a collaboration between two GitHub users who reside in these two countries respectively.    
+
+
+In our network analysis, 8,092 cities are included that spanned 165 countries. In the U.S. network, we identified 2820 cities. In the following plot, we are showing the countries that are collaborating with the U.S. Germany, having 453 cities that are collaborating with the U.S., is the major collaborator with the U.S., following by UK, Brazil, and India. 
+
+<br>
+<br>
+<br>
+
+<center>
+#### Major Countries in the U.S. Centralized Network
+</center>
+
+```{r fig.width=10, fig.height=7, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+#number of unique sources
+source <- city_edgelist$source
+source <- unique(source)
+
+#number of unique targets
+target <- city_edgelist$target
+target <- unique(target)
+
+
+#identify U.S. cities and other cities that U.S. cities collaborate with
+city_nodelist_us <- c(source, target)
+
+city_nodelist_us <- unique(city_nodelist_us)  #exclude duplicates
+#length(city_nodelist_us) #8092 unique cities in the network 
+
+#obtain user information
+ctrs_city <- city_clean_final[!duplicated(city_clean_final$c_city_code), ]
+city_nodelist <- ctrs_city%>%
+  select(c_city_code, raw_country_code, raw_city, c_country_name, c_continent_name)%>%
+  filter(c_city_code %in% city_nodelist_us)%>%
+  mutate(raw_city = toTitleCase(raw_city))%>%
+  rename(Id = c_city_code, country = c_country_name, city = raw_city, continent = c_continent_name)
+
+#length(unique(city_nodelist$country)) 165 countries
+# city_nodelist%>%
+#   filter(country == "US")%>%
+#   group_by(country)%>%
+#   summarize(ttl_number_cities = n()) #ttl number of cities in the U.S
+            
+cities_in_network <- city_nodelist%>%
+  group_by(country)%>%
+  summarize(ttl_number_cities = n(), continent =  first(na.omit(continent)))%>%
+  arrange(desc(ttl_number_cities))%>%
+  filter(ttl_number_cities > 80)%>%
+  filter(country != "US")
+
+cities_in_network$country <- factor(cities_in_network$country, levels = cities_in_network$country[order(cities_in_network$ttl_number_cities)])
+min = min(cities_in_network$ttl_number_cities)
+max = max(cities_in_network$ttl_number_cities)
+
+ggplot(cities_in_network, aes(x = country, y = ttl_number_cities, fill = continent))+
+  geom_bar(stat = "identity")+
+  theme_bw()  +
+  scale_fill_manual(values = c(uva_color_palette[9], uva_color_palette[1], uva_color_palette[3], uva_color_palette[5]))+
+  theme(axis.text.x = element_text(angle = 45))+
+  labs(#title = "Countreis in U.S. Centralized Network", 
+       x = "Country", y = "Total Number of Cities", fill = "Continent")+
+  theme(axis.text.x = element_text(size = 12, hjust = 1, vjust = 1),
+        axis.text.y = element_text(size = 11, hjust = .5, vjust = .5),  
+        axis.title.x = element_text(size = 15, hjust = .5, vjust = .5),
+        axis.title.y = element_text(size = 15, hjust = .5, vjust = .5),
+        legend.title=element_text(size=14),
+        legend.text = element_text(size=13))
+```
+
+
+To construct city-level network, we define an edge to be a collaboration between two GitHub users who are located in two different cities. We then define this as a collaboration between two cities. 
+
+
+Before introducing our network, we would like to introduce some network statistics in the GitHub collaboration setting:   
+
+* Degree: the number of cities one city collaborates with.
+* Weight: total number of shared repositories between two GitHub users. 
+* Weighted degree: the sum of weights of the edges of nodes.
+* Betweeness centrality: calculated by the number of times a city lies on the shortest path between each pair of cities, which identifies the cities that are bridge of two communities.
+* Modularity: measure the strength of division of a network into communities, which is used to identify communities.  
+
+In total, we identified 8,092 cities as shown in the following figure. A city is indicated as a circle, orange circles represent cities in the U.S. and dark blue circles represent cities in Canada. The node size is indicated by the degree, larger the degree, larger the node size. The cities in the center of this network have tendency of building more collabortions. 
+
+
+### Complete GitHub User Network on The City-level
+
+#### Overall City Network
+
+<center>
+![alt text here](/sfs/qumulo/qhome/zz3hs/git/dspg20oss/src/geographic/output/network1.png) 
+<\center>
+
+
+To have a closer look of our network, we first identified 1151 (42.07%) cities within the major community using the modularity score, and then we excluded cities with betweenness centrality less than... The size of the circles indicates weighted degree, larger the circle size, higher the weighted degree. A city with a high weighted degree indicates that this city has a lot of direct collaborations with other cities. These cities are identified as influential locally. As shown in Figure 2, San Francisco, New York, Seattle, and Mountain View are the most influential cities locally, having high weighted degrees.
+
+Meanwhile, we use color gradient of the circle to indicate the betweenness centrality, lighter the color, higher the betweenness centrality score. A node with high betweenness centrality score are more important to serve as the bridge between two communities in the network. Different from the weighted degree, betweenness centrality identifies cities are influential in the whole network globally. San Francisco, New York, and Seattle are the most influential cities locally (indicated by weighted degree) and globally (indicated by betweeness centrality). However, Mountain View having darker blue (lower betweeness centraily) but larger size (higher weighted degree) than Portland, Boston, Austin, Chicago and Los Angeles, exhibits a localized collabortions in Mountain View. As a contrast, Portland, Boston, Austin, Chicago and Los Angeles have more globalized collaborations, serve higher influential roles in the whole network.
+
+#### Major City Network
+
+<center>
+
+![alt text here](/sfs/qumulo/qhome/zz3hs/git/dspg20oss/src/geographic/output/network.png)
+</center>
+
+
+
+
 
 ### Limitations and Future Steps 
 
