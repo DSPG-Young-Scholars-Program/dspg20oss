@@ -216,7 +216,15 @@ Our original GHTorrent data contained ~2.1 million users. Of these total users, 
 
 How valid are these results? So far, we feel most confident in our sectoring of academic results. This is because academics seemed to use more formalized modes of entry in the affiliation data and because we had the Hipo Labs data to "ground truth" our matching approach. The government, household, and non-profit sectors created major challenges because users vary quite a bit in what they put in their self-report data. We have allocated considerably less time to those domains to date, which means we will likely see some improvements in the coming months. Of course, the business sectoring is the most difficult of these domains - largely because we do not have a good list of businesses around the world to match entries against. We had to make several assumptions in our sectoring approach, but these preliminary results have opened a number of future approaches that we can explore. In fact, we have documented some of the more experimental strategies we are toying with toward the end of this page. 
 
-### Top Businesses Developing Open Source Software  
+### Word Cloud of Top Affiliations in Open Source Software
+
+<center>
+![](/findings/business_files/wordcloud.svg)
+</center>
+
+To visualize the top affiliations in OSS, we created a wordcloud. In this visualization, the size of the word corresponds to the number of times that word was mentioned in the affiliation column. The largest institution represented in the image is Microsoft at just over 6,000 total mentions. 
+
+### Top Businesses Developing Open Source Software
 
 ```{r, echo=FALSE, fig.height = 8, fig.width=12}
 
@@ -242,7 +250,7 @@ top20companies$company <- fct_relevel(top20companies$company,
  
 ggplot(top20companies) +
   geom_point(aes(x = company, y = total, colour = countries), size = 4) +
-  geom_segment( aes(x=company, xend=company, y=0, yend=total)) +
+  geom_segment( aes(x=company, xend=company, y=0, yend=total, colour = countries)) +
   #ggtitle("Most Prominent Businesses\nDeveloping OSS (By GitHub Users)") +
   coord_flip() +
   theme_minimal() +

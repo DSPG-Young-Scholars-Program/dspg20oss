@@ -484,7 +484,7 @@ top20companies$company <- fct_relevel(top20companies$company,
  
 ggplot(top20companies) +
   geom_point(aes(x = company, y = total, colour = countries), size = 4) +
-  geom_segment( aes(x=company, xend=company, y=0, yend=total)) +
+  geom_segment( aes(x=company, xend=company, y=0, yend=total, colour = countries)) +
   #ggtitle("Most Prominent Businesses\nDeveloping OSS (By GitHub Users)") +
   coord_flip() +
   theme_minimal() +

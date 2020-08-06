@@ -95,7 +95,7 @@ $(document).ready(function(){
   })
 });
 </script>
- <meta name="generator" content="Hugo 0.74.3" />
+ <meta name="generator" content="Hugo 0.74.1" />
         <link href="" rel="alternate" type="application/rss+xml" title="UVA Biocomplexity Institute" />
         <link href="" rel="feed" type="application/rss+xml" title="UVA Biocomplexity Institute" />
         
@@ -237,6 +237,13 @@ h1, h2, h3, h4 {
 <p><img src="../../findings/business_files/figure-html/unnamed-chunk-2-1.png" width="1152" /></p>
 <p>Our original GHTorrent data contained ~2.1 million users. Of these total users, only 578,852 (or 27%) had valid email information while only 422,517 (or 19.7%) had valid affiliation information. Working from this subset, we were able to classify 46,403 users into the academic sector, 5,455 users into the household sector, 3,576 users into the government sector and 823 users into the non-profit sector. After removing users that provided an organization that was listed fewer than five times, this left us with around 116,000 users that we allocated to the business sector.</p>
 <p>How valid are these results? So far, we feel most confident in our sectoring of academic results. This is because academics seemed to use more formalized modes of entry in the affiliation data and because we had the Hipo Labs data to &quot;ground truth&quot; our matching approach. The government, household, and non-profit sectors created major challenges because users vary quite a bit in what they put in their self-report data. We have allocated considerably less time to those domains to date, which means we will likely see some improvements in the coming months. Of course, the business sectoring is the most difficult of these domains - largely because we do not have a good list of businesses around the world to match entries against. We had to make several assumptions in our sectoring approach, but these preliminary results have opened a number of future approaches that we can explore. In fact, we have documented some of the more experimental strategies we are toying with toward the end of this page.</p>
+</div>
+<div id="word-cloud-of-top-affiliations-in-open-source-software" class="section level3">
+<h3>Word Cloud of Top Affiliations in Open Source Software</h3>
+<center>
+<img src="../../findings/business_files/wordcloud.svg" />
+</center>
+<p>To visualize the top affiliations in OSS, we created a wordcloud. In this visualization, the size of the word corresponds to the number of times that word was mentioned in the affiliation column. The largest institution represented in the image is Microsoft at just over 6,000 total mentions.</p>
 </div>
 <div id="top-businesses-developing-open-source-software" class="section level3">
 <h3>Top Businesses Developing Open Source Software</h3>
