@@ -14,22 +14,34 @@ for (pkg in c("tidyverse", "data.table", "R.utils", "RPostgreSQL", "cowplot", "m
 
 
 ### Network
-As we saw previously, the GitHub users in the U.S. is nearly four times as much as those in China, which is the second largest country for GitHub users. We want to further understand the U.S. centered collaboration network. Previously, the team has studied the open-source collaboration network on the coutnry level. After constucting city code in this summer project, we want to a closer look at the open-source collaboration network at city level. Specifically, we want to investigate what city is in the center of the network and serves as an influential collaborator of the open-source software. 
+As we saw previously, the GitHub users in the U.S. is nearly four times as much as those in China, which is the second largest country for GitHub users. We want to further understand the U.S. centered collaboration networkand to understand open source software collaboration tendency. Previously, Kramer et al (2020) has studied the country-level open-source collaboration network on GitHub, and identified users in the U.S. have higher impact on the global collaboration. After constucting city code in this summer project, we want to take a closer look at the open-source collaboration network at the city level. Specifically, we want to investigate what cities in the U.S. have higher impact of the global network and serve as an influential collaborator of the open-source software development. 
 
-In this network, the nodes include all the cities in the U.S. that have at least one GitHub user and cities outside of the U.S. that have collaboration with any of the city in the U.S. We say that there is a collaboration between two Github users if they are listed as contributors in one licensesd repository. An edge in our network is defined as a collaboration between two GitHub users who are located in two different cities. We then define this as a collaboration between two cities. 
+In this network, the nodes include:
+* all the cities in the U.S. that have at least one GitHub user
+* cities outside of the U.S. that have collaboration with any of the city in the U.S. 
 
-Before introducing our network visualizations, we would like to introduce some network statistics in the GitHub collaboration setting:
+In our network analysis, 3,933 cities are included that spanned 18 countries. In the U.S. network, we identified 2,663 cities. 
 
-* Degree: the number of cities one city is collaborating with.
+We say that there is a collaboration between two Github users if they are listed as contributors in one licensesd repository. An edge in our network is defined as a collaboration between two GitHub users who are located in two different cities. We then define this as a collaboration between two cities. 
+
+
+Before introducing our network, we would like to introduce some network statistics in the GitHub collaboration setting:
+
+* Degree: the number of cities one city collaborates with.
 * Weighted degree: the sum of weights of the edges of nodes.
-* Betweeness centrality:calculated by the number of times a city lies on the shortest path between each pair of cities, which identifies the cities that are bridge of two communities.
-* Modularity: measure the strength of division of a network into communities
+* Betweeness centrality: calculated by the number of times a city lies on the shortest path between each pair of cities, which identifies the cities that are bridge of two communities.
+* Modularity: measure the strength of division of a network into communities, which is used to identify communities. 
+
+In total, we identified 2933 cities as shown in the following figure. A city is indicated as a circle, orange circles represent cities in the U.S. and dark blue circles represent cities in Canada. The node size is indicated by the degree, larger the degree, larger the node size. The cities in the center of this network have tendency of building more collabortions. 
 
 
-In total, we identified 2933 cities as shown in Figure 1. A city is indicated as a circle, orange circles represent cities in the U.S. and dark blue circles represent cities in Canada. The node size is indicated by the degree, larger the degree, larger the node size.
+### Complete GitHub User Network on The City-level
+
+<center>
 
 ![alt text here](/sfs/qumulo/qhome/zz3hs/git/dspg20oss/src/geographic/output/network1.png)
-$$\text{Fig 1. Complete GitHub User Network on The City-level}$$
+
+<\center>
 
 
 To have a closer look of our network, we first identified 1151 (42.07%) cities within the major community using the modularity score, and then we excluded cities with betweenness centrality less than... The size of the circles indicates weighted degree, larger the circle size, higher the weighted degree. A city with a high weighted degree indicates that this city has a lot of direct collaborations with other cities. These cities are identified as influential locally. As shown in Figure 2, San Francisco, New York, Seattle, and Mountain View are the most influential cities locally, having high weighted degrees.

@@ -11,7 +11,7 @@ rm(list = ls())
 # load packages 
 for (pkg in c("tidyverse", "data.table", "R.utils", "RPostgreSQL", 
               "igraph", "netrankr", "centiserve", "expm", "intergraph",
-              "cowplot", "maditr", "lubridate", "countrycode")) {library(pkg, character.only = TRUE)}
+              "cowplot", "maditr", "lubridate", "countrycode", "tools")) {library(pkg, character.only = TRUE)}
 # connect to postgresql to get data (in rivanna)
 conn <- dbConnect(drv = PostgreSQL(), 
                   dbname = "sdad", 
@@ -20,7 +20,10 @@ conn <- dbConnect(drv = PostgreSQL(),
                   user = Sys.getenv("db_userid"), 
                   password = Sys.getenv("db_pwd"))
 
-city_edgelist<- dbGetQuery(conn, "SELECT * FROM gh.sna_city_northamerica_edgelist_0819")
+# city_edgelist<- dbGetQuery(conn, "SELECT * FROM gh.sna_city_northamerica_edgelist_0819")
+
+
+city_edgelist <- dbGetQuery(conn, "SELECT * FROM gh.sna_city_all_edgelist_0819")
 
 ctrs_city <- dbGetQuery(conn, "SELECT *
                               FROM gh.sna_ctr_city_codes")
@@ -39,7 +42,7 @@ city_edgelist_us <- city_edgelist%>%
   mutate(source_is_us = if_else( str_detect(source, "us_"), T, F))%>%
   filter(target_is_us | source_is_us)%>%
   select(-target_is_us, -source_is_us)
-#write.csv(city_edgelist_us, file = "sna_city_us_edgelist_0819.csv", row.names = F)
+write.csv(city_edgelist_us, file = "sna_city_us_edgelist_0819.csv", row.names = F)
 
 #number of unique sources
 source <- city_edgelist_us$source
@@ -71,10 +74,12 @@ ctrs_city <- ctrs_city[!duplicated(ctrs_city$c_city_code), ]
 
 
 city_nodelist <- ctrs_city%>%
-  select(c_city_code, raw_country_code, raw_city)%>%
+  select(c_city_code, raw_country_code, raw_city, c_country_name)%>%
   filter(c_city_code %in% city_nodelist_us)%>%
   mutate(raw_city = toTitleCase(raw_city))%>%
   rename(Id = c_city_code, country = raw_country_code, city = raw_city)
+
+table(city_nodelist$c_country_name)
 
 write.csv(city_nodelist, file = "sna_city_us_nodelist_0819.csv", row.names = F)
 ```

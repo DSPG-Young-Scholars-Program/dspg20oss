@@ -27,7 +27,6 @@ ctr_edgelist <- dbGetQuery(conn, "SELECT * FROM gh.sna_ctr_edgelist_0819")
 
 # disconnect from postgresql
 dbDisconnect(conn)
-
 ```
 
 ```{r}
@@ -38,6 +37,7 @@ unique(ctr_nodelist_all$c_continent_name)
 # north america network
 ctr_nodelist <- ctr_nodelist_all%>%
   filter(c_continent_name == "Oceania")
+ctr_nodelist<- ctr_nodelist_all
 
 #contributor 1
 city_edgelist <- ctr_edgelist %>% 
@@ -97,7 +97,7 @@ conn <- dbConnect(drv = PostgreSQL(),
                   password = Sys.getenv("db_pwd"))
 
 # write the edgelist to the database
-dbWriteTable(conn, name = c(schema = "gh" , name = "sna_city_oceania_edgelist_0819"), 
+dbWriteTable(conn, name = c(schema = "gh" , name = "sna_city_all_edgelist_0819"), 
              value = city_edgelist, row.names = FALSE, temporary = TRUE)
 
 # disconnect from postgresql
