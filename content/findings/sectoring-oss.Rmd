@@ -239,8 +239,6 @@ collapsibleTree(OSS,
 ## Sectoring Results
 
 ```{r pull_data, message = FALSE, results = FALSE, warning = FALSE, echo=FALSE}
-rm(list = ls())
-
 # load packages 
 for (pkg in c("tidyverse", "igraph", "visNetwork", "data.table", "R.utils", "DT",
               "RPostgreSQL", "cowplot", "maditr", "stringr", "stringi", "gridExtra")) {library(pkg, character.only = TRUE)}
@@ -1325,11 +1323,15 @@ gh_country <- city_clean_final_aggregate_country%>%
 
 gh_country$c_country_name <- factor(gh_country$c_country_name, levels = gh_country$c_country_name[order(gh_country$ttl_users)])
 
+gh_country$Continent <- c("North America", "Asia", "Europe", "Asia", "Europe", "Europe", "North America", "Europe", "South America", "Oceania")
+
+gh_country$Continent <- factor(gh_country$Continent , levels =c("North America", "Asia", "Europe", "South America", "Oceania"))
+
 min = min(gh_country$ttl_users)
 max = max(gh_country$ttl_users)
 
-ggplot(gh_country, aes(x = c_country_name, y = ttl_users, fill = ttl_users)) +
-  geom_bar(stat = "identity", fill = uva_color_palette[9])+
+ggplot(gh_country, aes(x = c_country_name, y = ttl_users, fill = Continent)) +
+  geom_bar(stat = "identity")+
   labs(#title = "Countries where Github users are located", 
        x = "Country", y = "Total Number of Users") +
   theme_bw()+
@@ -1340,7 +1342,8 @@ ggplot(gh_country, aes(x = c_country_name, y = ttl_users, fill = ttl_users)) +
         axis.title.y = element_text(size = 14, hjust = .5, vjust = .5),
         legend.title=element_text(size=13),
         legend.text = element_text(size=11))+
-  scale_y_continuous(breaks = c(0, 25000, 50000, 75000, 100000, 125000, 150000))
+  scale_y_continuous(breaks = c(0, 25000, 50000, 75000, 100000, 125000, 150000))+ scale_fill_manual(values = c(uva_color_palette[9], uva_color_palette[6], uva_color_palette[3], uva_color_palette[1], uva_color_palette[5])) +
+ theme(legend.position="top")
 ```
 
 #### Most GitHub users based in the US are around 4 times higher than in China 
@@ -1422,12 +1425,13 @@ gh_city$city_country <- factor(gh_city$city_country, levels = gh_city$city_count
 # NOTE ::: Could you please shorten the labels for the USA and Russia cities 
 
 
+gh_city$Continent <- c("North America", "Europe", "North America", "Europe", "Asia", "North America", "Asia", "Europe", "Asia", "Asia")
 
 min = min(gh_city$ttl_users)
 max = max(gh_city$ttl_users)
 
-ggplot(gh_city, aes(x = city_country, y = ttl_users))+
-  geom_bar(stat = "identity", fill = uva_color_palette[2]) +
+ggplot(gh_city, aes(x = city_country, y = ttl_users, fill=Continent))+
+  geom_bar(stat = "identity") +
   labs(#title = "Countries where Github users are located", 
        x = "City", y = "Total Number of Users")+
   theme_bw()+
@@ -1437,7 +1441,11 @@ ggplot(gh_city, aes(x = city_country, y = ttl_users))+
   theme(axis.text.x = element_text(size = 13, hjust = .5, vjust = .5),
         axis.text.y = element_text(size = 12, hjust = .5, vjust = .5),  
         axis.title.x = element_text(size = 14, hjust = .5, vjust = .5),
-        axis.title.y = element_text(size = 14, hjust = .5, vjust = .5))
+        axis.title.y = element_text(size = 14, hjust = .5, vjust = .5),
+        legend.text = element_text(size = 11),
+        legend.title = element_text(size=13))+ 
+  scale_fill_manual(values = c( uva_color_palette[6], uva_color_palette[3],uva_color_palette[9]))+
+ theme(legend.position="top")
 ```
 
 #### Silicon Valley is the world's most prominent OSS hotspot <br/> followed by London, NYC, Moscow and Beijing
@@ -1496,6 +1504,43 @@ city_clean_final_aggregate%>%
 <br>
 <br>
 <br>
+
+### City-Level GitHub Collaboration Network
+
+<center>
+![](/findings/geographic_files/14_legend.png){width=100%}
+
+</center>
+
+
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+
+#### Major City Network
+
+<center>
+![](/findings/geographic_files/13_2_majorcities.png){width=100%}
+</center>
+
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+
 
 ## Main Findings
 

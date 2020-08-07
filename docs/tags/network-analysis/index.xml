@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>network analysis on UVA Biocomplexity Institute</title>
+    <link>/tags/network-analysis/</link>
+    <description>Recent content in network analysis on UVA Biocomplexity Institute</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    
+	<atom:link href="/tags/network-analysis/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Geographical Analyses of GitHub Users</title>
+      <link>/findings/geographic/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/findings/geographic/</guid>
+      <description>/* this chunk of code centers all of the headings */ h1, h2, h3 { text-align: center; }  Approach To analyze GitHub users by different geographical units, we used regular expressions to recode all self-reported location data available in the GHTorrrent data, finding ~770,000 users with valid country codes. In addition to this self-reported location data, GHTorrent also provides latitude and longitude information for GitHub users (assigned using the Open Street Maps API).</description>
+    </item>
+    
+  </channel>
+</rss>

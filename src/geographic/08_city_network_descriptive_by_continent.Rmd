@@ -82,6 +82,68 @@ city_nodelist <- ctrs_city%>%
 #write.csv(city_nodelist, file = "sna_city_all_nodelist_0819.csv", row.names = F)
 ```
 
+#### Major Countries in the U.S. Centralized Network
+In the following plot, we are showing the countries that are collaborating with the U.S. Germany, having 453 cities that are collaborating with the U.S., is the major collaborator with the U.S., following by UK, Brazil, and India. 
+```{r eval=FALSE, fig.height=6, fig.width=10, message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
+
+
+
+#number of unique sources
+source <- city_edgelist$source
+source <- unique(source)
+
+#number of unique targets
+target <- city_edgelist$target
+target <- unique(target)
+
+
+#identify U.S. cities and other cities that U.S. cities collaborate with
+city_nodelist_us <- c(source, target)
+
+city_nodelist_us <- unique(city_nodelist_us)  #exclude duplicates
+#length(city_nodelist_us) #8092 unique cities in the network 
+
+#obtain user information
+ctrs_city <- city_clean_final[!duplicated(city_clean_final$c_city_code), ]
+city_nodelist <- ctrs_city%>%
+  select(c_city_code, raw_country_code, raw_city, c_country_name, c_continent_name)%>%
+  filter(c_city_code %in% city_nodelist_us)%>%
+  mutate(raw_city = toTitleCase(raw_city))%>%
+  rename(Id = c_city_code, country = c_country_name, city = raw_city, continent = c_continent_name)
+
+#length(unique(city_nodelist$country)) 165 countries
+# city_nodelist%>%
+#   filter(country == "US")%>%
+#   group_by(country)%>%
+#   summarize(ttl_number_cities = n()) #ttl number of cities in the U.S
+            
+cities_in_network <- city_nodelist%>%
+  group_by(country)%>%
+  summarize(ttl_number_cities = n(), continent =  first(na.omit(continent)))%>%
+  arrange(desc(ttl_number_cities))%>%
+  filter(ttl_number_cities > 80)%>%
+  filter(country != "US")
+
+cities_in_network$country <- factor(cities_in_network$country, levels = cities_in_network$country[order(cities_in_network$ttl_number_cities)])
+min = min(cities_in_network$ttl_number_cities)
+max = max(cities_in_network$ttl_number_cities)
+
+ggplot(cities_in_network, aes(x = country, y = ttl_number_cities, fill = continent))+
+  geom_bar(stat = "identity")+
+  theme_bw()  +
+  scale_fill_manual(values = c(uva_color_palette[9], uva_color_palette[1], uva_color_palette[3], uva_color_palette[5]))+
+  theme(axis.text.x = element_text(angle = 45))+
+  labs(#title = "Countreis in U.S. Centralized Network", 
+       x = "Country", y = "Total Number of Cities", fill = "Continent")+
+  theme(axis.text.x = element_text(size = 12, hjust = 1, vjust = 1),
+        axis.text.y = element_text(size = 11, hjust = .5, vjust = .5),  
+        axis.title.x = element_text(size = 15, hjust = .5, vjust = .5),
+        axis.title.y = element_text(size = 15, hjust = .5, vjust = .5),
+        legend.title=element_text(size=14),
+        legend.text = element_text(size=13))+
+  theme(legend.position="top")
+```
+
 
 ```{r}
 city_network <- simplify(graph.data.frame(city_edgelist, directed = FALSE), 
