@@ -297,7 +297,8 @@ city_clean_final_aggregate%>%
 <br>
 <br>
 
-### City-Level GitHub Collaboration Network
+
+### City-Level GitHub Users Collaboration Network
 
 As we saw previously, the GitHub users in the U.S. is nearly four times as much as those in China, which is the second largest country for GitHub users. However, the top-ten cities came from different countries and different continents.City code, we formulated in this project, enables us to further investigate the the collaboration network between these cities and the open source software collaboration tendency. Previously, the team has been studying the country-level open-source collaboration network on GitHub, and identified users in the U.S. have higher impact on the global collaboration. Now on the city level, we want to investigate what cities in the U.S. are impacting the global collaboration and what cities outside of the U.S. have highest global influence. 
 
@@ -314,8 +315,12 @@ Before introducing our network, we would like to introduce some network statisti
 In the following figure, we identified 60 cities with betweenness centrality larger than 158,000. The node size is indicated by its betweeness centrality. The higher the betweeness centrality, the larger the node size are. Varies colors indicate the continent where the cities are located in. The width of the line between two cities indicates the weight between them, which is the total number of shared repositories. San Francisco and London, being the two cities that have the largest number of GitHub users, are also the two cities that have the highest number of collaborations between them.
 Moreover, having the highest betweenness centrality, San Francisco and London have strong impact in the global collaboration network. North America has dense within-continent network, majorly between San Francisco and New York, Seattle, and Mountain View. It also has large amount of collaborations with Asia and Europe. In the future, we want to further investigate the similarity and differences among these five continent networks seperately.
 
+<br>
+<br>
+<br>
+
 <center>
-#### International Collaboration Network
+#### City-level GitHub Users Collaboration Network by Continent
 </center>
 
 <center>
@@ -339,7 +344,7 @@ Meanwhile, we use color gradient of the node to indicate the betweenness central
 <br>
 
 <center>
-#### Major City Network
+#### Comparison in Local and Global Features of the Network
 </center>
 
 <center>
