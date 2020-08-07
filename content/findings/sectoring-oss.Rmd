@@ -1507,37 +1507,21 @@ city_clean_final_aggregate%>%
 
 ### City-Level GitHub Users Collaboration Network
 <center>
+**Node size**: Weighted degree, reflects the amount of direct collaboration 
+</center>
+
+
+<center>
+![](/findings/sectoring-oss_files/14_all_cities_by_continent_degree.png){width=80%}
+</center>
+
+<center>
 **Node size**: Betweenness centrality, reflects importance in the global network   
 </center>
 
 <center>
 ![](/findings/geographic_files/14_legend.png){width=100%}
 
-</center>
-
-#### San Francisco and London have the strongest impact in the global collaboration network
-
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-
-### Comparison in Local and Global Features of the Network
-<center>
-**Node size**: Weighted degree, reflects direct collaboration    
-
-**Node color**: Betweenness centrality, reflects importance in the global network
-</center>
-
-<center>
-![](/findings/sectoring-oss_files/13_all_cities.png)
-</center>
 
 <br>
 <br>
