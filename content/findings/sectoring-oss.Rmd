@@ -444,19 +444,8 @@ ggplot(data=final_counts, aes(x=sector, y=total)) +
 ## Business Sector
 
 <center>
-![](/findings/sectoring-oss_files/wordcloud.svg){width=70%}
+![](/findings/sectoring-oss_files/wordcloud.svg){width=80%}
 </center>
-
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
 
 ```{r, echo=FALSE, fig.height = 8, fig.width=12}
 
@@ -1512,7 +1501,7 @@ city_clean_final_aggregate%>%
 
 
 <center>
-![](/findings/sectoring-oss_files/14_all_cities_by_continent_degree.png){width=80%}
+![](/findings/sectoring-oss_files/14_all_cities_by_continent_degree.png){width=70%}
 </center>
 
 <center>
@@ -1520,7 +1509,7 @@ city_clean_final_aggregate%>%
 </center>
 
 <center>
-![](/findings/geographic_files/14_legend.png){width=100%}
+![](/findings/geographic_files/14_legend.png){width=95%}
 
 
 <br>
@@ -1567,7 +1556,7 @@ city_clean_final_aggregate%>%
 
 <br>
 
-#### Conducting network analysis to understand collaboration tendencies
+#### Conducting network analysis within and across sectors to understand collaboration tendencies
 
 <br>
 <br>
