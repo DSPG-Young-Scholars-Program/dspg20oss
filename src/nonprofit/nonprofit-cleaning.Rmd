@@ -45,7 +45,7 @@ govadmins_vector <- paste(c("\\b(?i)(zcx", na.omit(tolower(nonprofit_govadmins$n
                                            na.omit(tolower(nonprofit_govadmins$associated_centers)), "zxz)\\b"), collapse = "|")
 
 
-former_academic_list <- "\\b(?i)(broad institute|cern|European Organization for Nuclear Research|wellcome trust sanger institute|wellcome trust|wellcome|)\\b"
+former_academic_list <- "\\b(?i)(broad institute|broadinstitute|cern|CERN|European Organization for Nuclear Research|wellcome trust sanger institute|wellcome trust|wellcome)\\b"
 
 nonprofits <- users_gh %>% 
   as.data.table() %>% 
@@ -65,7 +65,8 @@ nonprofits <- users_gh %>%
   
 # still some false positives 
 # still want to do some bigrams of the lists i have 
-
+nonprofits %>% 
+  count(is_nonprofit)
 ```
 
 ```{r}

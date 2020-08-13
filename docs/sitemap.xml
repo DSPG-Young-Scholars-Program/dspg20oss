@@ -7,15 +7,11 @@
   </url>
   
   <url>
-    <loc>/findings/academic/</loc>
-  </url>
-  
-  <url>
-    <loc>/findings/government/</loc>
-  </url>
-  
-  <url>
     <loc>/findings/business/</loc>
+  </url>
+  
+  <url>
+    <loc>/findings/academic/</loc>
   </url>
   
   <url>
@@ -35,10 +31,6 @@
   </url>
   
   <url>
-    <loc>/tags/big-data/</loc>
-  </url>
-  
-  <url>
     <loc>/categories/</loc>
   </url>
   
@@ -55,7 +47,7 @@
   </url>
   
   <url>
-    <loc>/tags/nlp/</loc>
+    <loc>/tags/network-analysis/</loc>
   </url>
   
   <url>
@@ -64,10 +56,6 @@
   
   <url>
     <loc>/tags/r/</loc>
-  </url>
-  
-  <url>
-    <loc>/tags/regex/</loc>
   </url>
   
   <url>

@@ -1,6 +1,6 @@
 ---
 title: 'Sectoring Open Source Software'
-description: 'Symposium Presentation of the 2020 DSPG OSS Project'
+description: 'Symposium Presentation of the 2020 DSPG Project'
 weight: 1
 output: html_document
 ---
@@ -12,13 +12,19 @@ h1, h2, h3, h4, h5 {
 }
 ```
 
+<br>
+<br>
+<br>
+<br>
+<br>
+
 <center>
 ![](/findings/sectoring-oss_files/dspg-small.jpg)
 </center>
 
 ## Sectoring Open Source Software: <br> Where Do GitHub Contributions Come From?
 
-#### Crystal Zang, Morgan Klutzke, Daniel Bullock, Brandon Kramer, Gizem Korkmaz, <br> José Bayoán Santiago Calderón, Aaron Schroeder, and Sallie Keller
+#### Crystal Zang, Morgan Klutzke, Daniel Bullock, <br> Brandon Kramer, Gizem Korkmaz, and José Bayoán Santiago Calderón <br> Sponsors: Carol Robbins (NCSES) and Ledia Guci (NCSES)
 
 <br>
 <br>
@@ -34,7 +40,7 @@ h1, h2, h3, h4, h5 {
 ## Why Study Open Source Software? 
 
 <center>
-![](/findings/sectoring-oss_files/ncses-large.png)
+![](/findings/sectoring-oss_files/oss.png)
 </center>
 
 #### OSS is any software that is developed by a copyright holder, <br/> but shared with a broader public to share with anyone and for any purpose
@@ -52,7 +58,12 @@ h1, h2, h3, h4, h5 {
 <br>
 <br>
  
-## Sectoring Open Source Software
+
+
+
+
+## Sectoring Open Source Software on GitHub
+
 
 ### Our two main goals for the 2020 DSPG Summer Project were to: 
 
@@ -77,8 +88,13 @@ OSS <- data.frame(
         "Business","Business","Business","Business","Business", 
         "Business", "Business", "Business", "Business", "Business",
           "Business","Business","Business","Business","Business", 
-        "Business", "Business", "Business", 
+        "Business", "Business", "Business", "Business", "Business",
+          "Business","Business","Business","Business","Business", 
+        "Business", "Business", "Business", "Business", "Business",
+        "Business","Business",
        
+        "Household", "Household", "Household", "Household", "Household", "Household", "Household",
+      "Household","Household", "Household","Household", "Household",
         
         "Government", "Government","Government","Government","Government",
         "Government","Government", "Government", "Government","Government",
@@ -105,9 +121,17 @@ OSS <- data.frame(
       #business
       "GHTorrent", "GHTorrent", "GHTorrent", "GHTorrent", "GHTorrent", "GHTorrent", "GHTorrent",
       "GitHub","GitHub", "GitHub","GitHub","GitHub",
-      "DataHub Domain List",  "DataHub Domain List", "DataHub Domain List", 
+
       
-      "Gleif's Legal Entity List",  "Gleif's Legal Entity List", "Gleif's Legal Entity List", 
+      "Forbes 2018 Fortune-1000",  "Forbes 2018 Fortune-1000", "Forbes 2018 Fortune-1000", "Forbes 2018 Fortune-1000","Forbes 2018 Fortune-1000","Forbes 2018 Fortune-1000","Forbes 2018 Fortune-1000",
+      
+      "Forbes 2019 Fortune-1000",  "Forbes 2019 Fortune-1000", "Forbes 2019 Fortune-1000", "Forbes 2019 Fortune-1000","Forbes 2019 Fortune-1000","Forbes 2019 Fortune-1000","Forbes 2019 Fortune-1000",
+      
+      "Forbes 2020 Global-2000", "Forbes 2020 Global-2000", "Forbes 2020 Global-2000", "Forbes 2020 Global-2000", "Forbes 2020 Global-2000", "Forbes 2020 Global-2000",
+     
+      #household
+       "GHTorrent", "GHTorrent", "GHTorrent", "GHTorrent", "GHTorrent", "GHTorrent", "GHTorrent",
+      "GitHub","GitHub", "GitHub","GitHub","GitHub",
       
     #gov  
       "GHTorrent", "GHTorrent", "GHTorrent", "GHTorrent", "GHTorrent", "GHTorrent", "GHTorrent",
@@ -132,26 +156,31 @@ OSS <- data.frame(
     ),
     Variables = c(
        #academic
-        "username", "affiliation", "city", "state","country code", "latitude",  "longitude",  #7
+        "login(rename, username)", "company (affiliation)", "city", "state","country code", "latitude",  "longitude",  #7
         "username","commits", "additions", "deletions", "created at", #5
         "institution name", "country code", "email domain", "website",  #4
         
         #business
-         "username","affiliation","city","state","country code",  "latitude",  "longitude",  #7 
+         "login(rename, username)","company (affiliation)","city","state","country code",  "latitude",  "longitude",  #7 
         "username","commits", "additions", "deletions", "created at", #5
         
-        "email domain", "organization", "organization type",   #7
-         "legal entity form", "entity abbreviation", "country",    #7
+        "company", "industry", "location", "revenue", "profits", "assets", "market value",  #7
+         "company", "industry", "location", "revenue", "profits", "assets", "market value",  #7
+         "company", "country", "sales", "profits", "assets",  "market value", #6
+        
+        #household
+         "login(rename, username)", "company (affiliation)", "city", "state","country code", "latitude",  "longitude",  #7
+        "username","commits", "additions", "deletions", "created at", 
         
         #gov
-        "username","affiliation","city","state","country code",  "latitude",  "longitude", 
+        "login(rename, username)","company (affiliation)","city","state","country code",  "latitude",  "longitude", 
         "username","commits", "additions", "deletions", "created at",
         "gov branch", "gov agency", "gov subagency", "website",
         "ffrdc", "ffrdc admin", "ffrdc url", "ffrdc location", "gov agency", "gov subagency",
         "gov branch", "gov agency",
         
          #nonprofit
-        "username","affiliation","city","state","country code",  "latitude",  "longitude", 
+        "login(rename, username)","company (affiliation)","city","state","country code",  "latitude",  "longitude", 
         "username","commits", "additions", "deletions", "created at",
         
         "organization","acronym", "private support", "total revenue", "donor dependency", 
@@ -159,11 +188,12 @@ OSS <- data.frame(
       "organization", "acronym", 
       "ffrdc", "ffrdc admin", 
       
-        "username","affiliation","city","state","country code",  "latitude",  "longitude", 
+        "login(rename, username)","company (affiliation)","city","state","country code",  "latitude",  "longitude", 
         "username","commits", "additions", "deletions", "created at",
         "continent name", "country code"
     )
 )
+
 
 collapsibleTree(OSS, 
                 c("Sector", "DataSource", "Variables"), 
@@ -183,33 +213,13 @@ collapsibleTree(OSS,
 <br>
 <br>
 
-## Data
-
-<center>
-![](/findings/sectoring-oss_files/ghtorrent.png) 
-</center>
-
-#### We used GHTorrent data to categorize users into sectors <br/> (dataset of ~2.1 million GitHub users with email, affiliation and location data) 
-
-#### We also used multiple publicly available datasources to help <br/> match users to existing organizations within each sector 
-#### (see our [Data & Methods](/methods/) page for more details)
-
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-
 ## Methods
 
 <center>
-![](/findings/sectoring-oss_files/messy-data.png)
-![](/findings/sectoring-oss_files/messy-email.png)
+![](/findings/sectoring-oss_files/microsoft-example.png)
+
+![](/findings/sectoring-oss_files/ucsd-example.png)
+
 </center>
 
 #### We relied on aspects of computational text analysis to standardize entries 
@@ -228,9 +238,265 @@ collapsibleTree(OSS,
 
 ## Sectoring Results
 
-```{r sectoring, echo=FALSE, message=FALSE, warning=FALSE}
+```{r pull_data, message = FALSE, results = FALSE, warning = FALSE, echo=FALSE}
+# load packages 
+for (pkg in c("tidyverse", "igraph", "visNetwork", "data.table", "R.utils", "DT",
+              "RPostgreSQL", "cowplot", "maditr", "stringr", "stringi", "gridExtra")) {library(pkg, character.only = TRUE)}
 
+# connect to postgresql to get our data
+conn <- dbConnect(drv = PostgreSQL(), 
+                  dbname = "sdad", 
+                  host = "10.250.124.195", 
+                  port = 5432, 
+                  user = Sys.getenv("db_userid"), 
+                  password = Sys.getenv("db_pwd"))
+
+# query the users_gh data from github data 
+github_users <- dbGetQuery(conn, "SELECT login, email, company FROM gh.ctrs_extra;")
+
+academic <- dbGetQuery(conn, "SELECT login, company_cleaned, is_academic FROM gh.sna_ctr_academic;")
+government <- dbGetQuery(conn, "SELECT login, is_gov FROM gh.sna_ctr_gov;")
+nonprofit <- dbGetQuery(conn, "SELECT login, is_nonprofit FROM gh.sna_ctr_nonprofits;")
+
+# disconnect from postgresql database 
+dbDisconnect(conn)
+
+# joining the datasets 
+combined_user_data <- github_users %>% 
+  full_join(academic, by = "login") %>% 
+  mutate(is_academic = replace_na(is_academic, 0))
+
+combined_user_data <- combined_user_data %>% 
+  full_join(government, by = "login") %>% 
+  mutate(is_gov = replace_na(is_gov, 0))
+
+combined_user_data <- combined_user_data %>% 
+  full_join(nonprofit, by = "login") %>% 
+  mutate(is_nonprofit = replace_na(is_nonprofit, 0))
+
+# household 
+household <- read.csv("/sfs/qumulo/qhome/kb7hp/git/dspg20oss/ossPy/keyFiles/individualKeys.csv", header=FALSE)
+household <- household %>% 
+  rename(strings = V1) %>% 
+  mutate(strings = as.character(strings))
+household$strings <- substring(household$strings, 2)
+household$strings <- substr(household$strings,1, nchar(household$strings)-1)
+
+combined_user_data <- combined_user_data %>% 
+  mutate(is_household = ifelse(test = str_detect(string = company, 
+         pattern = paste(c("\\b(?i)(z3x", na.omit(household$strings), 
+         "z3x|self-employed|unemployed|available for hire)\\b"), collapse = "|")), 
+         yes = TRUE, no = NA)) %>% 
+  mutate(is_household = replace_na(is_household, 0))
+
+# null values 
+null_values <- read.csv("/sfs/qumulo/qhome/kb7hp/git/dspg20oss/ossPy/keyFiles/nullKeys.csv", header=FALSE)
+null_values <- null_values %>% 
+  rename(strings = V1) %>% 
+  mutate(strings = as.character(strings))
+null_values$strings <- substring(null_values$strings, 2)
+null_values$strings <- substr(null_values$strings,1, nchar(null_values$strings)-1)
+
+combined_user_data <- combined_user_data %>% 
+  mutate(is_nullvalue = ifelse(test = str_detect(string = company, 
+         pattern = paste(c("\\b(?i)(z3x", na.omit(null_values$strings), "z3x)\\b"), collapse = "|")), 
+         yes = TRUE, no = NA)) %>% 
+  mutate(is_nullvalue = replace_na(is_nullvalue, 0)); combined_user_data
+
+# implementing daniel's approaches 
+legal_entities <- read.csv("/sfs/qumulo/qhome/kb7hp/git/dspg20oss/ossPy/keyFiles/curatedLegalEntitesRaw.csv", header=FALSE)
+legal_entities <- legal_entities %>% 
+  rename(strings = V1) %>% 
+  mutate(strings = as.character(strings))
+legal_entities$strings <- substring(legal_entities$strings, 2)
+legal_entities$strings <- substr(legal_entities$strings,1, nchar(legal_entities$strings)-1)
+
+symbol_strings <- read.csv("/sfs/qumulo/qhome/kb7hp/git/dspg20oss/ossPy/keyFiles/symbolRemove.csv", header=FALSE)
+symbol_strings <- symbol_strings %>% 
+  rename(strings = V1) %>% 
+  mutate(strings = as.character(strings))
+symbol_strings$strings <- substring(symbol_strings$strings, 2)
+symbol_strings$strings <- substr(symbol_strings$strings,1, nchar(symbol_strings$strings)-1)
+symbol_strings <- symbol_strings %>% slice(-17:-20)
+
+curated_domains <- read.csv("/sfs/qumulo/qhome/kb7hp/git/dspg20oss/ossPy/keyFiles/curatedDomains.csv", header=FALSE)
+curated_domains <- curated_domains %>% 
+  rename(strings = V1) %>% 
+  mutate(strings = as.character(strings))
+curated_domains$strings <- substring(curated_domains$strings, 2)
+curated_domains$strings <- substr(curated_domains$strings,1, nchar(curated_domains$strings)-1)
+
+combined_user_data <- combined_user_data %>% 
+  mutate(company_original = company) %>%
+  mutate(company = str_replace_all(company, paste(c("(?i)(zqx", na.omit(legal_entities$strings), 
+                                                    "zqx|, Inc.)"), collapse = "|"), "")) %>% 
+  mutate(company = str_replace_all(company, paste(c("(?i)(zqx", na.omit(symbol_strings$strings), 
+                                                    ", $|,$|zqx)"), collapse = "|"), "")) %>%
+  mutate(company = str_replace_all(company, paste(c("(?i)(zqx", na.omit(curated_domains$strings), 
+                                                    "zqx)"), collapse = "|"), "")) %>%
+  mutate(company = tolower(company)); combined_user_data
+  #filter(grepl(".br", company_original)) %>% 
+  #select(company, company_original)
+
+#### additional cleaning steps 
+potential_business <- combined_user_data %>%
+  select(-company_cleaned, -company_original) %>% 
+  filter(is_academic == 0 & is_gov == 0 & is_nonprofit == 0 & is_household == 0 & is_nullvalue == 0) %>% 
+  filter(company != "china" & company != "japan" & company != "none" & company != "no"); potential_business 
+
+company_totals <- potential_business %>% 
+  group_by(company) %>% 
+  count() %>% 
+  arrange(-n)# %>% filter(grepl("microsoft", company))
+
+# this bit classifies an additional 6,000 academic developers 
+new_academic_list <- company_totals %>% 
+  filter(grepl("university|college", company)) %>% 
+  filter(n > 1) %>% 
+  rename(institutions = company); new_academic_list
+
+combined_user_data <- combined_user_data %>% 
+  mutate(new_academic = ifelse(test = str_detect(string = company, 
+         pattern = paste(c("\\b(?i)(z3x", na.omit(new_academic_list$institutions), "z3x)\\b"), collapse = "|")), 
+         yes = TRUE, no = NA)) %>% 
+  mutate(new_academic = replace_na(new_academic, 0))
+
+potential_business <- combined_user_data %>%
+  filter(is_academic == 0 & is_gov == 0 & is_nonprofit == 0 & is_household == 0 & is_nullvalue == 0 & new_academic == 0) %>% 
+  filter(company != "china" & company != "japan" & company != "none" & company != "no"); potential_business 
+  #%>% drop_na(email)
+
+company_totals <- potential_business %>% 
+  group_by(company) %>% 
+  count(company) %>% 
+  arrange(-n) %>% 
+  filter(n != 4601) %>% 
+  rename(total = n) ; company_totals# %>% filter(grepl("microsoft", company))
+
+business <- combined_user_data %>% 
+  full_join(company_totals, by = "company") %>% 
+  select(login, company, total) %>% 
+  filter(total > 5) %>% 
+  select(-total, -company) %>% 
+  mutate(is_business = 1) 
+
+combined_user_data <- combined_user_data %>% 
+  full_join(business, by = "login") %>% 
+  mutate(is_business = replace_na(is_business, 0))
+
+combined_user_data %>% 
+  filter(is_academic == 1 | new_academic == 1) %>% 
+  count()
+
+combined_user_data %>% 
+  filter(is_gov == 1) %>%
+  count()
+
+combined_user_data %>% 
+  filter(is_nonprofit == 1) %>%
+  count()
+
+combined_user_data %>% 
+  filter(is_household == 1) %>%
+  count()
+
+combined_user_data %>% 
+  filter(is_business == 1) %>%
+  count()
+
+final_counts <- data.frame(sector = as.factor(c("business", "academic","houshold","government", "nonprofit")),
+                           total = as.numeric(c("115893", "46403", "5455", "3576", "823")))
+
+positions <- c("business", "academic","houshold","government", "nonprofit")
 ```
+
+```{r, fig.height = 7, fig.width=12, echo=FALSE}
+ggplot(data=final_counts, aes(x=sector, y=total)) +
+  geom_bar(stat="identity",  fill = c("#232D4B", "#E57200", "#0E879C", "#D9E12B",  "#ADD8E6")) +
+  scale_x_discrete(limits = positions) +
+  theme_minimal() +
+  theme(plot.title = element_text(size=23, hjust = 0.45),
+        axis.text.y = element_text(size = 16),
+        axis.text.x = element_text(size = 16),
+        axis.title =element_text(size=18),
+        axis.title.x=element_blank()) +
+  labs(y = "Number of GitHub Users") +
+  ggtitle("Total GitHub Users Classified by Economic Sector")
+```
+
+#### Twenty percent of the GHTorrent data (~2.1 million) provides email address or work <br/> affiliation for sectoring, which gives us ~420,000 GitHub users. 
+
+<br>
+
+#### Most users fall into the business sector followed by <br/> the academic, household and government sectors.
+
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+
+## Business Sector
+
+<center>
+![](/findings/sectoring-oss_files/wordcloud.svg){width=80%}
+</center>
+
+```{r, echo=FALSE, fig.height = 8, fig.width=12}
+
+top20companies <- company_totals %>% 
+  filter(total > 399)
+
+company_positions <- data.frame(company = c("microsoft", "google","red hat", "ibm", "facebook",
+                                                 "intel", "thoughtworks","alibaba","tencent", "amazon",
+                                                 "baidu", "esri","sap","shopify", "mozilla",
+                                                 "pivotal", "oracle","salesforce","yandex", "linkedin"), 
+                                   countries = as.factor(c("usa","usa","usa","usa","usa",
+                                                 "usa","usa","china","china","usa",
+                                                 "china", "usa", "germany", "canada", "usa",
+                                                 "usa","usa","usa","russia","usa"))) 
+top20companies <- top20companies %>% 
+  full_join(company_positions, by = "company")
+
+top20companies$company <- fct_relevel(top20companies$company, 
+                                      "linkedin", "yandex","salesforce", "oracle", "pivotal",
+                                      "mozilla","shopify", "sap", "esri", "baidu",
+                                      "amazon", "tencent", "alibaba", "thoughtworks", "intel",
+                                      "facebook", "ibm","red hat", "google","microsoft")
+ 
+ggplot(top20companies) +
+  geom_point(aes(x = company, y = total, colour = countries), size = 4) +
+  geom_segment( aes(x=company, xend=company, y=0, yend=total, colour = countries)) +
+  #ggtitle("Most Prominent Businesses\nDeveloping OSS (By GitHub Users)") +
+  coord_flip() +
+  theme_minimal() +
+  scale_color_manual(labels=c("canada", "china",   "germany", "russia", "usa"),
+                     values=c("#D9E12B", "#232D4B", "#0E879C",  "#ADD8E6", "#E57200")) +
+  theme(plot.title = element_text(size=23, hjust = 0.5),
+        #axis.title.x=element_blank(),
+        axis.title =element_text(size=18),
+        axis.title.y =element_blank(),
+        #axis.text.x = element_text(size = 18),
+        axis.text.y = element_text(size = 16),
+        axis.text.x = element_text(size = 16),
+        legend.title=element_text(size=18, hjust = 0.5, face="bold"),
+        legend.text=element_text(size=18),
+        legend.position = c(.9, .1),
+        legend.justification = c("right", "bottom"),
+        legend.box.just = "right",
+        legend.margin = margin(6, 6, 6, 6),
+        legend.background = element_rect(fill="white",
+                                  size=0.5, linetype="solid", 
+                                  colour ="black")) +
+  labs(y = "Total GitHub Users", title = "Most Prominent Businesses\nDeveloping OSS (By GitHub Users)") 
+```
+
+#### Most OSS producing companies are large tech companies based in Silicon Valley
 
 <br>
 <br>
@@ -247,8 +513,8 @@ collapsibleTree(OSS,
 
 ```{r academic, include=FALSE, message=FALSE, warning=FALSE}
 # load packages 
-for (pkg in c("tidyverse", "igraph", "visNetwork", "data.table", "R.utils", "DT",
-              "RPostgreSQL", "cowplot", "maditr", "stringr", "stringi", "gridExtra")) {library(pkg, character.only = TRUE)}
+for (pkg in c("data.table", "R.utils", "DT",
+              "RPostgreSQL", "cowplot", "maditr", "stringr", "stringi", "gridExtra", "ggplot2")) {library(pkg, character.only = TRUE)}
 
 # connect to postgresql to get our data
 conn <- dbConnect(drv = PostgreSQL(), 
@@ -794,6 +1060,7 @@ academic_counts_sorted <- academic_counts %>%
   dt_mutate(organization = factor(organization, levels = organization))
 
 ```
+
 ```{r, countries_users, fig.height = 9, fig.width = 12, warning = FALSE,  message=FALSE, echo=FALSE}
 #country_frequency_institutions <- academic_counts %>% group_by(country) %>% count(wt = n(), sort = TRUE)
 
@@ -865,33 +1132,59 @@ ggplot(country_users_sorted[(.N-20):.N, ], aes(color = continent)) +
 ```{r, us_universities, fig.height = 9, fig.width = 12,  warning = FALSE, message=FALSE, echo=FALSE}
 us_academic_counts <- academic_counts_sorted %>% filter(country == "United States")
 
-type <- c("university of california, berkeley" = "public",
-          "massachusetts institute of technology" = "private",
-          "stanford university" = "private",
-          "university of southern california" = "private",
-          "cornell university" = "private",
-          "university of washington" = "public",
-          "carnegie mellon university" = "private",
-          "new york university" = "private",
-          "university of michigan - ann arbor" = "public",
-          "university of illinois at urbana-champaign" = "public",
-          "columbia university" = "private",
-          "university of texas at austin" = "public",
-          "georgia institute of technology" = "public",
-          "duke university" = "private",
-          "university of california, san diego" = "public",
-          "harvard university" = "private",
-          "university of pennsylvania" = "private",
-          "university of wisconsin - madison" = "public",
-          "purdue university" = "public",
-          "university of california, los angeles" = "public",
-          "arizona state university" = "public") %>% rev()
+top_us_universities <- select(us_academic_counts[(.N-20):.N, ], organization) %>%
+  add_column(shorter = c("Arizona State University",
+                         "UC Los Angeles",
+                         "Purdue University",
+                         "University of Wisconsin",
+                         "University of Pennsylvania",
+                         "Harvard University",
+                         "UC San Diego",
+                         "Duke University",
+                         "Georgia Tech",
+                         "University of Texas",
+                         "Columbia University",
+                         "University of Illinois",
+                         "University of Michigan",
+                         "New York University",
+                         "Carnegie Mellon University",
+                         "University of Washington",
+                         "Cornell University",
+                         "Univ. of Southern California",
+                         "Stanford University",
+                         "MIT",
+                         "UC Berkeley")) %>%
+  inner_join(us_academic_counts) %>%
+  arrange(n) %>%
+  dt_mutate(shorter = factor(shorter, levels = shorter))
 
-ggplot(us_academic_counts[(.N-20):.N, ], aes(color = type)) +
-  geom_point(aes(x = organization, y = n), size = 4) +
-  geom_segment(data = us_academic_counts[(.N-20):.N, ], mapping = aes(x = organization, xend = organization, y = 0, yend = n), size = 1) +
+Type <- c("university of california, berkeley" = "Public",
+          "massachusetts institute of technology" = "Private",
+          "stanford university" = "Private",
+          "university of southern california" = "Private",
+          "cornell university" = "Private",
+          "university of washington" = "Public",
+          "carnegie mellon university" = "Private",
+          "new york university" = "Private",
+          "university of michigan - ann arbor" = "Public",
+          "university of illinois at urbana-champaign" = "Public",
+          "columbia university" = "Private",
+          "university of texas at austin" = "Public",
+          "georgia institute of technology" = "Public",
+          "duke university" = "Private",
+          "university of california, san diego" = "Public",
+          "harvard university" = "Private",
+          "university of pennsylvania" = "Private",
+          "university of wisconsin - madison" = "Public",
+          "purdue university" = "Public",
+          "university of california, los angeles" = "Public",
+          "arizona state university" = "Public") %>% rev()
+
+ggplot(top_us_universities, aes(color = Type)) +
+  geom_point(aes(x = shorter, y = n), size = 4) +
+  geom_segment(data = top_us_universities, mapping = aes(x = shorter, xend = shorter, y = 0, yend = n), size = 1) +
   labs(x = "Academic Institution", y = "Number of Users", title = "Top-20 Universities in the United States") +
-  scale_color_manual(values = c("public" = "#0E879C", "private" = "#E57200")) +
+  scale_color_manual(values = c("Public" = "#0E879C", "Private" = "#E57200")) +
   #scale_y_reverse() +
   coord_flip() +
   theme_minimal() +
@@ -899,7 +1192,7 @@ ggplot(us_academic_counts[(.N-20):.N, ], aes(color = type)) +
         axis.title =element_text(size=18),
         axis.title.y =element_blank(),
         axis.text.x = element_text(size = 18),
-        axis.text.y = element_text(size = 12),
+        axis.text.y = element_text(size = 16),
         legend.title=element_text(size=18, hjust = 0.5, face="bold"),
         legend.text=element_text(size=18),
         legend.position = c(.9, .1),
@@ -908,27 +1201,10 @@ ggplot(us_academic_counts[(.N-20):.N, ], aes(color = type)) +
         legend.margin = margin(6, 6, 6, 6),
         legend.background = element_rect(fill="white",
                                   size=0.5, linetype="solid", 
-                                  colour ="black")) 
+                                  colour ="black"))
 ```
 
 #### Most of the top OSS-producing universities are close to <br/> major tech hubs in CA, MA, NY, TX and WA 
-
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-
-## Business Sector
-
-```{r business, echo=FALSE, message=FALSE, warning=FALSE}
-
-```
 
 <br>
 <br>
@@ -945,7 +1221,7 @@ ggplot(us_academic_counts[(.N-20):.N, ], aes(color = type)) +
 
 ```{r loading data, message=FALSE, warning=FALSE, include=FALSE}
 # load packages
-for (pkg in c("tidyverse", "data.table", "R.utils", "RPostgreSQL", "cowplot", "maditr", "stringr", "stringi",  "dplyr", "leaflet", "leaflet.extras", "tools", "statebins")) {library(pkg, character.only = TRUE)}
+for (pkg in c("tidyverse", "RPostgreSQL",   "dplyr", "leaflet", "leaflet.extras", "tools", "statebins")) {library(pkg, character.only = TRUE)}
 
 # connect to postgresql to get our data
 conn <- dbConnect(drv = PostgreSQL(), 
@@ -1026,6 +1302,8 @@ min = min(gh_continent$ttl_users)
 max = max(gh_continent$ttl_users)
 
 ```
+
+### Countries Where Github Users are Located
 ```{r fig.width=9.5, fig.height=5, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 gh_country <- city_clean_final_aggregate_country%>%
   arrange(desc(ttl_users))%>%
@@ -1034,33 +1312,27 @@ gh_country <- city_clean_final_aggregate_country%>%
 
 gh_country$c_country_name <- factor(gh_country$c_country_name, levels = gh_country$c_country_name[order(gh_country$ttl_users)])
 
+gh_country$Continent <- c("North America", "Asia", "Europe", "Asia", "Europe", "Europe", "North America", "Europe", "South America", "Oceania")
+
+gh_country$Continent <- factor(gh_country$Continent , levels =c("North America", "Asia", "Europe", "South America", "Oceania"))
+
 min = min(gh_country$ttl_users)
 max = max(gh_country$ttl_users)
 
-ggplot(gh_country, aes(x = c_country_name, y = ttl_users, fill = ttl_users)) +
-  geom_bar(stat = "identity")+ 
-  scale_fill_continuous(
-    low = "#E6890F", 
-    high=uva_color_palette[9], 
-    breaks=c(min, 60000, 100000, 140000, max), 
-    labels = c(
-      as.character(min), 
-      "60000",
-      "100000",
-      "140000",
-      as.character(max)
-      )
-    )+
+ggplot(gh_country, aes(x = c_country_name, y = ttl_users, fill = Continent)) +
+  geom_bar(stat = "identity")+
   labs(#title = "Countries where Github users are located", 
-       x = "Country", y = "Total Number of Users", fill = "Total Number \n    of Users") +
+       x = "Country", y = "Total Number of Users") +
   theme_bw()+
   theme(legend.spacing.y = unit(1,"cm"))+
-  theme(axis.text.x = element_text(size = 11, hjust = .5, vjust = .5),
-        axis.text.y = element_text(size = 11, hjust = .5, vjust = .5),  
+  theme(axis.text.x = element_text(size = 13, hjust = .5, vjust = .5),
+        axis.text.y = element_text(size = 12, hjust = .5, vjust = .5),  
         axis.title.x = element_text(size = 14, hjust = .5, vjust = .5),
         axis.title.y = element_text(size = 14, hjust = .5, vjust = .5),
         legend.title=element_text(size=13),
-        legend.text = element_text(size=11))
+        legend.text = element_text(size=11))+
+  scale_y_continuous(breaks = c(0, 25000, 50000, 75000, 100000, 125000, 150000))+ scale_fill_manual(values = c(uva_color_palette[9], uva_color_palette[6], uva_color_palette[3], uva_color_palette[1], uva_color_palette[5])) +
+ theme(legend.position="top")
 ```
 
 #### Most GitHub users based in the US are around 4 times higher than in China 
@@ -1075,6 +1347,8 @@ ggplot(gh_country, aes(x = c_country_name, y = ttl_users, fill = ttl_users)) +
 <br>
 <br>
 <br>
+
+### U.S. States Where Github Users are Located
 
 ```{r fig.width=7, fig.height=4, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 state_ttl_user <- city_clean_final%>%
@@ -1096,16 +1370,16 @@ state_ttl_user <- state_ttl_user%>%
 state_ttl_user$ttl_users_quantile <- factor(state_ttl_user$ttl_users_quantile, levels = c("[56, 399)", "[399, 728)","[728, 1961)","[1961, 3885)", "[3885, 40379)" ))
 
 statebins(state_ttl_user,
+         # plot_title = "U.S. States Where Github Users are Located",
           state_col = "c_us_state",
           value_col = "ttl_users_quantile",
           name = "Total Number of Users \n by Quantile Groups",
           ggplot2_scale_function = scale_fill_manual,
           values = c("[56, 399)" = "#f9f9f9" , "[399, 728)" = "#60999A","[728, 1961)" = "#0E879C","[1961, 3885)" = "#1D6B84", "[3885, 40379)" = "#232D4B",
           font_size=10,
-          state_border_size =1)
-          )+
+          state_border_size =1))+
   theme_statebins(legend_position = "right",  base_size = 11)+
-theme(plot.margin = margin(10,10,10,10))
+theme(plot.margin = margin(1,1,1,1))
 ```
 
 #### Within the US, most GitHub users are based on the coasts and near major tech hubs 
@@ -1120,6 +1394,8 @@ theme(plot.margin = margin(10,10,10,10))
 <br>
 <br>
 <br>
+
+### Cities Where Github Users are Located
 
 ```{r fig.width=10, fig.height=6, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 gh_city <- city_clean_final_aggregate%>%
@@ -1138,30 +1414,27 @@ gh_city$city_country <- factor(gh_city$city_country, levels = gh_city$city_count
 # NOTE ::: Could you please shorten the labels for the USA and Russia cities 
 
 
+gh_city$Continent <- c("North America", "Europe", "North America", "Europe", "Asia", "North America", "Asia", "Europe", "Asia", "Asia")
 
 min = min(gh_city$ttl_users)
 max = max(gh_city$ttl_users)
 
-ggplot(gh_city, aes(x = city_country, y = ttl_users, fill = ttl_users))+
-  geom_bar(stat = "identity") + 
-  scale_fill_continuous(
-    low = uva_color_palette[3], 
-    high=uva_color_palette[2],
-   breaks=c(0,min, 8000, 10000,12000, 14000,max), 
-    labels = c("0", as.character(min),"8000", "10000",  "12000", "14000",as.character(max))
-   )+
+ggplot(gh_city, aes(x = city_country, y = ttl_users, fill=Continent))+
+  geom_bar(stat = "identity") +
   labs(#title = "Countries where Github users are located", 
-       x = "City", y = "Total Number of Users", fill = "Total Number \n    of Users")+
+       x = "City", y = "Total Number of Users")+
   theme_bw()+
   scale_y_continuous(breaks=c(0,2000, 4000, 6000, 8000, 10000,12000, 14000,max), 
     labels = c("0", "2000", "4000", "6000","8000", "10000",  "12000", "14000",as.character(max)))+
   theme(legend.spacing.y = unit(1,"cm"))+
-  theme(axis.text.x = element_text(size = 12, hjust = .5, vjust = .5),
-        axis.text.y = element_text(size = 11, hjust = .5, vjust = .5),  
+  theme(axis.text.x = element_text(size = 13, hjust = .5, vjust = .5),
+        axis.text.y = element_text(size = 12, hjust = .5, vjust = .5),  
         axis.title.x = element_text(size = 14, hjust = .5, vjust = .5),
         axis.title.y = element_text(size = 14, hjust = .5, vjust = .5),
-        legend.title=element_text(size=13),
-        legend.text = element_text(size=11))
+        legend.text = element_text(size = 11),
+        legend.title = element_text(size=13))+ 
+  scale_fill_manual(values = c( uva_color_palette[6], uva_color_palette[3],uva_color_palette[9]))+
+ theme(legend.position="top")
 ```
 
 #### Silicon Valley is the world's most prominent OSS hotspot <br/> followed by London, NYC, Moscow and Beijing
@@ -1177,7 +1450,7 @@ ggplot(gh_city, aes(x = city_country, y = ttl_users, fill = ttl_users))+
 <br>
 <br>
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, include=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 #In this map, the color of the circle indicates the number of github users in each city, still under development.
 city_clean_final_aggregate_top <- city_clean_final_aggregate%>%
   filter(ttl_users > 10)%>%
@@ -1206,9 +1479,9 @@ city_clean_final_aggregate%>%
   addLegend(pal = pal, values = c( "not topcity", "topcity"))
 ```
 
-[![GitHub Users Around the World](https://res.cloudinary.com/marcomontalbano/image/upload/v1596230317/video_to_markdown/images/youtube--KHokyhsd6IM-c05b58ac6eb4c4700831b2b3070cd403.jpg)](https://www.youtube.com/watch?v=KHokyhsd6IM "GitHub Users Around the World")
+<!-- [![GitHub Users Around the World](https://res.cloudinary.com/marcomontalbano/image/upload/v1596230317/video_to_markdown/images/youtube--KHokyhsd6IM-c05b58ac6eb4c4700831b2b3070cd403.jpg)](https://www.youtube.com/watch?v=KHokyhsd6IM "GitHub Users Around the World") -->
 
-#### Click to see a video or visit our [interactive map](/findings/geographic/) of GitHub users around the world
+<!-- #### Click to see a video or visit our [interactive map](/findings/geographic/) of GitHub users around the world -->
 
 <br>
 <br>
@@ -1220,6 +1493,36 @@ city_clean_final_aggregate%>%
 <br>
 <br>
 <br>
+
+### City-Level GitHub Users Collaboration Network
+<center>
+**Node size**: Weighted degree, reflects the amount of direct collaboration 
+</center>
+
+
+<center>
+![](/findings/sectoring-oss_files/14_all_cities_by_continent_degree.png){width=70%}
+</center>
+
+<center>
+**Node size**: Betweenness centrality, reflects importance in the global network   
+</center>
+
+<center>
+![](/findings/geographic_files/14_legend.png){width=95%}
+
+
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+
 
 ## Main Findings
 
@@ -1253,7 +1556,7 @@ city_clean_final_aggregate%>%
 
 <br>
 
-#### Conducting network analysis to understand collaboration tendencies
+#### Conducting network analysis within and across sectors to understand collaboration tendencies
 
 <br>
 <br>

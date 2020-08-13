@@ -30,6 +30,8 @@ OSS <- data.frame(
         "Business", "Business", "Business", "Business", "Business",
         "Business","Business",
        
+        "Household", "Household", "Household", "Household", "Household", "Household", "Household",
+      "Household","Household", "Household","Household", "Household",
         
         "Government", "Government","Government","Government","Government",
         "Government","Government", "Government", "Government","Government",
@@ -57,12 +59,16 @@ OSS <- data.frame(
       "GHTorrent", "GHTorrent", "GHTorrent", "GHTorrent", "GHTorrent", "GHTorrent", "GHTorrent",
       "GitHub","GitHub", "GitHub","GitHub","GitHub",
 
+      
       "Forbes 2018 Fortune-1000",  "Forbes 2018 Fortune-1000", "Forbes 2018 Fortune-1000", "Forbes 2018 Fortune-1000","Forbes 2018 Fortune-1000","Forbes 2018 Fortune-1000","Forbes 2018 Fortune-1000",
       
       "Forbes 2019 Fortune-1000",  "Forbes 2019 Fortune-1000", "Forbes 2019 Fortune-1000", "Forbes 2019 Fortune-1000","Forbes 2019 Fortune-1000","Forbes 2019 Fortune-1000","Forbes 2019 Fortune-1000",
       
       "Forbes 2020 Global-2000", "Forbes 2020 Global-2000", "Forbes 2020 Global-2000", "Forbes 2020 Global-2000", "Forbes 2020 Global-2000", "Forbes 2020 Global-2000",
      
+      #household
+       "GHTorrent", "GHTorrent", "GHTorrent", "GHTorrent", "GHTorrent", "GHTorrent", "GHTorrent",
+      "GitHub","GitHub", "GitHub","GitHub","GitHub",
       
     #gov  
       "GHTorrent", "GHTorrent", "GHTorrent", "GHTorrent", "GHTorrent", "GHTorrent", "GHTorrent",
@@ -98,6 +104,10 @@ OSS <- data.frame(
         "company", "industry", "location", "revenue", "profits", "assets", "market value",  #7
          "company", "industry", "location", "revenue", "profits", "assets", "market value",  #7
          "company", "country", "sales", "profits", "assets",  "market value", #6
+        
+        #household
+         "login(rename, username)", "company (affiliation)", "city", "state","country code", "latitude",  "longitude",  #7
+        "username","commits", "additions", "deletions", "created at", 
         
         #gov
         "login(rename, username)","company (affiliation)","city","state","country code",  "latitude",  "longitude", 

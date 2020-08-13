@@ -570,6 +570,16 @@ academic_counts <- academic_counts %>%
   dt_mutate(n = as.numeric(n)) # for some reason n got changed to chr type
 ```
 
+Create nodelist for network analysis
+
+```{r}
+academic_institution_nodelist <- academic_counts %>%
+  select(-domains) %>%
+  rename(Id = organization)
+
+write_csv(academic_institution_nodelist, "academic_institution_nodelist_gephi.csv")
+```
+
 Now let's look at some statistics.
 
 ```{r stats}

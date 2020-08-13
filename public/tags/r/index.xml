@@ -11,24 +11,21 @@
     
     
     <item>
+      <title>Classifing Users Across Sectors &amp; OSS in the Business Sector</title>
+      <link>/findings/business/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/findings/business/</guid>
+      <description>/* this chunk of code centers all of the headings */ h1, h2, h3, h4 { text-align: center; }  General Approach To assign users into the business sector, we took an exclusionary approach that depends on the other four sectors. First, we worked to standardize the affiliation column by removing (1) all website domain information using manually curated terms originally based on DataHub&#39;s Domain Entries, (2) all legal entity nomenclature based on manually curated version of Gleif&#39;s legal entity abbreviations, and (3) a list of commonly occurring arbitrary symbols.</description>
+    </item>
+    
+    <item>
       <title>OSS in the Academic Sector</title>
       <link>/findings/academic/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>/findings/academic/</guid>
       <description>/* this chunk of code centers all of the headings */ h1, h2, h3 { text-align: center; }  Approach One of the main goals of our summer project is to understand who is producting open-source software (OSS) and important characteristics about them, including which sectors they are embedded within. To classify contributors into the academic sector, we matched GitHub users&#39; email and self-reported affiliation columns to information about universities and colleges from around the world using the Hipo Labs&#39; university domain list - a dataset that has names, countries, and domain names for nearly 9,800 universities across the world.</description>
-    </item>
-    
-    <item>
-      <title>OSS in the Governmental Sector</title>
-      <link>/findings/government/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>/findings/government/</guid>
-      <description> Test Tabs By Product (tab content)
- By Region (tab content)
- By Third Category (tab content)
-  </description>
     </item>
     
     <item>
