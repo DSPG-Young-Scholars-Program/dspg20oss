@@ -144,7 +144,7 @@ ggplot(gh_continent, aes(x = Continent_Name, y = ttl_users, fill = ttl_users))+
 The United States has the highest number of GitHub users (N=166,140) with nearly four times as much as China (N=38,391). This discrepency may be because GitHub started in the US and that other web hosting platforms are used in other parts of the world. On the other hand, these results may also indicate that the US is a global power house in terms of producing OSS software. Of course, as we look further down the graph, we see the difference in overall users are much smaller between the United Kingdom, India, Russia, and the rest of the countries in the top-10. Our team is currently developing a paper that examines historical patterns of international collaboration on GitHub, which will elucidate these preliminary findings in more detail.  
 
 ### Countries Where Github Users are Located
-```{r fig.width=9.5, fig.height=5, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+```{r fig.width=9.5, fig.height=5, echo=FALSE, message=FALSE, warning=FALSE}
 gh_country <- city_clean_final_aggregate_country%>%
   arrange(desc(ttl_users))%>%
   top_n(10, ttl_users)%>%
@@ -168,12 +168,15 @@ ggplot(gh_country, aes(x = c_country_name, y = ttl_users, fill = Continent)) +
   theme(legend.spacing.y = unit(1,"cm"))+
   theme(axis.text.x = element_text(size = 13, hjust = .5, vjust = .5),
         axis.text.y = element_text(size = 12, hjust = .5, vjust = .5),  
-        axis.title.x = element_text(size = 14, hjust = .5, vjust = .5),
+        axis.title.x = element_blank(),
         axis.title.y = element_text(size = 14, hjust = .5, vjust = .5),
-        legend.title=element_text(size=13),
-        legend.text = element_text(size=11))+
-  scale_y_continuous(breaks = c(0, 25000, 50000, 75000, 100000, 125000, 150000))+ scale_fill_manual(values = c(uva_color_palette[9], uva_color_palette[6], uva_color_palette[3], uva_color_palette[1], uva_color_palette[5])) +
- theme(legend.position="top")
+        plot.title = element_text(size=18, hjust = 0.5),
+        legend.text = element_text(size=11),
+        legend.position="bottom")+
+  scale_y_continuous(breaks = c(0, 25000, 50000, 75000, 100000, 125000, 150000))+ 
+  scale_fill_manual(values = c(uva_color_palette[9], uva_color_palette[6], 
+                            uva_color_palette[3], uva_color_palette[1], uva_color_palette[5])) +
+  labs(title = "Top Countries Developing OSS (on GitHub)")
 ```
 
 ### GitHub Users in the United States 
@@ -205,6 +208,7 @@ statebins(state_ttl_user,
           state_col = "c_us_state",
           value_col = "ttl_users_quantile",
           name = "Total Number of Users \n by Quantile Groups",
+          
           ggplot2_scale_function = scale_fill_manual,
           values = c("[56, 399)" = "#f9f9f9" , "[399, 728)" = "#60999A","[728, 1961)" = "#0E879C","[1961, 3885)" = "#1D6B84", "[3885, 40379)" = "#232D4B",
           font_size=10,
@@ -251,12 +255,13 @@ ggplot(gh_city, aes(x = city_country, y = ttl_users, fill=Continent))+
   theme(legend.spacing.y = unit(1,"cm"))+
   theme(axis.text.x = element_text(size = 13, hjust = .5, vjust = .5),
         axis.text.y = element_text(size = 12, hjust = .5, vjust = .5),  
-        axis.title.x = element_text(size = 14, hjust = .5, vjust = .5),
+        axis.title.x = element_blank(),
         axis.title.y = element_text(size = 14, hjust = .5, vjust = .5),
         legend.text = element_text(size = 11),
-        legend.title = element_text(size=13))+ 
-  scale_fill_manual(values = c( uva_color_palette[6], uva_color_palette[3],uva_color_palette[9]))+
- theme(legend.position="top")
+        plot.title = element_text(size=18, hjust = 0.5),
+        legend.position="bottom")+ 
+  scale_fill_manual(values = c( uva_color_palette[6], uva_color_palette[3],uva_color_palette[9])) +
+  labs(title = "Top Cities Developing OSS (on GitHub)")
 ```
 
 ### Interactive Map of GitHub Users by City 
