@@ -149,7 +149,7 @@ check <- OSS %>%
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 collapsibleTree(OSS, 
-                c("Sector", "DataSource", "Variables"), 
+                c("Sector", "DataSource", "Variables"),  
                 collapsed = T,
                 fill ="#E57200"
 )
