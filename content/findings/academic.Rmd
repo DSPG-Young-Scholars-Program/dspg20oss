@@ -36,8 +36,10 @@ for (pkg in c("tidyverse", "igraph", "visNetwork", "data.table", "R.utils", "DT"
 # connect to postgresql to get our data
 conn <- dbConnect(drv = PostgreSQL(), 
                   dbname = "sdad", 
-                  host = "10.250.124.195", 
-                  port = 5432, 
+                  host = "127.0.0.1",
+                  port = 5434,
+                  #host = "10.250.124.195", 
+                  #port = 5432, 
                   user = Sys.getenv("db_userid"), 
                   password = Sys.getenv("db_pwd"))
 

@@ -35,7 +35,7 @@
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>/dspg20oss/findings/academic/</guid>
-      <description>/* this chunk of code centers all of the headings */ h1, h2, h3 { text-align: center; }  Approach One of the main goals of our summer project is to understand who is producting open-source software (OSS) and important characteristics about them, including which sectors they are embedded within. To classify contributors into the academic sector, we matched GitHub users&#39; email and self-reported affiliation columns to information about universities and colleges from around the world using the Hipo Labs&#39; university domain list - a dataset that has names, countries, and domain names for nearly 9,800 universities across the world.</description>
+      <description>/* this chunk of code centers all of the headings */ h1, h2, h3 { text-align: center; }  Approach One of the main goals of our summer project is to understand who is producting open-source software (OSS) and important characteristics about them, including which sectors they are embedded within. To classify contributors into the academic sector, we matched GitHub users’ email and self-reported affiliation columns to information about universities and colleges from around the world using the Hipo Labs’ university domain list - a dataset that has names, countries, and domain names for nearly 9,800 universities across the world.</description>
     </item>
     
     <item>
