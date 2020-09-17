@@ -2,65 +2,65 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Tags on UVA Biocomplexity Institute</title>
-    <link>/tags/</link>
+    <link>/dspg20oss/tags/</link>
     <description>Recent content in Tags on UVA Biocomplexity Institute</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     
-	<atom:link href="/tags/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="/dspg20oss/tags/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>interactive map</title>
-      <link>/tags/interactive-map/</link>
+      <link>/dspg20oss/tags/interactive-map/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>/tags/interactive-map/</guid>
+      <guid>/dspg20oss/tags/interactive-map/</guid>
       <description></description>
     </item>
     
     <item>
       <title>matching</title>
-      <link>/tags/matching/</link>
+      <link>/dspg20oss/tags/matching/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>/tags/matching/</guid>
+      <guid>/dspg20oss/tags/matching/</guid>
       <description></description>
     </item>
     
     <item>
       <title>network analysis</title>
-      <link>/tags/network-analysis/</link>
+      <link>/dspg20oss/tags/network-analysis/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>/tags/network-analysis/</guid>
+      <guid>/dspg20oss/tags/network-analysis/</guid>
       <description></description>
     </item>
     
     <item>
       <title>Python</title>
-      <link>/tags/python/</link>
+      <link>/dspg20oss/tags/python/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>/tags/python/</guid>
+      <guid>/dspg20oss/tags/python/</guid>
       <description></description>
     </item>
     
     <item>
       <title>R</title>
-      <link>/tags/r/</link>
+      <link>/dspg20oss/tags/r/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>/tags/r/</guid>
+      <guid>/dspg20oss/tags/r/</guid>
       <description></description>
     </item>
     
     <item>
       <title>text analysis/regex</title>
-      <link>/tags/text-analysis/regex/</link>
+      <link>/dspg20oss/tags/text-analysis/regex/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>/tags/text-analysis/regex/</guid>
+      <guid>/dspg20oss/tags/text-analysis/regex/</guid>
       <description></description>
     </item>
     

@@ -2,48 +2,48 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Findings on UVA Biocomplexity Institute</title>
-    <link>/findings/</link>
+    <link>/dspg20oss/findings/</link>
     <description>Recent content in Findings on UVA Biocomplexity Institute</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     
-	<atom:link href="/findings/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="/dspg20oss/findings/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>Sectoring Open Source Software</title>
-      <link>/findings/sectoring-oss/</link>
+      <link>/dspg20oss/findings/sectoring-oss/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>/findings/sectoring-oss/</guid>
+      <guid>/dspg20oss/findings/sectoring-oss/</guid>
       <description>/* this chunk of code centers all of the headings */ h1, h2, h3, h4, h5 { text-align: center; }  
   Sectoring Open Source Software: Where Do GitHub Contributions Come From? Crystal Zang, Morgan Klutzke, Daniel Bullock, Brandon Kramer, Gizem Korkmaz, and José Bayoán Santiago Calderón Sponsors: Carol Robbins (NCSES) and Ledia Guci (NCSES)</description>
     </item>
     
     <item>
       <title>Classifing Users Across Sectors &amp; OSS in the Business Sector</title>
-      <link>/findings/business/</link>
+      <link>/dspg20oss/findings/business/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>/findings/business/</guid>
+      <guid>/dspg20oss/findings/business/</guid>
       <description>/* this chunk of code centers all of the headings */ h1, h2, h3, h4 { text-align: center; }  General Approach To assign users into the business sector, we took an exclusionary approach that depends on the other four sectors. First, we worked to standardize the affiliation column by removing (1) all website domain information using manually curated terms originally based on DataHub&#39;s Domain Entries, (2) all legal entity nomenclature based on manually curated version of Gleif&#39;s legal entity abbreviations, and (3) a list of commonly occurring arbitrary symbols.</description>
     </item>
     
     <item>
       <title>OSS in the Academic Sector</title>
-      <link>/findings/academic/</link>
+      <link>/dspg20oss/findings/academic/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>/findings/academic/</guid>
+      <guid>/dspg20oss/findings/academic/</guid>
       <description>/* this chunk of code centers all of the headings */ h1, h2, h3 { text-align: center; }  Approach One of the main goals of our summer project is to understand who is producting open-source software (OSS) and important characteristics about them, including which sectors they are embedded within. To classify contributors into the academic sector, we matched GitHub users&#39; email and self-reported affiliation columns to information about universities and colleges from around the world using the Hipo Labs&#39; university domain list - a dataset that has names, countries, and domain names for nearly 9,800 universities across the world.</description>
     </item>
     
     <item>
       <title>Geographical Analyses of GitHub Users</title>
-      <link>/findings/geographic/</link>
+      <link>/dspg20oss/findings/geographic/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
-      <guid>/findings/geographic/</guid>
+      <guid>/dspg20oss/findings/geographic/</guid>
       <description>/* this chunk of code centers all of the headings */ h1, h2, h3 { text-align: center; }  Approach To analyze GitHub users by different geographical units, we used regular expressions to recode all self-reported location data available in the GHTorrrent data, finding ~770,000 users with valid country codes. In addition to this self-reported location data, GHTorrent also provides latitude and longitude information for GitHub users (assigned using the Open Street Maps API).</description>
     </item>
     
