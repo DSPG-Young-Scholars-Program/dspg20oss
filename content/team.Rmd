@@ -26,9 +26,9 @@ h1, h2, h3 {
 ### UVA SDAD Team Members 
 
 <center>
-![](/gizem.jpg) ![](/brandon.jpg) ![](/bayoan.jpg)
+![](/dspg20oss/gizem.jpg) ![](/dspg20oss/brandon.jpg) ![](/dspg20oss/bayoan.jpg)
 
-![](/aaron.jpg) ![](/sallie.jpg) 
+![](/dspg20oss/aaron.jpg) ![](/dspg20oss/sallie.jpg) 
 </center>
 
 ##### [Gizem Korkmaz](https://biocomplexity.virginia.edu/gizem-korkmaz) (Research Associate Professor), [Brandon Kramer](https://biocomplexity.virginia.edu/brandon-kramer) (Postdoctoral Research Associate), [José Bayoán Santiago Calderón](https://biocomplexity.virginia.edu/j-bayoan-santiago-calderon) (Postdoctoral Research Associate), [Aaron Schroeder](https://biocomplexity.virginia.edu/aaron-schroeder) (Research Associate Professor), and [Sallie Keller](https://biocomplexity.virginia.edu/sallie-keller) (Division Director and Distinguished Professor) {style=text-align:center}
@@ -36,7 +36,7 @@ h1, h2, h3 {
 ### Project Sponsors/Stakeholders 
 
 <center>
-![](/dspg20oss/carol.png) ![](/dspg20oss.ncses.png) ![](/dspg20oss/ledia.png)
+![](/dspg20oss/carol.png) ![](/dspg20oss/ncses.png) ![](/dspg20oss/ledia.png)
 </center>
 
 ##### [Carol Robbins](https://www.nsf.gov/staff/staff_bio.jsp?lan=crobbins&from_org=) (NCSES, Senior Analyst) and [Ledia Guci](https://www.nsf.gov/staff/staff_bio.jsp?lan=lguci&from_org=) (NCSES, Science Resource Analyst) {style=text-align:center}
