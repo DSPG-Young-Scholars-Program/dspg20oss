@@ -331,7 +331,7 @@ Moreover, having the highest betweenness centrality, San Francisco and London ha
 </center>
 
 <center>
-![](/findings/geographic_files/14_legend.png){width=100%}
+![](/dspg20oss/findings/geographic_files/14_legend.png){width=100%}
 
 </center>
 
@@ -355,7 +355,7 @@ Meanwhile, we use color gradient of the node to indicate the betweenness central
 </center>
 
 <center>
-![](/findings/geographic_files/13_2_majorcities.png){width=100%}
+![](/dspg20oss/findings/geographic_files/13_2_majorcities.png){width=100%}
 </center>
 
 <br>
