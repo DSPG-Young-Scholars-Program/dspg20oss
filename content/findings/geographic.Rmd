@@ -32,11 +32,13 @@ for (pkg in c("tidyverse", "data.table", "R.utils", "RPostgreSQL", "cowplot", "m
 
 
 # connect to postgresql to get our data
-conn <- dbConnect(drv = PostgreSQL(), 
-                  dbname = "sdad", 
-                  host = "10.250.124.195", 
-                  port = 5432, 
-                  user = Sys.getenv("db_userid"), 
+conn <- dbConnect(drv = PostgreSQL(),
+                  dbname = "sdad",
+                  host = "localhost",
+                  port = 5434,
+                  #host = "10.250.124.195",
+                  #port = 5432,
+                  user = Sys.getenv("db_userid"),
                   password = Sys.getenv("db_pwd"))
 
 # query the city code data

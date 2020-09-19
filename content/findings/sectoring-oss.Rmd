@@ -19,7 +19,7 @@ h1, h2, h3, h4, h5 {
 <br>
 
 <center>
-![](/findings/sectoring-oss_files/dspg-small.jpg)
+![](/dspg20oss/findings/sectoring-oss_files/dspg-small.jpg)
 </center>
 
 ## Sectoring Open Source Software: <br> Where Do GitHub Contributions Come From?
@@ -40,7 +40,7 @@ h1, h2, h3, h4, h5 {
 ## Why Study Open Source Software? 
 
 <center>
-![](/findings/sectoring-oss_files/oss.png)
+![](/dspg20oss/findings/sectoring-oss_files/oss.png)
 </center>
 
 #### OSS is any software that is developed by a copyright holder, <br/> but shared with a broader public to share with anyone and for any purpose
@@ -216,9 +216,9 @@ collapsibleTree(OSS,
 ## Methods
 
 <center>
-![](/findings/sectoring-oss_files/microsoft-example.png)
+![](/dspg20oss/findings/sectoring-oss_files/microsoft-example.png)
 
-![](/findings/sectoring-oss_files/ucsd-example.png)
+![](/dspg20oss/findings/sectoring-oss_files/ucsd-example.png)
 
 </center>
 
@@ -243,39 +243,43 @@ collapsibleTree(OSS,
 for (pkg in c("tidyverse", "igraph", "visNetwork", "data.table", "R.utils", "DT",
               "RPostgreSQL", "cowplot", "maditr", "stringr", "stringi", "gridExtra")) {library(pkg, character.only = TRUE)}
 
-# connect to postgresql to get our data
-conn <- dbConnect(drv = PostgreSQL(), 
-                  dbname = "sdad", 
-                  host = "10.250.124.195", 
-                  port = 5432, 
-                  user = Sys.getenv("db_userid"), 
-                  password = Sys.getenv("db_pwd"))
+# # connect to postgresql to get our data
+# conn <- dbConnect(drv = PostgreSQL(), 
+#                   dbname = "sdad", 
+#                   host = "localhost",
+#                   port = 5434,
+#                   #host = "10.250.124.195", 
+#                   #port = 5432, 
+#                   user = Sys.getenv("db_userid"), 
+#                   password = Sys.getenv("db_pwd"))
+# 
+# # query the users_gh data from github data 
+# github_users <- dbGetQuery(conn, "SELECT login, email, company FROM gh.ctrs_extra;")
+# 
+# academic <- dbGetQuery(conn, "SELECT login, company_cleaned, is_academic FROM gh.sna_ctr_academic;")
+# government <- dbGetQuery(conn, "SELECT login, is_gov FROM gh.sna_ctr_gov;")
+# nonprofit <- dbGetQuery(conn, "SELECT login, is_nonprofit FROM gh.sna_ctr_nonprofits;")
+# 
+# # disconnect from postgresql database 
+# dbDisconnect(conn)
+# 
+# # joining the datasets 
+# combined_user_data <- github_users %>% 
+#   full_join(academic, by = "login") %>% 
+#   mutate(is_academic = replace_na(is_academic, 0))
+# 
+# combined_user_data <- combined_user_data %>% 
+#   full_join(government, by = "login") %>% 
+#   mutate(is_gov = replace_na(is_gov, 0))
+# 
+# combined_user_data <- combined_user_data %>% 
+#   full_join(nonprofit, by = "login") %>% 
+#   mutate(is_nonprofit = replace_na(is_nonprofit, 0))
 
-# query the users_gh data from github data 
-github_users <- dbGetQuery(conn, "SELECT login, email, company FROM gh.ctrs_extra;")
-
-academic <- dbGetQuery(conn, "SELECT login, company_cleaned, is_academic FROM gh.sna_ctr_academic;")
-government <- dbGetQuery(conn, "SELECT login, is_gov FROM gh.sna_ctr_gov;")
-nonprofit <- dbGetQuery(conn, "SELECT login, is_nonprofit FROM gh.sna_ctr_nonprofits;")
-
-# disconnect from postgresql database 
-dbDisconnect(conn)
-
-# joining the datasets 
-combined_user_data <- github_users %>% 
-  full_join(academic, by = "login") %>% 
-  mutate(is_academic = replace_na(is_academic, 0))
-
-combined_user_data <- combined_user_data %>% 
-  full_join(government, by = "login") %>% 
-  mutate(is_gov = replace_na(is_gov, 0))
-
-combined_user_data <- combined_user_data %>% 
-  full_join(nonprofit, by = "login") %>% 
-  mutate(is_nonprofit = replace_na(is_nonprofit, 0))
+combined_user_data <- readRDS(paste0(here::here(), "/data/combined_user_data.RDS"))
 
 # household 
-household <- read.csv("/sfs/qumulo/qhome/kb7hp/git/dspg20oss/ossPy/keyFiles/individualKeys.csv", header=FALSE)
+household <- read.csv(paste0(here::here(), "/ossPy/keyFiles/individualKeys.csv"), header=FALSE)
 household <- household %>% 
   rename(strings = V1) %>% 
   mutate(strings = as.character(strings))
@@ -290,7 +294,7 @@ combined_user_data <- combined_user_data %>%
   mutate(is_household = replace_na(is_household, 0))
 
 # null values 
-null_values <- read.csv("/sfs/qumulo/qhome/kb7hp/git/dspg20oss/ossPy/keyFiles/nullKeys.csv", header=FALSE)
+null_values <- read.csv(paste0(here::here(), "/ossPy/keyFiles/nullKeys.csv"), header=FALSE)
 null_values <- null_values %>% 
   rename(strings = V1) %>% 
   mutate(strings = as.character(strings))
@@ -304,14 +308,14 @@ combined_user_data <- combined_user_data %>%
   mutate(is_nullvalue = replace_na(is_nullvalue, 0)); combined_user_data
 
 # implementing daniel's approaches 
-legal_entities <- read.csv("/sfs/qumulo/qhome/kb7hp/git/dspg20oss/ossPy/keyFiles/curatedLegalEntitesRaw.csv", header=FALSE)
+legal_entities <- read.csv(paste0(here::here(), "/ossPy/keyFiles/curatedLegalEntitesRaw.csv"), header=FALSE)
 legal_entities <- legal_entities %>% 
   rename(strings = V1) %>% 
   mutate(strings = as.character(strings))
 legal_entities$strings <- substring(legal_entities$strings, 2)
 legal_entities$strings <- substr(legal_entities$strings,1, nchar(legal_entities$strings)-1)
 
-symbol_strings <- read.csv("/sfs/qumulo/qhome/kb7hp/git/dspg20oss/ossPy/keyFiles/symbolRemove.csv", header=FALSE)
+symbol_strings <- read.csv(paste0(here::here(), "/ossPy/keyFiles/symbolRemove.csv"), header=FALSE)
 symbol_strings <- symbol_strings %>% 
   rename(strings = V1) %>% 
   mutate(strings = as.character(strings))
@@ -319,7 +323,7 @@ symbol_strings$strings <- substring(symbol_strings$strings, 2)
 symbol_strings$strings <- substr(symbol_strings$strings,1, nchar(symbol_strings$strings)-1)
 symbol_strings <- symbol_strings %>% slice(-17:-20)
 
-curated_domains <- read.csv("/sfs/qumulo/qhome/kb7hp/git/dspg20oss/ossPy/keyFiles/curatedDomains.csv", header=FALSE)
+curated_domains <- read.csv(paste0(here::here(), "/ossPy/keyFiles/curatedDomains.csv"), header=FALSE)
 curated_domains <- curated_domains %>% 
   rename(strings = V1) %>% 
   mutate(strings = as.character(strings))
@@ -444,7 +448,7 @@ ggplot(data=final_counts, aes(x=sector, y=total)) +
 ## Business Sector
 
 <center>
-![](/findings/sectoring-oss_files/wordcloud.svg){width=80%}
+![](/dspg20oss/findings/sectoring-oss_files/wordcloud.svg){width=80%}
 </center>
 
 ```{r, echo=FALSE, fig.height = 8, fig.width=12}
@@ -517,11 +521,13 @@ for (pkg in c("data.table", "R.utils", "DT",
               "RPostgreSQL", "cowplot", "maditr", "stringr", "stringi", "gridExtra", "ggplot2")) {library(pkg, character.only = TRUE)}
 
 # connect to postgresql to get our data
-conn <- dbConnect(drv = PostgreSQL(), 
-                  dbname = "sdad", 
-                  host = "10.250.124.195", 
-                  port = 5432, 
-                  user = Sys.getenv("db_userid"), 
+conn <- dbConnect(drv = PostgreSQL(),
+                  dbname = "sdad",
+                  host = "localhost",
+                  port = 5434,
+                  #host = "10.250.124.195",
+                  #port = 5432,
+                  user = Sys.getenv("db_userid"),
                   password = Sys.getenv("db_pwd"))
 
 # query the users_gh data from github data 
@@ -1224,11 +1230,13 @@ ggplot(top_us_universities, aes(color = Type)) +
 for (pkg in c("tidyverse", "RPostgreSQL",   "dplyr", "leaflet", "leaflet.extras", "tools", "statebins")) {library(pkg, character.only = TRUE)}
 
 # connect to postgresql to get our data
-conn <- dbConnect(drv = PostgreSQL(), 
-                  dbname = "sdad", 
-                  host = "10.250.124.195", 
-                  port = 5432, 
-                  user = Sys.getenv("db_userid"), 
+conn <- dbConnect(drv = PostgreSQL(),
+                  dbname = "sdad",
+                  host = "localhost",
+                  port = 5434,
+                  #host = "10.250.124.195",
+                  #port = 5432,
+                  user = Sys.getenv("db_userid"),
                   password = Sys.getenv("db_pwd"))
 
 # query the city code data
@@ -1501,7 +1509,7 @@ city_clean_final_aggregate%>%
 
 
 <center>
-![](/findings/sectoring-oss_files/14_all_cities_by_continent_degree.png){width=70%}
+![](/dspg20oss/findings/sectoring-oss_files/14_all_cities_by_continent_degree.png){width=70%}
 </center>
 
 <center>
@@ -1509,7 +1517,7 @@ city_clean_final_aggregate%>%
 </center>
 
 <center>
-![](/findings/geographic_files/14_legend.png){width=95%}
+![](/dspg20oss/findings/geographic_files/14_legend.png){width=95%}
 
 
 <br>

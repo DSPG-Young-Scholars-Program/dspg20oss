@@ -16,7 +16,7 @@
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>/dspg20oss/findings/business/</guid>
-      <description>/* this chunk of code centers all of the headings */ h1, h2, h3, h4 { text-align: center; }  General Approach To assign users into the business sector, we took an exclusionary approach that depends on the other four sectors. First, we worked to standardize the affiliation column by removing (1) all website domain information using manually curated terms originally based on DataHub&#39;s Domain Entries, (2) all legal entity nomenclature based on manually curated version of Gleif&#39;s legal entity abbreviations, and (3) a list of commonly occurring arbitrary symbols.</description>
+      <description>/* this chunk of code centers all of the headings */ h1, h2, h3, h4 { text-align: center; }  General Approach To assign users into the business sector, we took an exclusionary approach that depends on the other four sectors. First, we worked to standardize the affiliation column by removing (1) all website domain information using manually curated terms originally based on DataHub’s Domain Entries, (2) all legal entity nomenclature based on manually curated version of Gleif’s legal entity abbreviations, and (3) a list of commonly occurring arbitrary symbols.</description>
     </item>
     
     <item>
